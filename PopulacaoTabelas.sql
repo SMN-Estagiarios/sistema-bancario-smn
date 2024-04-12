@@ -18,7 +18,7 @@ INSERT INTO Tarifas(Nome, Valor) VALUES
 ('TMC', 25);
 
 -- INSERT DE TARIFAS COM TAXA 
-INSERT INTO Tarifas(Nome, Valor) VALUES 
+INSERT INTO Tarifas(Nome, Taxa) VALUES 
 ('TSN', 0.00334);
 GO
 
