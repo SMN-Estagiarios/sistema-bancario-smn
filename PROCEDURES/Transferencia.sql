@@ -6,9 +6,9 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 	@Nom_referencia VARCHAR(200)
 	AS
 	/*
-			Documentação
+			Documentaï¿½ï¿½o
 			Arquivo Fonte.....: Transfencia.sql
-			Objetivo..........: Instancia uma nova trasnferência entre contas
+			Objetivo..........: Instancia uma nova trasnferï¿½ncia entre contas
 			Autor.............: Adriel Alexsander 
  			Data..............: 02/04/2024
 			ObjetivoAlt.......: N/A
@@ -32,7 +32,7 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 								 EXEC [SP_RealizarNovaTransferenciaBancaria] 1,15, 16,  300, 'EXEMPLO' 
 
 									SELECT @RET AS RETORNO,
-										   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUÇÃO
+										   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUï¿½ï¿½O
 									SELECT  Id,
 											Id_Usuario,
 											Vlr_SldInicial, 
@@ -45,8 +45,8 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 							-- RETORNO --
 							
 							00.................: Sucesso
-							01.................: Conta não existe
-							02.................: Conta possui Lançamentos   
+							01.................: Conta nï¿½o existe
+							02.................: Conta possui Lanï¿½amentos   
 	*/
 	BEGIN
 		--Verifica se as contas Existem
@@ -54,22 +54,22 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 								FROM [dbo].[Contas]
 								WHERE Id  = @Id_ContaCre)
 			BEGIN
-				PRINT 'conta credito não existem'
+				PRINT 'conta credito nï¿½o existem'
 				RETURN 1
 			END
 		IF NOT EXISTS (SELECT TOP 1 1
 								FROM [dbo].[Contas]
 								WHERE 	Id = @Id_ContaDeb)
 			BEGIN
-				PRINT 'conta credito não existem'
+				PRINT 'conta credito nï¿½o existem'
 				RETURN 1
 			END
-		--Verifica se o valor da transferência é inferior ao valor de saldo
+		--Verifica se o valor da transferï¿½ncia ï¿½ inferior ao valor de saldo
 		IF(@Vlr_Tranferencia > (SELECT [dbo].[Func_CalculaSaldoAtual](@Id_ContaDeb, Vlr_SldInicial, Vlr_Credito,Vlr_Debito)
 										FROM Contas 
 										WHERE Id = @Id_ContaDeb )) 
 			BEGIN
-				PRINT 'Saldo insuficiênte para realização da Transferência'
+				PRINT 'Saldo insuficiï¿½nte para realizaï¿½ï¿½o da Transferï¿½ncia'
 				RETURN 2
 			END
 		-- Verifica o usuario da conta
@@ -77,19 +77,66 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 							FROM [dbo].[Usuarios] 
 							WHERE Id = @Id_Usuario)
 			BEGIN
-				PRINT 'USUARIO NÃO ENCONTRADO'
+				PRINT 'USUARIO Nï¿½O ENCONTRADO'
 				RETURN 3
 			END
-			--validação de uma trasnferência entre contas feitas para uma mesma conta 
+			--validaï¿½ï¿½o de uma trasnferï¿½ncia entre contas feitas para uma mesma conta 
 		IF(@Id_ContaDeb = @Id_ContaCre)
 			BEGIN 
-				PRINT 'Impossível transferir para a mesma conta'
+				PRINT 'Impossï¿½vel transferir para a mesma conta'
 				RETURN 4
 			END
-		--Gerar Inserts em transferência
+		--Gerar Inserts em transferï¿½ncia
 	    ELSE
 			BEGIN
 				INSERT INTO Trasferencia VALUES( @Id_Usuario, @Id_ContaCre, @Id_ContaDeb, @Vlr_Tranferencia, @Nom_referencia, GETDATE())
 			END
 		RETURN 0
+	END
+CREATE OR ALTER PROC [dbo].[SP_RealizarEstornoTransferencia]
+	@Id_Transferencia INT
+
+	AS
+
+	--DOCUMENTAï¿½ï¿½O
+
+	BEGIN
+			IF Id_Transferencia IS NOT NULL
+
+				BEGIN
+					IF NOT EXISTS (SELECT TOP 1 1
+						FROM [dbo].[Transferencia] WITH (NOLOCK)
+						WHERE Id = Id_Transferencia)
+						BEGIN
+							RETURN 1
+						END
+
+					DELETE Transferencias
+						WHERE Id = @Id_Transferencia
+						RETURN 0
+				END
+			ELSE
+				BEGIN
+					RETURN 2
+				END
+	END
+
+CREATE OR ALTER PROC [dbo].[SP_ListarExtratoTransferencia]
+	@Id_Conta INT
+
+	AS
+	-- documentaï¿½ï¿½o
+
+	BEGIN
+		SELECT
+			Id_Cta AS Id_Conta,
+			Dat_Lancamento AS Data_Transferï¿½ncia,
+			Vlr_Lanc AS Vlr_Transferï¿½ncia,
+			Nom_Historico AS DescriÃ§Ã£o
+				FROM [dbo].[Lancamentos] WITH (NOLOCK)
+				WHERE Id_Cta IS NULL (@IdConta, Id_Cta)
+				AND Id_Tarifa = (SELECT 
+									ID
+									FROM Tarifa
+									WHERE Nome = 'TEC')
 	END

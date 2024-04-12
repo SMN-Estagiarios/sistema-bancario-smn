@@ -43,7 +43,7 @@ CREATE TABLE Lancamentos(
 	CONSTRAINT FK_Tarifa_Lancamentos FOREIGN KEY (Id_Tarifa) references Tarifas(Id)
 );
 
-CREATE TABLE Trasferencia(
+CREATE TABLE Trasferencias(
 	Id INT PRIMARY KEY IDENTITY, 
 	Id_Usuario INT NOT NULL,
 	Id_CtaCre INT NOT NULL, 
