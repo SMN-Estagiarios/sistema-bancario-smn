@@ -2,14 +2,14 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 	@Id_Usuario INT,
 	@Id_ContaDeb INT,
 	@Id_ContaCre INT,
-	@Vlr_Tranferencia DECIMAL(15,2),
+	@Vlr_Transferencia DECIMAL(15,2),
 	@Nom_referencia VARCHAR(200)
 	AS
-	/*
-			Documenta��o
-			Arquivo Fonte.....: Transfencia.sql
+	/* 
+			Documentação
+			Arquivo Fonte.....: Transferencia.sql
 			Objetivo..........: Instancia uma nova trasnfer�ncia entre contas
-			Autor.............: Adriel Alexsander 
+			Autor.............: Adriel Alexsander, Thays Carvalho, Isabella Tragante
  			Data..............: 02/04/2024
 			ObjetivoAlt.......: N/A
 			AutorAlt..........: N/A
@@ -22,31 +22,36 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 								@Dat_init DATETIME = GETDATE()
 
 									SELECT  Id,
-											Id_Usuario,
 											Vlr_SldInicial, 
 											Vlr_Credito,
 											Vlr_debito,
 											Dat_Saldo
 									FROM [dbo].[Contas]
 
-								 EXEC [SP_RealizarNovaTransferenciaBancaria] 1,15, 16,  300, 'EXEMPLO' 
+									SELECT * from Lancamentos
+
+								 EXEC @RET = [SP_RealizarNovaTransferenciaBancaria] 1,1, 2,  50, 'Transfe pagamento aluguel' 
 
 									SELECT @RET AS RETORNO,
-										   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECU��O
+										   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUcaO
 									SELECT  Id,
-											Id_Usuario,
 											Vlr_SldInicial, 
 											Vlr_Credito,
 											Vlr_debito,
 											Dat_Saldo
 									FROM [dbo].[Contas]
+
+										SELECT * from Lancamentos
+									
 						   ROLLBACK TRAN
 
 							-- RETORNO --
 							
 							00.................: Sucesso
-							01.................: Conta n�o existe
-							02.................: Conta possui Lan�amentos   
+							01.................: Conta não existe
+							02.................: Valor de saldo insuficiente 
+							03.................: Usuario não existe
+							04.................: impossivel fazer transferência para a mesma conta destino e origem
 	*/
 	BEGIN
 		--Verifica se as contas Existem
@@ -54,22 +59,19 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 								FROM [dbo].[Contas]
 								WHERE Id  = @Id_ContaCre)
 			BEGIN
-				PRINT 'conta credito n�o existem'
 				RETURN 1
 			END
 		IF NOT EXISTS (SELECT TOP 1 1
 								FROM [dbo].[Contas]
 								WHERE 	Id = @Id_ContaDeb)
 			BEGIN
-				PRINT 'conta credito n�o existem'
 				RETURN 1
 			END
-		--Verifica se o valor da transfer�ncia � inferior ao valor de saldo
-		IF(@Vlr_Tranferencia > (SELECT [dbo].[Func_CalculaSaldoAtual](@Id_ContaDeb, Vlr_SldInicial, Vlr_Credito,Vlr_Debito)
+		--Verifica se o valor da transferencia é inferior ao valor de saldo
+		IF(@Vlr_Transferencia > (SELECT [dbo].[Func_CalculaSaldoAtual](@Id_ContaDeb, Vlr_SldInicial, Vlr_Credito,Vlr_Debito)
 										FROM Contas 
 										WHERE Id = @Id_ContaDeb )) 
 			BEGIN
-				PRINT 'Saldo insufici�nte para realiza��o da Transfer�ncia'
 				RETURN 2
 			END
 		-- Verifica o usuario da conta
@@ -77,41 +79,78 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 							FROM [dbo].[Usuarios] 
 							WHERE Id = @Id_Usuario)
 			BEGIN
-				PRINT 'USUARIO N�O ENCONTRADO'
 				RETURN 3
 			END
-			--valida��o de uma trasnfer�ncia entre contas feitas para uma mesma conta 
+			--validacao de uma transferencia entre contas feitas para uma mesma conta 
 		IF(@Id_ContaDeb = @Id_ContaCre)
 			BEGIN 
-				PRINT 'Imposs�vel transferir para a mesma conta'
 				RETURN 4
 			END
-		--Gerar Inserts em transfer�ncia
+		--Gerar Inserts em transferência
 	    ELSE
 			BEGIN
-				INSERT INTO Trasferencia VALUES( @Id_Usuario, @Id_ContaCre, @Id_ContaDeb, @Vlr_Tranferencia, @Nom_referencia, GETDATE())
+				INSERT INTO Transferencias VALUES( @Id_Usuario, @Id_ContaCre, @Id_ContaDeb, @Vlr_Tranferencia, @Nom_referencia, GETDATE())
 			END
 		RETURN 0
 	END
+GO
 CREATE OR ALTER PROC [dbo].[SP_RealizarEstornoTransferencia]
 	@Id_Transferencia INT
 
 	AS
 
-	--DOCUMENTA��O
+	/*
+			Documentação
+			Arquivo Fonte.....: Transferencia.sql
+			Objetivo..........: Realiza lancamentos uma nova transferência entre contas
+			Autores...........: Adriel Alexsander, Thays Carvalho, Isabella Tragante
+ 			Data..............: 12/04/2024
+			ObjetivoAlt.......: N/A
+			AutorAlt..........: N/A
+			DataAlt...........: N/A
+			EX.................:BEGIN TRAN
+								DBCC DROPCLEANBUFFERS;
+								DBCC FREEPROCCACHE;
 
+								DECLARE @RET INT, 
+								@Dat_init DATETIME = GETDATE()
+
+									SELECT  Id,
+											Vlr_SldInicial, 
+											Vlr_Credito,
+											Vlr_debito,
+											Dat_Saldo
+									FROM [dbo].[Contas]
+
+									SELECT * from Lancamentos
+
+								  EXEC @RET = [dbo].[SP_RealizarEstornoTransferencia]12
+
+									SELECT @RET AS RETORNO,
+										   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUcaO
+									SELECT  Id,
+											Vlr_SldInicial, 
+											Vlr_Credito,
+											Vlr_debito,
+											Dat_Saldo
+									FROM [dbo].[Contas]
+									SELECT * from Lancamentos
+								ROLLBACK TRAN
+	*/
 	BEGIN
-			IF Id_Transferencia IS NOT NULL
+			--varificação de Id da transferência passada como parâmetro
+			IF @Id_Transferencia IS NOT NULL
 
 				BEGIN
+					--validação para saber se o numero de id passada existe na tabela trasferencia
 					IF NOT EXISTS (SELECT TOP 1 1
-						FROM [dbo].[Transferencia] WITH (NOLOCK)
-						WHERE Id = Id_Transferencia)
+										FROM [dbo].[Transferencias] WITH (NOLOCK)
+										WHERE Id = @Id_Transferencia)
 						BEGIN
 							RETURN 1
 						END
-
-					DELETE Transferencias
+					--efetuando a deleção de registro de transferência para disparo do trigger
+					DELETE Transferencia
 						WHERE Id = @Id_Transferencia
 						RETURN 0
 				END
@@ -120,23 +159,41 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarEstornoTransferencia]
 					RETURN 2
 				END
 	END
+GO
 
 CREATE OR ALTER PROC [dbo].[SP_ListarExtratoTransferencia]
-	@Id_Conta INT
+	@Id_Conta INT = null
 
 	AS
-	-- documenta��o
+	/*
+			Documentação
+			Arquivo Fonte.....: Transferencia.sql
+			Objetivo..........: Listar o extrato de transferência entre contas
+			Autor.............: Adriel Alexsander 
+ 			Data..............: 02/04/2024
+			ObjetivoAlt.......: N/A
+			AutorAlt..........: N/A
+			DataAlt...........: N/A
+			Ex................:  DECLARE @RET INT, 
+						         @Dat_init DATETIME = GETDATE()
+
+								 EXEC @RET = [dbo].[SP_ListarExtratoTransferencia]
+								 
+								 SELECT @RET AS RETORNO,
+										DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUÇÃO 	
+	*/
 
 	BEGIN
 		SELECT
 			Id_Cta AS Id_Conta,
-			Dat_Lancamento AS Data_Transfer�ncia,
-			Vlr_Lanc AS Vlr_Transfer�ncia,
+			Dat_Lancamento AS Data_Transferencia,
+			Vlr_Lanc AS Vlr_Transferencia,
 			Nom_Historico AS Descrição
 				FROM [dbo].[Lancamentos] WITH (NOLOCK)
-				WHERE Id_Cta IS NULL (@IdConta, Id_Cta)
+				WHERE Id_Cta = ISNULL(@Id_Conta, Id_Cta)
 				AND Id_Tarifa = (SELECT 
 									ID
-									FROM Tarifa
+									FROM Tarifas
 									WHERE Nome = 'TEC')
 	END
+GO

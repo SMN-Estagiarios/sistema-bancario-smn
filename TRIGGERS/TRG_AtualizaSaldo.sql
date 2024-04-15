@@ -3,7 +3,7 @@ ON [dbo].[Lancamentos]
 FOR INSERT, DELETE, UPDATE
 	AS
 	/*
-	DOCUMENTAÇ
+	DOCUMENTAÇÃO
 	Arquivo Fonte........:	TRG_AtualizaSaldo.sql
 	Objetivo.............:	Atualizar Saldo da tabela [dbo].[Contas]
 	Autor................:	Adriel Alexander

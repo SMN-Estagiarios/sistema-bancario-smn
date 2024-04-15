@@ -43,12 +43,12 @@ CREATE TABLE Lancamentos(
 	CONSTRAINT FK_Tarifa_Lancamentos FOREIGN KEY (Id_Tarifa) references Tarifas(Id)
 );
 
-CREATE TABLE Trasferencias(
+CREATE TABLE Transferencias(
 	Id INT PRIMARY KEY IDENTITY, 
 	Id_Usuario INT NOT NULL,
 	Id_CtaCre INT NOT NULL, 
 	Id_CtaDeb INT NOT NULL, 
-	Vlr_TRans DECIMAL (15,2) NOT NULL,
+	Vlr_Trans DECIMAL (15,2) NOT NULL,
 	Nom_Referencia VARCHAR (200) NOT NULL,
 	Dat_Trans DATETIME NOT NULL,
 	CONSTRAINT FK_Conta_Credito FOREIGN KEY (Id_CtaCre) REFERENCES Contas(Id),

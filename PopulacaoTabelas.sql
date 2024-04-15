@@ -22,6 +22,7 @@ INSERT INTO Tarifas(Nome, Taxa) VALUES
 ('TSN', 0.00334);
 GO
 
---INSERÇÃO DO ADMIN
+--INSERï¿½ï¿½O DO ADMIN
 INSERT INTO Usuarios VALUES('ADM')
+GO
 
