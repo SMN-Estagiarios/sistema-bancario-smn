@@ -3,17 +3,25 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_InserirTaxaSalgoNegativo]
 	AFTER UPDATE
 	AS
 	 /*
-		Documentação
+		Documentaï¿½ï¿½o
 		Arquivo Fonte.....:  TRG_InserirTaxaSalgoNegativo.sql
-		Objetivo.............: Verificar diariamente quais contas estão negativas e aplicar a taxa de saldo negativo para a conta que estiver
+		Objetivo.............: Verificar diariamente quais contas estï¿½o negativas e aplicar a taxa de saldo negativo para a conta que estiver
 		Autor.................: Orcino Neto, Odlavir Florentino e Pedro Avelino
 		Data..................: 12/04/2024
 		Ex.....................:		 BEGIN TRAN
+											DBCC DROPCLEANBUFFERS
+											DBCC FREEPROCCACHE
+											DBCC FREESYSTEMCACHE ('ALL')
+
+											DECLARE @DATA_INI DATETIME = GETDATE();
+
 											UPDATE [DBO].[Contas]
 												SET Vlr_SldInicial = '-10000'
-												WHERE Id = 6
+												WHERE Id = 6666
 
 											SELECT * FROM Lancamentos WHERE Id_Tarifa = 7
+
+											SELECT DATEDIFF(DAY, @DATA_INI, GETDATE())
 										ROLLBACK TRAN
 	 */
 
@@ -28,13 +36,13 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_InserirTaxaSalgoNegativo]
 
 		SET @Taxa = (SELECT Taxa FROM [DBO].Tarifas WITH(NOLOCK) WHERE Id = 7);
 			
-			-- Verificando se o que está acontecendo é um update
+			-- Verificando se o que estï¿½ acontecendo ï¿½ um update
 			IF @Id_CtaDE IS NOT NULL AND @Id_CtaIN IS NOT NULL
 				BEGIN
-					-- Caso o Saldo inicial daquele registro que está sendo atualizado seja < 0, deverá ser lançado uma taxa de juros por dia naquele registro
+					-- Caso o Saldo inicial daquele registro que estï¿½ sendo atualizado seja < 0, deverï¿½ ser lanï¿½ado uma taxa de juros por dia naquele registro
 					IF @ValorSaldoInicial < 0
 						BEGIN
-							-- Inserir um lançamento para todas as contas com saldo inicial negativo
+							-- Inserir um lanï¿½amento para todas as contas com saldo inicial negativo
 							INSERT Lancamentos (Id_Cta, Id_Usuario, Id_Tarifa, Tipo_Lanc, Vlr_Lanc, Nom_Historico, Dat_Lancamento) VALUES
 							(@Id_CtaIN, 1, 7, 'D', (@Taxa * @ValorSaldoInicial * (-1)), 'Taxa de saldo negativo', GETDATE())
 						END
