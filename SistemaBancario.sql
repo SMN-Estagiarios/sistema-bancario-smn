@@ -56,3 +56,23 @@ CREATE TABLE Transferencias(
 	CONSTRAINT FK_UsuarioTransferencia  FOREIGN KEY (Id_Usuario ) REFERENCES Usuarios(Id)
 
 ); 
+
+
+ALTER TABLE Contas ADD IdCreditScore TINYINT;
+
+
+CREATE TABLE CreditScore (
+	Id TINYINT IDENTITY,
+	Nome VARCHAR(50) NOT NULL,
+	Faixa DECIMAL(15,2) NOT NULL
+	CONSTRAINT Id_CreditScore PRIMARY KEY(Id)
+);
+
+ALTER TABLE Contas ADD CONSTRAINT FK_IdCreditScoreContas FOREIGN KEY(IdCreditScore) REFERENCES CreditScore(Id);
+
+INSERT INTO CreditScore VALUES('Péssimo', 200),
+							  ('Ruim', 400),
+							  ('Mediano', 600),
+							  ('Bom', 800),
+							  ('Ótimo', 1200);
+
