@@ -16,7 +16,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarSaldoAtual]
 			Ex................:  DECLARE @RET INT, 
 						         @Dat_init DATETIME = GETDATE()
 
-								 EXEC @RET = [dbo].[SP_ListarSaldoAtual
+								 EXEC @RET = [dbo].[SP_ListarSaldoAtual]
 								 
 								 SELECT @RET AS RETORNO,
 										DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUÇÃO 	
@@ -50,7 +50,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirConta]
 									DECLARE @RET INT, 
 									@Dat_init DATETIME = GETDATE()
 									SELECT  Id,
-											Id_Usuario,
 											Vlr_SldInicial,
 											Vlr_Credito,
 											Vlr_Debito,
@@ -62,7 +61,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirConta]
 										   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUÇÃO 	
 
 									SELECT  Id,
-											Id_Usuario,
 											Vlr_SldInicial,
 											Vlr_Credito,
 											Vlr_Debito,
@@ -80,7 +78,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirConta]
 								FROM [dbo].[Contas] C WITH(NOLOCK)
 								WHERE C.Id = @Id_Conta)
 				BEGIN 
-					PRINT 'Conta Não Existe'
 					RETURN 1
 				END
 		--Se existe Lançamentos para essa Conta
@@ -88,14 +85,13 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirConta]
 								FROM [dbo].[Lancamentos] L WITH(NOLOCK)
 								WHERE L.Id_Cta = @Id_Conta)
 				BEGIN
-					PRINT 'Conta possui lançamentos'
 					RETURN 2
 				END
 			ELSE
 				BEGIN
+				--deleção do registro de conta passado por parâmentro
 					DELETE FROM [dbo].[Contas] 
 						   WHERE Id = @Id_Conta
-						   PRINT 'Sucesso'
 						   RETURN 0
           		END   
 		END
@@ -155,23 +151,19 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarConta]
 									FROM [dbo].[Contas] C WITH(NOLOCK)
 									WHERE C.Id = @Id_Conta)
 					BEGIN 
-						PRINT 'Conta Não Existe'
 						RETURN 1
 					END	
 			--Verificar se as variáveis passadas não são nulas
 			IF(@Id_Conta IS NULL OR @Campo IS NULL OR @Vlr_Atualizacao IS NULL)
 				BEGIN
-					PRINT 'Valores de parâmetro não podem ser nulos'
 					RETURN 2
 				END
 			IF(@Campo NOT LIKE 'Cr[eé]dito' AND @Campo NOT LIKE 'D[eé]bito')
 				BEGIN
-					PRINT 'Deve-se inserir em campo Credito ou Debito'
 					RETURN 3
 				END
 			IF (@Vlr_Atualizacao is null or @Vlr_Atualizacao <0)
 				BEGIN 
-					PRINT 'Valor não pode ser nulo ou negativo'
 					RETURN 4
 				END 
 			ELSE
@@ -180,14 +172,13 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarConta]
 						SET  Vlr_Credito = CASE WHEN @Campo LIKE 'Cr[ée]dito' THEN  @Vlr_Atualizacao ELSE Vlr_Credito END,
 							 Vlr_Debito = CASE WHEN @Campo LIKE 'D[eé]bito' THEN  @Vlr_Atualizacao ELSE Vlr_Debito END
 						WHERE Id = @Id_Conta
-						PRINT 'Sucesso'
 						RETURN 0
 				END
 		END
 GO
 
 CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovaConta] 
-		@Vlr_SldInicial DECIMAL(15,2),
+		@Vlr_SldInicial DECIMAL(15,2) = 0,
 		@Vlr_Credito DECIMAl(15,2) = 0,
 		@Vlr_Debito DECIMAL(15,2) = 0
 		AS 
@@ -244,5 +235,3 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovaConta]
 				END
 		END
 GO
-
-SELECT * FROM Contas
