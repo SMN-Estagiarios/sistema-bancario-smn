@@ -2,12 +2,12 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 	@Id_Usuario INT,
 	@Id_ContaDeb INT,
 	@Id_ContaCre INT,
-	@Vlr_Tranferencia DECIMAL(15,2),
+	@Vlr_Transferencia DECIMAL(15,2),
 	@Nom_referencia VARCHAR(200)
 	AS
 	/* 
-			Documenta��o
-			Arquivo Fonte.....: Transfencia.sql
+			Documentação
+			Arquivo Fonte.....: Transferencia.sql
 			Objetivo..........: Instancia uma nova trasnfer�ncia entre contas
 			Autor.............: Adriel Alexsander, Thays Carvalho, Isabella Tragante
  			Data..............: 02/04/2024
@@ -68,7 +68,7 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 				RETURN 1
 			END
 		--Verifica se o valor da transferencia é inferior ao valor de saldo
-		IF(@Vlr_Tranferencia > (SELECT [dbo].[Func_CalculaSaldoAtual](@Id_ContaDeb, Vlr_SldInicial, Vlr_Credito,Vlr_Debito)
+		IF(@Vlr_Transferencia > (SELECT [dbo].[Func_CalculaSaldoAtual](@Id_ContaDeb, Vlr_SldInicial, Vlr_Credito,Vlr_Debito)
 										FROM Contas 
 										WHERE Id = @Id_ContaDeb )) 
 			BEGIN
@@ -81,15 +81,15 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 			BEGIN
 				RETURN 3
 			END
-			--validacao de uma trasnferencia entre contas feitas para uma mesma conta 
+			--validacao de uma transferencia entre contas feitas para uma mesma conta 
 		IF(@Id_ContaDeb = @Id_ContaCre)
 			BEGIN 
 				RETURN 4
 			END
-		--Gerar Inserts em transfer�ncia
+		--Gerar Inserts em transferência
 	    ELSE
 			BEGIN
-				INSERT INTO Trasferencia VALUES( @Id_Usuario, @Id_ContaCre, @Id_ContaDeb, @Vlr_Tranferencia, @Nom_referencia, GETDATE())
+				INSERT INTO Transferencias VALUES( @Id_Usuario, @Id_ContaCre, @Id_ContaDeb, @Vlr_Tranferencia, @Nom_referencia, GETDATE())
 			END
 		RETURN 0
 	END
@@ -138,19 +138,19 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarEstornoTransferencia]
 								ROLLBACK TRAN
 	*/
 	BEGIN
-			--varificação de Id da trasnferência passada como parâmetro
+			--varificação de Id da transferência passada como parâmetro
 			IF @Id_Transferencia IS NOT NULL
 
 				BEGIN
 					--validação para saber se o numero de id passada existe na tabela trasferencia
 					IF NOT EXISTS (SELECT TOP 1 1
-										FROM [dbo].[Trasferencia] WITH (NOLOCK)
+										FROM [dbo].[Transferencias] WITH (NOLOCK)
 										WHERE Id = @Id_Transferencia)
 						BEGIN
 							RETURN 1
 						END
-					--efetuando a deleção de registro de trasnferência para disparo do trigger
-					DELETE Trasferencia
+					--efetuando a deleção de registro de transferência para disparo do trigger
+					DELETE Transferencias
 						WHERE Id = @Id_Transferencia
 						RETURN 0
 				END
@@ -167,8 +167,8 @@ CREATE OR ALTER PROC [dbo].[SP_ListarExtratoTransferencia]
 	AS
 	/*
 			Documentação
-			Arquivo Fonte.....: Contas.sql
-			Objetivo..........: Listar o saldo atual de todas as contas ou uma conta específica
+			Arquivo Fonte.....: Transferencia.sql
+			Objetivo..........: Listar o extrato de transferência entre contas
 			Autor.............: Adriel Alexsander 
  			Data..............: 02/04/2024
 			ObjetivoAlt.......: N/A

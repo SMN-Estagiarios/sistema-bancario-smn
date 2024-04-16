@@ -35,7 +35,7 @@ FOR INSERT, DELETE, UPDATE
 		*/
 	BEGIN
 			--Declaracao de Variáveis 
-		DECLARE @Id_Trasferencia INT,
+		DECLARE @Id_Transferencia INT,
 				@Id_ContaCre INT,
 				@Id_ContaDeb INT,
 				@Id_Usuario INT, 
@@ -51,7 +51,7 @@ FOR INSERT, DELETE, UPDATE
 	IF EXISTS (SELECT TOP 1 1 From inserted)
 		BEGIN
 		-- atribui��o de valores para casos de Insert
-			SELECT @Id_Trasferencia = Id,
+			SELECT @Id_Transferencia = Id,
 				   @Id_ContaCre = Id_CtaCre,
 				   @Id_ContaDeb = Id_CtaDeb, 
 				   @Id_Usuario = Id_Usuario,
@@ -59,7 +59,7 @@ FOR INSERT, DELETE, UPDATE
 				   @Nom_Referencia = Nom_Referencia,
 				   @Dat_Transferencia = Dat_Trans
 				FROM inserted 
-			IF(@Id_Trasferencia IS NOT NULL)
+			IF(@Id_Transferencia IS NOT NULL)
 				BEGIN
 				--inser��o do lan�amento para a conta que est� transferindo 
 					INSERT INTO Lancamentos VALUES(@Id_ContaDeb, @Id_Usuario,  @Id_Tarifa,'D', @Vlr_Transferencia, @Nom_Referencia, @Dat_Transferencia)
@@ -71,7 +71,7 @@ FOR INSERT, DELETE, UPDATE
 
 	IF EXISTS (SELECT TOP 1 1 FROM DELETED)
 		BEGIN
-		SELECT @Id_Trasferencia = Id,
+		SELECT @Id_Transferencia = Id,
 			   @Id_Usuario = Id_Usuario,
 			   @Id_ContaCre = Id_CtaCre,
 			   @Id_ContaDeb = Id_CtaDeb, 
@@ -80,7 +80,7 @@ FOR INSERT, DELETE, UPDATE
 			   @Nom_Referencia = Nom_Referencia
 			FROM Deleted
 		--	Delete do Lan�amento de debito
-		IF(@Id_Trasferencia IS NOT NULL)
+		IF(@Id_Transferencia IS NOT NULL)
 				BEGIN
 				--insercao do lancamento para a conta que esta transferindo 
 					INSERT INTO Lancamentos VALUES(@Id_ContaCre, @Id_Usuario,@Id_Tarifa, 'D', @Vlr_Transferencia, CONCAT('Estorno enviado: ', @Nom_Referencia), @Dat_Transferencia)

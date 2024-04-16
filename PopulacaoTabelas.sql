@@ -24,4 +24,5 @@ GO
 
 --INSER��O DO ADMIN
 INSERT INTO Usuarios VALUES('ADM')
+GO
 
