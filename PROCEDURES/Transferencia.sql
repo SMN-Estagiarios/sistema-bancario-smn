@@ -89,7 +89,7 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 		--Gerar Inserts em transferência
 	    ELSE
 			BEGIN
-				INSERT INTO Transferencias VALUES( @Id_Usuario, @Id_ContaCre, @Id_ContaDeb, @Vlr_Tranferencia, @Nom_referencia, GETDATE())
+				INSERT INTO Transferencias VALUES( @Id_Usuario, @Id_ContaCre, @Id_ContaDeb, @Vlr_Transferencia, @Nom_referencia, GETDATE())
 			END
 		RETURN 0
 	END
