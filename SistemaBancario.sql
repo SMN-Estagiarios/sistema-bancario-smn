@@ -1,4 +1,6 @@
 CREATE DATABASE SistemaBancario
+GO
+
 USE SistemaBancario
 GO
 
@@ -7,8 +9,16 @@ CREATE TABLE Usuarios(
 	Nom_Usuario VARCHAR(50) NOT NULL 
 ); 
 
+CREATE TABLE CreditScore (
+	Id TINYINT IDENTITY,
+	Nome VARCHAR(50) NOT NULL,
+	Faixa DECIMAL(15,2) NOT NULL,
+	Aliquota DECIMAL(3,2) NOT NULL,
+	CONSTRAINT Id_CreditScore PRIMARY KEY(Id)
+);
+
 CREATE TABLE Contas (
-	Id INT IDENTITY PRIMARY KEY,
+	Id INT IDENTITY,
 	Vlr_SldInicial DECIMAL (15,2) NOT NULL, 
 	Vlr_Credito DECIMAL (15,2) NOT NULL,
 	Vlr_Debito DECIMAL (15,2) NOT NULL, 
@@ -16,16 +26,19 @@ CREATE TABLE Contas (
 	Dat_Abertura DATE NOT NULL,
 	Dat_Encerramento DATE, 
 	Ativo CHAR(1) NOT NULL,
-	Lim_ChequeEspecial DECIMAL(15,2) NOT NULL
-
+	Lim_ChequeEspecial DECIMAL(15,2) NOT NULL,
+	IdCreditScore TINYINT,
+	CONSTRAINT PK_ContasId PRIMARY KEY(Id),
+	CONSTRAINT FK_IdCreditScoreContas FOREIGN KEY(IdCreditScore) REFERENCES CreditScore(Id)
 ); 
 
-CREATE TABLE Tarifas(
-	Id TINYINT PRIMARY KEY IDENTITY,
+CREATE TABLE Tarifas (
+	Id TINYINT IDENTITY,
 	Nome VARCHAR(50) NOT NULL, 
 	Valor DECIMAL(4,2),
-	Taxa DECIMAL(5,4)
-	);
+	Taxa DECIMAL(6,5),
+	CONSTRAINT PK_TarifasId PRIMARY KEY(Id)
+);
 
 
 CREATE TABLE Lancamentos(
@@ -58,21 +71,5 @@ CREATE TABLE Transferencias(
 ); 
 
 
-ALTER TABLE Contas ADD IdCreditScore TINYINT;
 
-
-CREATE TABLE CreditScore (
-	Id TINYINT IDENTITY,
-	Nome VARCHAR(50) NOT NULL,
-	Faixa DECIMAL(15,2) NOT NULL
-	CONSTRAINT Id_CreditScore PRIMARY KEY(Id)
-);
-
-ALTER TABLE Contas ADD CONSTRAINT FK_IdCreditScoreContas FOREIGN KEY(IdCreditScore) REFERENCES CreditScore(Id);
-
-INSERT INTO CreditScore VALUES('Péssimo', 200),
-							  ('Ruim', 400),
-							  ('Mediano', 600),
-							  ('Bom', 800),
-							  ('Ótimo', 1200);
 

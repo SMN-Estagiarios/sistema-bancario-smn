@@ -1,35 +1,32 @@
-CREATE OR ALTER TRIGGER [dbo].[TRG_AtualizaLancamentosTransferidos]
-ON [dbo].[Trasferencia]
+CREATE OR ALTER TRIGGER [dbo].[TRG_GerarLancamentosTransferidos]
+ON [dbo].[Transferencias]
 FOR INSERT, DELETE, UPDATE
 	AS
 		/*
 		DOCUMENTAÇÃO
-		Arquivo Fonte........:	TRG_AtualizaSaldo.sql
-		Objetivo.............:	Atualizar Saldo da tabela [dbo].[Contas]
+		Arquivo Fonte........:	TRG_GerarLancamentosTransferidos.sql
+		Objetivo.............:	gera inserts para transferência entre contas na tabela [dbo].[Lancamentos]
 		Autor................:	Adriel Alexander
 		Data.................:	05/04/2024
-		ObjetivoAlt..........: 
-		AutorAlt.............: 
-		DataAlt..............: 
 		Ex...................:		BEGIN TRAN
-									DBCC DROPCLEANBUFFERS;
-									DBCC FREEPROCCACHE;
+										DBCC DROPCLEANBUFFERS;
+										DBCC FREEPROCCACHE;
 
-									DECLARE @DATA_INI DATETIME = GETDATE();
+										DECLARE @DATA_INI DATETIME = GETDATE();
 
-									SELECT  *
-										FROM [dbo].[Trasferencia] WITH(NOLOCK)
-									SELECT * 
-										FROM [dbo].[Lancamentos] WITH(NOLOCK)
+										SELECT  *
+											FROM [dbo].[Transferencias] WITH(NOLOCK)
+										SELECT * 
+											FROM [dbo].[Lancamentos] WITH(NOLOCK)
 
-									INSERT INTO Trasferencia VALUES( 1, 1, 2, 50, 'EXEMPLO', GETDATE())
+										INSERT INTO Transferencias VALUES( 1, 1, 2, 50, 'EXEMPLO', GETDATE())
 									
-									SELECT DATEDIFF(MILLISECOND,@DATA_INI,GETDATE()) AS Execução
+										SELECT DATEDIFF(MILLISECOND,@DATA_INI,GETDATE()) AS Execução
 
-									SELECT  *
-										FROM [dbo].[Trasferencia] WITH(NOLOCK)
-									SELECT * 
-										FROM [dbo].[Lancamentos] WITH(NOLOCK)
+										SELECT  *
+											FROM [dbo].[Transferencias] WITH(NOLOCK)
+										SELECT * 
+											FROM [dbo].[Lancamentos] WITH(NOLOCK)
 							ROLLBACK TRAN
 	
 		*/
@@ -45,8 +42,8 @@ FOR INSERT, DELETE, UPDATE
 				@Dat_Transferencia DATETIME
 
 		SELECT  @Id_Tarifa = Id
-						FROM Tarifas
-						WHERE Nome = 'TEC'
+			FROM Tarifas
+			WHERE Nome = 'TEC'
 
 	IF EXISTS (SELECT TOP 1 1 From inserted)
 		BEGIN
@@ -55,7 +52,7 @@ FOR INSERT, DELETE, UPDATE
 				   @Id_ContaCre = Id_CtaCre,
 				   @Id_ContaDeb = Id_CtaDeb, 
 				   @Id_Usuario = Id_Usuario,
-				   @Vlr_Transferencia = Vlr_TRans,
+				   @Vlr_Transferencia = Vlr_Trans,
 				   @Nom_Referencia = Nom_Referencia,
 				   @Dat_Transferencia = Dat_Trans
 				FROM inserted 

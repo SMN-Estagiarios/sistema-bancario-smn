@@ -11,9 +11,6 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 			Objetivo..........: Instancia uma nova trasnfer�ncia entre contas
 			Autor.............: Adriel Alexsander, Thays Carvalho, Isabella Tragante
  			Data..............: 02/04/2024
-			ObjetivoAlt.......: N/A
-			AutorAlt..........: N/A
-			DataAlt...........: N/A
 			Ex................: BEGIN TRAN
 								DBCC DROPCLEANBUFFERS;
 								DBCC FREEPROCCACHE;
@@ -68,7 +65,7 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 				RETURN 1
 			END
 		--Verifica se o valor da transferencia é inferior ao valor de saldo
-		IF(@Vlr_Transferencia > (SELECT [dbo].[Func_CalculaSaldoAtual](@Id_ContaDeb, Vlr_SldInicial, Vlr_Credito,Vlr_Debito)
+		IF(@Vlr_Transferencia > (SELECT [dbo].[Func_CalcularSaldoAtual](@Id_ContaDeb, Vlr_SldInicial, Vlr_Credito,Vlr_Debito)
 										FROM Contas 
 										WHERE Id = @Id_ContaDeb )) 
 			BEGIN
@@ -89,11 +86,13 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 		--Gerar Inserts em transferência
 	    ELSE
 			BEGIN
-				INSERT INTO Transferencias VALUES( @Id_Usuario, @Id_ContaCre, @Id_ContaDeb, @Vlr_Tranferencia, @Nom_referencia, GETDATE())
+				INSERT INTO Transferencias(Id_Usuario, Id_CtaCre, Id_CtaDeb, Vlr_TRans, Nom_Referencia, Dat_Trans)
+					VALUES( @Id_Usuario, @Id_ContaCre, @Id_ContaDeb, @Vlr_Transferencia, @Nom_referencia, GETDATE())
 			END
 		RETURN 0
 	END
 GO
+
 CREATE OR ALTER PROC [dbo].[SP_RealizarEstornoTransferencia]
 	@Id_Transferencia INT
 
@@ -102,12 +101,9 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarEstornoTransferencia]
 	/*
 			Documentação
 			Arquivo Fonte.....: Transfencia.sql
-			Objetivo..........: Instancia uma nova trasnferência entre contas
+			Objetivo..........: Instancia uma nova transferência entre contas
 			Autores...........: Adriel Alexsander, Thays Carvalho, Isabella Tragante
  			Data..............: 12/04/2024
-			ObjetivoAlt.......: N/A
-			AutorAlt..........: N/A
-			DataAlt...........: N/A
 			EX.................:BEGIN TRAN
 								DBCC DROPCLEANBUFFERS;
 								DBCC FREEPROCCACHE;
@@ -142,7 +138,7 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarEstornoTransferencia]
 			IF @Id_Transferencia IS NOT NULL
 
 				BEGIN
-					--validação para saber se o numero de id passada existe na tabela trasferencia
+					--validação para saber se o numero de id passada existe na tabela transferencia
 					IF NOT EXISTS (SELECT TOP 1 1
 										FROM [dbo].[Transferencias] WITH (NOLOCK)
 										WHERE Id = @Id_Transferencia)
@@ -171,9 +167,6 @@ CREATE OR ALTER PROC [dbo].[SP_ListarExtratoTransferencia]
 			Objetivo..........: Listar o extrato de transferência entre contas
 			Autor.............: Adriel Alexsander 
  			Data..............: 02/04/2024
-			ObjetivoAlt.......: N/A
-			AutorAlt..........: N/A
-			DataAlt...........: N/A
 			Ex................:  DECLARE @RET INT, 
 						         @Dat_init DATETIME = GETDATE()
 
@@ -192,7 +185,7 @@ CREATE OR ALTER PROC [dbo].[SP_ListarExtratoTransferencia]
 				FROM [dbo].[Lancamentos] WITH (NOLOCK)
 				WHERE Id_Cta = ISNULL(@Id_Conta, Id_Cta)
 				AND Id_Tarifa = (SELECT 
-									ID
+										ID
 									FROM Tarifas
 									WHERE Nome = 'TEC')
 	END
