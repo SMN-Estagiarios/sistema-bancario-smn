@@ -17,7 +17,7 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_InserirTaxaSaldoNegativo]
 
 											UPDATE [DBO].[Contas]
 												SET Vlr_SldInicial = '-10000'
-												WHERE Id = 2
+												WHERE Id = 1
 
 											SELECT * FROM [DBO].[Contas]
 												WHERE Id = 1
@@ -30,15 +30,16 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_InserirTaxaSaldoNegativo]
 
 	 BEGIN
 		DECLARE	@Id_CtaIN INT,
-				@ValorSaldoInicialIN DECIMAL(15,2),
-				@ValorSaldoInicialDE DECIMAL(15,2),
-				@Id_CtaDE INT,
-				@Taxa DECIMAL(15,4)
+						@ValorSaldoInicialIN DECIMAL(15,2),
+						@ValorSaldoInicialDE DECIMAL(15,2),
+						@DataSaldoIN DATE,
+						@Id_CtaDE INT,
+						@Taxa DECIMAL(15,4)
 
 		SELECT @Id_CtaIN = Id, @ValorSaldoInicialIN = Vlr_SldInicial, @DataSaldoIN = Dat_Saldo FROM inserted;
 		SELECT @Id_CtaDE = Id, @ValorSaldoInicialDE = Vlr_SldInicial FROM deleted;
 
-		IF @ValorSaldoInicialIN <> @ValorSaldoInicialDE
+		IF @ValorSaldoInicialIN <> @ValorSaldoInicialDE AND  DATEDIFF(DAY, @DataSaldoIN, GETDATE()) = 0
 			BEGIN
 				SET @Taxa = (SELECT Taxa FROM [DBO].Tarifas WITH(NOLOCK) WHERE Id = 7);			
 					-- Verificando se o que está acontecendo é um update
