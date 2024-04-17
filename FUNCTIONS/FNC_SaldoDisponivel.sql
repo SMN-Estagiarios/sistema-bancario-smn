@@ -1,16 +1,16 @@
 CREATE OR ALTER FUNCTION [DBO].[FNC_SaldoDisponivel](
-																								@Id_Conta INT,
-																								@SaldoInicial DECIMAL(15,2),
-																								@Credito DECIMAL(15,2),
-																								@Debito DECIMAL(15,2),
-																								@LimiteCredito DECIMAL(15,2)
-																							)
+													@Id_Conta INT,
+													@SaldoInicial DECIMAL(15,2),
+													@Credito DECIMAL(15,2),
+													@Debito DECIMAL(15,2),
+													@LimiteCredito DECIMAL(15,2)
+												)
 	RETURNS DECIMAL(15,2)
 	AS
 		/*
-			Documentação
+			Documentaï¿½ï¿½o
 			Arquivo Fonte.....: FNC_SaldoDisponivel.sql
-			Objetivo.............: Calcular o saldo disponível de uma conta específica
+			Objetivo.............: Calcular o saldo disponï¿½vel de uma conta especï¿½fica
 			Autor.................: Orcino Neto, Odlavir Florentino e Pedro Avelino
 			Data..................: 11/04/2024
 			EX.....................: BEGIN TRAN
@@ -32,7 +32,7 @@ CREATE OR ALTER FUNCTION [DBO].[FNC_SaldoDisponivel](
 					WHERE Id = @Id_Conta
 			END
 
-		-- Realizar o cálculo
+		-- Realizar o cï¿½lculo
 		SET @RESULTADO = (@SaldoInicial + @Credito - @Debito + @LimiteCredito)
 
 		-- Retornar o resultado

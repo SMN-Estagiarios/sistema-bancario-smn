@@ -1,15 +1,15 @@
 CREATE OR ALTER FUNCTION [DBO].[FNC_BalancoCD]()
 	RETURNS @Tabela TABLE(
-								Id_Conta INT NOT NULL,
-								Credito DECIMAL(15,2) NOT NULL,
-								Debito DECIMAL(15,2) NOT NULL,
-								DataBalanco DATETIME NOT NULL
-							)
+							Id_Conta INT NOT NULL,
+							Credito DECIMAL(15,2) NOT NULL,
+							Debito DECIMAL(15,2) NOT NULL,
+							DataBalanco DATETIME NOT NULL
+						)
 	AS
 		/*
-			Documentação
+			Documentaï¿½ï¿½o
 			Arquivo Fonte.....: FNC_BalancoCD.sql
-			Objetivo.............: Calcular todo o balanço de crédito e debito de uma conta desde o primeiro lançamento
+			Objetivo.............: Calcular todo o balanï¿½o de crï¿½dito e debito de uma conta desde o primeiro lanï¿½amento
 			Autor.................: Orcino Neto, Odlavir Florentino e Pedro Avelino
 			Data..................: 11/04/2024
 			EX.....................: BEGIN TRAN
