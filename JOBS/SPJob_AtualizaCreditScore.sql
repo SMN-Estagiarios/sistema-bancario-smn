@@ -4,10 +4,10 @@ GO
 CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarCreditScore]
     AS
 	/*
-		Documentação
+		Documentaï¿½ï¿½o
 		Arquivo Fonte.....: SPJob_AtualizarCreditScore.sql
 		Objetivo..........: Atualizar o CreditScore das contas
-		Autor.............: Gustavo Targino, João Victor Maia, Gabriel Damiani
+		Autor.............: Gustavo Targino, Joï¿½o Victor Maia, Gabriel Damiani
 		Data..............: 16/04/2024
 		EX................:	BEGIN TRAN
 								DBCC DROPCLEANBUFFERS;
@@ -17,7 +17,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarCreditScore]
 										@Dat_ini DATETIME = GETDATE();
 
 								SELECT  TOP 20	Id,
-												Id_Usuario,
 												Vlr_SldInicial,
 												Vlr_Credito,
 												Vlr_Debito,
@@ -27,7 +26,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarCreditScore]
 								EXEC @Ret = [dbo].[spjob_AtualizarCreditScore]
 
 								SELECT  TOP 20	Id,
-												Id_Usuario,
 												Vlr_SldInicial,
 												Vlr_Credito,
 												Vlr_Debito,
@@ -67,12 +65,12 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarCreditScore]
 														CROSS JOIN [dbo].[Contas] c WITH(NOLOCK)
 							) s
 								LEFT OUTER JOIN    (
-														SELECT  x.Id_Cta, --Somar todos os créditos e todos os débitos após a data
+														SELECT  x.Id_Cta, --Somar todos os crï¿½ditos e todos os dï¿½bitos apï¿½s a data
 																x.DataSaldo,
 																SUM(CASE WHEN x.TipoLancamento = 'C' THEN x.Vlr_Lanc ELSE 0 END) AS Credito,
 																SUM(CASE WHEN x.TipoLancamento = 'D' THEN x.Vlr_Lanc ELSE 0 END) AS Debito
 															FROM (
-																	SELECT  td.DataSaldo, --Listar todos os lançamentos feitos após a data, por exemplo, DataSaldo 28 irá ter os lançamentos do dia 30 e 29
+																	SELECT  td.DataSaldo, --Listar todos os lanï¿½amentos feitos apï¿½s a data, por exemplo, DataSaldo 28 irï¿½ ter os lanï¿½amentos do dia 30 e 29
 																			la.Dat_Lancamento,
 																			la.ID_Cta,
 																			ISNULL(la.Tipo_Lanc, 'X') as TipoLancamento,

@@ -1,12 +1,12 @@
-CREATE OR ALTER TRIGGER [dbo].[trg_tarifaTransferencia]
+CREATE OR ALTER TRIGGER [dbo].[TRG_TarifaTransferencia]
 ON [dbo].[lancamentos]
 FOR INSERT
 	AS
 	/*
-	DOCUMENTAÇÃO
+	DOCUMENTAï¿½ï¿½O
 	Arquivo Fonte........:	trg_tarifaTransferencia.sql
-	Objetivo.............:	Atualizar o Saldo da tabela após o registro de uma Transferência
-	Autor................:	Olívio Freitas, Danyel Targino e Rafael Maurício
+	Objetivo.............:	Atualizar o Saldo da tabela apï¿½s o registro de uma Transferï¿½ncia
+	Autor................:	Olï¿½vio Freitas, Danyel Targino e Rafael Maurï¿½cio
 	Data.................:	11/04/2024
 	ObjetivoAlt..........:	N/A
 	AutorAlt.............:	N/A
@@ -25,7 +25,7 @@ FOR INSERT
 									VALUES
 										(1, 1, 2, 5252, 'Teste123', GETDATE(), 2)
 
-								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUÇÃO 
+								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUï¿½ï¿½O 
 
 								SELECT * FROM Contas
 								SELECT * FROM Transferencias
@@ -35,7 +35,7 @@ FOR INSERT
 	Retornos.............:	0 - SUCESSO			   
 	*/
 	BEGIN
-		-- Declaro as variáveis que preciso
+		-- Declaro as variï¿½veis que preciso
 		DECLARE @Id_Conta INT,
 				@Id_Tarifa SMALLINT,
 				@Valor_Tarifa DECIMAL(4,2),
@@ -49,7 +49,7 @@ FOR INSERT
 						FROM inserted WITH(NOLOCK)
 						WHERE Nom_Historico LIKE 'Estorno recebido%')
 			BEGIN
-				-- Atribuir valores às variáveis
+				-- Atribuir valores ï¿½s variï¿½veis
 				SELECT	@Id_Conta = Id_Cta,
 						@Id_Tarifa = Id_Tarifa,
 						@Operacao_Lancamento = 'C',
@@ -79,7 +79,7 @@ FOR INSERT
 							AND	  Tipo_Lanc = 'D'
 							AND Id_Tarifa NOT IN (5,6))
 			BEGIN
-					-- Atribuir valores às variáveis
+					-- Atribuir valores ï¿½s variï¿½veis
 					SELECT	@Id_Conta = Id_Cta,
 							@Id_Tarifa = Id_Tarifa,
 							@Operacao_Lancamento = Tipo_Lanc,

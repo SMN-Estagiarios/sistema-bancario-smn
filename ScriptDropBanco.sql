@@ -30,11 +30,11 @@ GO
 		--DROPANDO TRIGGERS DO SISTEMA BANCARIO
 DROP TRIGGER [TRG_InserirTaxaSaldoNegativo]
 GO
-DROP TRIGGER [TRG_taxaAberturaConta]
+DROP TRIGGER [TRG_TaxaAberturaConta]
 GO
-DROP TRIGGER [TRG_AtualizaSaldo]
+DROP TRIGGER [TRG_AtualizarSaldo]
 GO
-DROP TRIGGER [trg_tarifaTransferencia]
+DROP TRIGGER [TRG_TarifaTransferencia]
 GO
 DROP TRIGGER [TRG_GerarLancamentosTransferidos]
 GO
@@ -59,7 +59,7 @@ GO
 		-- DROPANDO TODAS OS JOBS 
 DROP PROC [dbo].[spjob_AtualizarCreditScore]
 GO
-DROP PROC [dbo].[SPJOB_AtualizaSaldo]
+DROP PROC [dbo].[SPJOB_AtualizarSaldo]
 GO
 DROP PROC [dbo].[spjob_taxaManutencao]
 GO

@@ -86,12 +86,8 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 		--Gerar Inserts em transferência
 	    ELSE
 			BEGIN
-<<<<<<< HEAD
-				INSERT INTO Transferencias VALUES( @Id_Usuario, @Id_ContaCre, @Id_ContaDeb, @Vlr_Transferencia, @Nom_referencia, GETDATE())
-=======
 				INSERT INTO Transferencias(Id_Usuario, Id_CtaCre, Id_CtaDeb, Vlr_TRans, Nom_Referencia, Dat_Trans)
 					VALUES( @Id_Usuario, @Id_ContaCre, @Id_ContaDeb, @Vlr_Transferencia, @Nom_referencia, GETDATE())
->>>>>>> feat-hot-fix-ortografia
 			END
 		RETURN 0
 	END

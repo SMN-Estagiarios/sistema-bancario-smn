@@ -1,10 +1,10 @@
 CREATE OR ALTER PROCEDURE [dbo].[spjob_taxaManutencao]
 	AS
 	/*
-	DOCUMENTAÇÃO
+	DOCUMENTAï¿½ï¿½O
 	Arquivo Fonte........:	spjob_taxaManutencao.sql
-	Objetivo.............:	Aplica a Taxa de Manutenção de Conta a partir da data de abertura da conta nos meses subsequentes
-	Autor................:	Olívio Freitas, Danyel Targino e Rafael Maurício
+	Objetivo.............:	Aplica a Taxa de Manutenï¿½ï¿½o de Conta a partir da data de abertura da conta nos meses subsequentes
+	Autor................:	Olï¿½vio Freitas, Danyel Targino e Rafael Maurï¿½cio
 	Data.................:	11/04/2024
 	ObjetivoAlt..........:	N/A
 	AutorAlt.............:	N/A
@@ -22,7 +22,7 @@ CREATE OR ALTER PROCEDURE [dbo].[spjob_taxaManutencao]
 								EXEC @RET = [dbo].[spjob_taxaManutencao];
 
 								SELECT @RET AS RETORNO,
-								DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUÇÃO 
+								DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUï¿½ï¿½O 
 
 								SELECT * FROM Lancamentos ORDER BY Dat_Lancamento DESC
 								SELECT * FROM Contas ORDER BY Dat_Abertura DESC
@@ -30,7 +30,7 @@ CREATE OR ALTER PROCEDURE [dbo].[spjob_taxaManutencao]
 							ROLLBACK TRAN
 	*/
 	BEGIN
-		-- Declarando variáveis
+		-- Declarando variï¿½veis
 		DECLARE @Data_Atual DATE = GETDATE(),
 				@Data_Abertura DATE,
 				@Data_Cobranca_TMC INT,
@@ -52,7 +52,7 @@ CREATE OR ALTER PROCEDURE [dbo].[spjob_taxaManutencao]
 				FROM Tarifas
 				WHERE Nome = 'TMC'
 
-		-- Comparar Mês/Ano Atual > DataAbertura Lançar @Data_Cobranca_TMC
+		-- Comparar Mï¿½s/Ano Atual > DataAbertura Lanï¿½ar @Data_Cobranca_TMC
 			IF @Data_Abertura < @Data_Atual
 				BEGIN
 					IF DAY(@Data_Abertura) <= 28
@@ -65,7 +65,7 @@ CREATE OR ALTER PROCEDURE [dbo].[spjob_taxaManutencao]
 						END
 				END
 
-			-- Insert dos LANÇAMENTOS
+			-- Insert dos LANï¿½AMENTOS
 			IF @Data_Cobranca_TMC IN (29, 30, 31) OR @Data_Cobranca_TMC_FinalDoMes IN (29, 30, 31)
 				BEGIN
 					INSERT INTO Lancamentos

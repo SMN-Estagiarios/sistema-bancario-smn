@@ -1,12 +1,12 @@
-CREATE OR ALTER TRIGGER [dbo].[trg_taxaAberturaConta]
+CREATE OR ALTER TRIGGER [dbo].[TRG_TaxaAberturaConta]
 ON [dbo].[Contas]
 FOR INSERT
 	AS
 	/*
-	DOCUMENTAÇÃO
+	DOCUMENTAï¿½ï¿½O
 	Arquivo Fonte........:	trg_taxaAberturaConta.sql
-	Objetivo.............:	Atualizar o SaldoInicial da tabela conta após um lançamento
-	Autor................:	Olívio Freitas, Danyel Targino e Rafael Maurício
+	Objetivo.............:	Atualizar o SaldoInicial da tabela conta apï¿½s um lanï¿½amento
+	Autor................:	Olï¿½vio Freitas, Danyel Targino e Rafael Maurï¿½cio
 	Data.................:	10/04/2024
 	ObjetivoAlt..........:	N/A
 	AutorAlt.............:	N/A
@@ -24,7 +24,7 @@ FOR INSERT
 									VALUES
 										(0, 0, 0, GETDATE(), GETDATE(), NULL, 'S', 0)
 
-								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUÇÃO
+								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUï¿½ï¿½O
 
 								SELECT * FROM Contas ORDER BY Id DESC
 								SELECT * FROM Lancamentos ORDER BY Id DESC
@@ -33,21 +33,21 @@ FOR INSERT
 	Retornos.............:	0 - SUCESSO			   
 	*/
 	BEGIN
-		-- Declaro as variáveis que preciso
+		-- Declaro as variï¿½veis que preciso
 		DECLARE @Id_Conta INT,
 				@Vlr_Tarifa DECIMAL(15,2),
 				@Id_TAC TINYINT = 5,
 				@Data_Lancamento DATETIME = GETDATE(),
 				@Operacao_Lancamento CHAR(1) = 'D'
 
-		-- Atribuir valores às variáveis
+		-- Atribuir valores ï¿½s variï¿½veis
 		IF EXISTS (SELECT TOP 1 1 FROM inserted)
 			BEGIN
 				SELECT	@Id_Conta = Id
 					FROM inserted
 			END
 
-		-- Salvo valor da taxa na variável @Vlr_Tarifa
+		-- Salvo valor da taxa na variï¿½vel @Vlr_Tarifa
 		IF @Id_TAC IS NOT NULL
 			BEGIN
 				SELECT	@Vlr_Tarifa = Valor
