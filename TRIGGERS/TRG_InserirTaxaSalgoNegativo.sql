@@ -1,10 +1,10 @@
-CREATE OR ALTER TRIGGER [DBO].[TRG_InserirTaxaSalgoNegativo]
+CREATE OR ALTER TRIGGER [DBO].[TRG_InserirTaxaSaldoNegativo]
 	ON [DBO].[Contas]
 	AFTER UPDATE
 	AS
 	 /*
 		Documentação
-		Arquivo Fonte.....:  TRG_InserirTaxaSalgoNegativo.sql
+		Arquivo Fonte.....:  TRG_InserirTaxaSaldoNegativo.sql
 		Objetivo.............: Verificar diariamente quais contas estão negativas e aplicar a taxa de saldo negativo para a conta que estiver
 		Autor.................: Orcino Neto, Odlavir Florentino e Pedro Avelino
 		Data..................: 12/04/2024
@@ -24,21 +24,22 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_InserirTaxaSalgoNegativo]
 
 											SELECT * FROM Lancamentos
 
-											SELECT DATEDIFF(DAY, @DATA_INI, GETDATE())
+											SELECT DATEDIFF(MILLISECOND, @DATA_INI, GETDATE())
 										ROLLBACK TRAN
 	 */
 
 	 BEGIN
-		DECLARE	@Id_CtaIN INT,
-				@ValorSaldoInicialIN DECIMAL(15,2),
-				@ValorSaldoInicialDE DECIMAL(15,2),
-				@Id_CtaDE INT,
-				@Taxa DECIMAL(15,4)
+		DECLARE			@Id_CtaIN INT,
+						@ValorSaldoInicialIN DECIMAL(15,2),
+						@ValorSaldoInicialDE DECIMAL(15,2),
+						@DataSaldoIN DATE,
+						@Id_CtaDE INT,
+						@Taxa DECIMAL(15,4)
 
-		SELECT @Id_CtaIN = Id, @ValorSaldoInicialIN = Vlr_SldInicial FROM inserted;
-			SELECT @Id_CtaDE = Id, @ValorSaldoInicialDE = Vlr_SldInicial FROM deleted;
+		SELECT @Id_CtaIN = Id, @ValorSaldoInicialIN = Vlr_SldInicial, @DataSaldoIN = Dat_Saldo FROM inserted;
+		SELECT @Id_CtaDE = Id, @ValorSaldoInicialDE = Vlr_SldInicial FROM deleted;
 
-		IF @ValorSaldoInicialIN <> @ValorSaldoInicialDE
+		IF @ValorSaldoInicialIN <> @ValorSaldoInicialDE AND  DATEDIFF(DAY, @DataSaldoIN, GETDATE()) = 0
 			BEGIN
 				SET @Taxa = (SELECT Taxa FROM [DBO].Tarifas WITH(NOLOCK) WHERE Id = 7);			
 					-- Verificando se o que está acontecendo é um update
