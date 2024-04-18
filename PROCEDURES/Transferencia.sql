@@ -170,7 +170,7 @@ CREATE  PROC [dbo].[SP_ListarExtratoTransferencia]
 			Ex................:  DECLARE @RET INT, 
 						         @Dat_init DATETIME = GETDATE()
 
-								 EXEC @RET = [dbo].[SP_ListarExtratoTransferencia]
+								 EXEC @RET = [dbo].[SP_ListarExtratoTransferencia]1
 								 
 								 SELECT @RET AS RETORNO,
 										DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUÇÃO 	

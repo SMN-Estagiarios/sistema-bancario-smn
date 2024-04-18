@@ -21,10 +21,10 @@ FOR INSERT
 								SELECT * FROM Transferencias
 								SELECT * FROM Lancamentos
 
-								INSERT INTO Transferencias
-										(Id_Usuario, Id_CtaCre, Id_CtaDeb, Vlr_Trans, Nom_Referencia, Dat_Trans)
+								INSERT INTO Lancamentos
+										(Id_Cta, Id_Usuario, Id_Tarifa, Tipo_lanc ,Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 									VALUES
-										(1, 2, 3, 100, 'Teste100', GETDATE())
+										(1, 1, 1,'D', 50, 'Teste100', GETDATE(), 1)
 
 								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUCAO 
 
@@ -48,9 +48,10 @@ FOR INSERT
 
 		IF EXISTS (SELECT TOP 1 1
 						FROM inserted WITH(NOLOCK)
-						WHERE Estorno = 1)	-- TROCAR WHERE COM STRING
+						WHERE Estorno = 1 
+							AND Id_Tarifa NOT IN (5,6,7)
+							AND Id_Tarifa IS NOT NULL)
 			BEGIN
-				PRINT 'CAIU NO IF'
 				-- Atribuir valores as variaveis
 				SELECT	@Id_Conta = Id_Cta,
 						@Id_Tarifa = Id_Tarifa,
@@ -77,11 +78,11 @@ FOR INSERT
 		    END
 		ELSE IF EXISTS(SELECT TOP 1 1
 							FROM inserted WITH(NOLOCK)
-							WHERE Estorno = 0		-- TROCAR WHERE COM STRING
-							AND	  Tipo_Lanc = 'D'	-- TROCAR WHERE COM STRING
-							AND	  Id_Tarifa NOT IN (5,6,7))
+							WHERE Estorno = 0
+							AND	  Tipo_Lanc = 'D'
+							AND	  Id_Tarifa NOT IN (5,6,7)
+							AND   Id_Tarifa IS NOT NULL)
 			BEGIN
-				PRINT 'CAIU NO ELSE'
 				-- Atribuir valores as variaveis
 				SELECT	@Id_Conta = Id_Cta,
 						@Id_Tarifa = Id_Tarifa,

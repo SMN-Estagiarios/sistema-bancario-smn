@@ -30,11 +30,11 @@ GO
 
 INSERT INTO CreditScore (Nome, Faixa, Aliquota) VALUES
 						('Não elegível', -2000, 0),
-						('Negativado', 0, 0.2),
-						('Péssimo', 400, 0.4),
+						('Negativado', -200, 0.2),
+						('Péssimo', 0, 0.4),
 						('Ruim', 600, 0.6),
 						('Mediano', 800, 0.8),
-						('Bom', 1000, 1),
-						('Ótimo', 1500, 1.2),
+						('Bom', 1000, 1.2),
+						('Ótimo', 1500, 1.4),
 						('Excelente', 3000, 2.0);
 GO
