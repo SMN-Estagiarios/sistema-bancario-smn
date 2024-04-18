@@ -5,10 +5,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarSaldoAtual]
 		@Id_Conta INT = NULL
 		AS 
 			/*
-			Documenta��o
+			Documentacao
 			Arquivo Fonte.....: Contas.sql
 			Objetivo..........: Listar o saldo atual de todas as contas ou uma conta espec�fica
-			Autor.............: Adriel Alexsander 
+			Autor.............: Adriel Alexsander, Isabela Tragante, Thays Carvalho 
  			Data..............: 02/04/2024
 			Ex................:  DECLARE @RET INT, 
 						         @Dat_init DATETIME = GETDATE()
@@ -16,7 +16,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarSaldoAtual]
 								 EXEC @RET = [dbo].[SP_ListarSaldoAtual]
 								 
 								 SELECT @RET AS RETORNO,
-										DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECU��O 	
+										DATEDIFF(millisecond, @Dat_init, GETDATE()) AS TempoExecucao
 			*/
 	
 		BEGIN
@@ -32,10 +32,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirConta]
 		@Id_Conta INT = NULL
 		AS
         /*
-		Documenta��o
+		Documentacao
 		Arquivo Fonte.....: Contas.sql
 		Objetivo..........: Exclui uma conta existente com base no seu Id
-		Autor.............: Adriel Alexsander 
+		Autor.............: Adriel Alexsander, Isabela Tragante, Thays Carvalho
  		Data..............: 02/04/2024
 		Ex................: BEGIN TRAN
 								DBCC DROPCLEANBUFFERS;
@@ -75,7 +75,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirConta]
 				BEGIN 
 					RETURN 1
 				END
-		--Se existe Lan�amentos para essa Conta
+		--Se existe Lancamentos para essa Conta
 		    IF EXISTS (SELECT TOP 1 1
 								FROM [dbo].[Lancamentos] L WITH(NOLOCK)
 								WHERE L.Id_Cta = @Id_Conta)
@@ -84,7 +84,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirConta]
 				END
 			ELSE
 				BEGIN
-				--dele��o do registro de conta passado por par�mentro
+				--dele��o do registro de conta passado por paramentro
 					DELETE FROM [dbo].[Contas] 
 						   WHERE Id = @Id_Conta
 						   RETURN 0
@@ -98,10 +98,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarConta]
 		@Vlr_Atualizacao DECIMAL(15,2)
 		AS
 		/*
-			Documenta��o
+			Documentacao
 			Arquivo Fonte.....: Contas.sql
 			Objetivo..........: Atualiza Campos Especificos de uma conta com base no seu Id 
-			Autor.............: Adriel Alexsander 
+			Autor.............: Adriel Alexsander, Isabela Tragante, Thays Carvalho
  			Data..............: 02/04/2024
 			Ex................: BEGIN TRAN
 								DBCC DROPCLEANBUFFERS;
@@ -119,7 +119,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarConta]
 									EXEC @RET = [dbo].[SP_AtualizarConta] 1, Credito , 200
 
 									SELECT @RET AS RETORNO,
-										   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECU��O 
+										   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS TempoExecucao
 
 									SELECT  Id,
 											Vlr_SldInicial,
@@ -130,12 +130,12 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarConta]
 
 								ROLLBACK TRAN
 
-								--	RETORNO --
+									--	RETORNO --
 									00.................: Sucesso
 									01.................: Conta n�o existe
 									02.................: Valores nulo nos parametros passados  
-									03.................: Valor do par�metro @Campo Invalido
-									04.................: Valor do par�metro @Vlr_Atualizacao Invalido
+									03.................: Valor do parametro @Campo Invalido
+									04.................: Valor do parametro @Vlr_Atualizacao Invalido
 		*/
 		BEGIN
 			--Verificar se a conta existe
@@ -145,7 +145,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarConta]
 					BEGIN 
 						RETURN 1
 					END	
-			--Verificar se as vari�veis passadas n�o s�o nulas
+			--Verificar se as variaveis passadas nao sao nulas
 			IF(	@Id_Conta IS NULL OR 
 				@Campo IS NULL OR 
 				@Vlr_Atualizacao IS NULL)
@@ -165,9 +165,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarConta]
 					RETURN 4
 				END 
 			ELSE
-				BEGIN		-- Atualiza a conta com base no Id
+				BEGIN		
+					-- Atualiza a conta com base no Id
 					UPDATE [dbo].[Contas] 
-						SET  Vlr_Credito = CASE WHEN @Campo LIKE 'Cr[é,e]dito' 
+						SET  Vlr_Credito = CASE WHEN @Campo LIKE 'Cr[e,é]dito' 
 												THEN  @Vlr_Atualizacao 
 												ELSE Vlr_Credito 
 											END,
@@ -187,10 +188,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovaConta]
 		@Vlr_Debito DECIMAL(15,2) = 0
 		AS 
 		/*
-			Documenta��o
+			Documentacao
 			Arquivo Fonte.....: Contas.sql
 			Objetivo..........: Cria uma conta na tabela [dbo].[Contas]
-			Autor.............: Adriel Alexsander 
+			Autor.............: Adriel Alexsander, Isabela Tragante, Thays Carvalho
  			Data..............: 02/04/2024
 			Ex................: BEGIN TRAN
 									DBCC DROPCLEANBUFFERS;
@@ -209,16 +210,16 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovaConta]
 									EXEC @RET = [dbo].[SP_InserirNovaConta] 0, 200, 400 
 
 										SELECT @RET AS RETORNO,
-											   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECU��O
-												SELECT  Id,
-												Vlr_SldInicial,
-												Vlr_Credito,
-												Vlr_Debito,
-												Dat_Saldo 
-											FROM [dbo].[Contas]
+											   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS TempoExecucao
+												SELECT	Id,
+														Vlr_SldInicial,
+														Vlr_Credito,
+														Vlr_Debito,
+														Dat_Saldo 
+													FROM [dbo].[Contas]
 							   ROLLBACK TRAN
 
-								--	RETORNO   --
+										--	RETORNO   --
 										00.................: Sucesso
 										01.................: Parametros com valores negativo						
 		*/
