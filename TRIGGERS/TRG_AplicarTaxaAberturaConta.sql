@@ -21,10 +21,11 @@ FOR INSERT
 								SELECT * FROM Lancamentos ORDER BY Id DESC
 
 								INSERT INTO Contas
+										(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura, Ativo, Lim_ChequeEspecial)
 									VALUES
-										(0, 0, 0, GETDATE(), GETDATE(), NULL, 'S', 0)
+										(0, 0, 0, GETDATE(), GETDATE(), 'S', 0)
 
-								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECU��O
+								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUCAO
 
 								SELECT * FROM Contas ORDER BY Id DESC
 								SELECT * FROM Lancamentos ORDER BY Id DESC
@@ -33,21 +34,21 @@ FOR INSERT
 	Retornos.............:	0 - SUCESSO			   
 	*/
 	BEGIN
-		-- Declaro as vari�veis que preciso
+		-- Declaro as variaveis que preciso
 		DECLARE @Id_Conta INT,
 				@Vlr_Tarifa DECIMAL(15,2),
 				@Id_TAC TINYINT = 5,
 				@Data_Lancamento DATETIME = GETDATE(),
 				@Operacao_Lancamento CHAR(1) = 'D'
 
-		-- Atribuir valores �s vari�veis
+		-- Atribuir valores as variaveis
 		IF EXISTS (SELECT TOP 1 1 FROM inserted)
 			BEGIN
 				SELECT	@Id_Conta = Id
 					FROM inserted
 			END
 
-		-- Salvo valor da taxa na vari�vel @Vlr_Tarifa
+		-- Salvo valor da taxa na variavel @Vlr_Tarifa
 		IF @Id_TAC IS NOT NULL
 			BEGIN
 				SELECT	@Vlr_Tarifa = Valor
@@ -60,7 +61,7 @@ FOR INSERT
 			BEGIN
 				INSERT INTO Lancamentos
 					VALUES
-						(@Id_Conta, 1, @Id_TAC, @Operacao_Lancamento, @Vlr_Tarifa, 'Taxa de abertura de conta', @Data_Lancamento)
+						(@Id_Conta, 1, @Id_TAC, @Operacao_Lancamento, @Vlr_Tarifa, 'Taxa de abertura de conta', @Data_Lancamento,0)
 			END
 	END
 GO

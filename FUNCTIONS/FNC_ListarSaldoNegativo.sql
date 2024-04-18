@@ -43,7 +43,7 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_ListarSaldoNegativo]()
 								C.Vlr_SldInicial,
 								C.Vlr_Credito,
 								C.Vlr_Debito,
-								[dbo].[FNC_CalcularSaldoAtual](C.Id, C.Vlr_SldInicial, C.Vlr_Credito, Vlr_Debito) AS Saldo
+								[dbo].[FNC_CalcularSaldoAtual](C.Id, C.Vlr_SldInicial, C.Vlr_Credito, C.Vlr_Debito) AS Saldo
 							FROM [dbo].[Contas] C WITH(NOLOCK)) x
 				WHERE x.Saldo <0
 		RETURN 

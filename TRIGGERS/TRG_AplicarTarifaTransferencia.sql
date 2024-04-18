@@ -22,10 +22,11 @@ FOR INSERT
 								SELECT * FROM Lancamentos
 
 								INSERT INTO Transferencias
+										(Id_Usuario, Id_CtaCre, Id_CtaDeb, Vlr_Trans, Nom_Referencia, Dat_Trans)
 									VALUES
-										(1, 1, 2, 5252, 'Teste123', GETDATE(), 2)
+										(1, 6, 7, 100, 'Teste100', GETDATE())
 
-								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECU��O 
+								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUCAO 
 
 								SELECT * FROM Contas
 								SELECT * FROM Transferencias
@@ -35,7 +36,7 @@ FOR INSERT
 	Retornos.............:	0 - SUCESSO			   
 	*/
 	BEGIN
-		-- Declaro as vari�veis que preciso
+		-- Declaro as variaveis que preciso
 		DECLARE @Id_Conta INT,
 				@Id_Tarifa SMALLINT,
 				@Valor_Tarifa DECIMAL(4,2),
@@ -47,9 +48,10 @@ FOR INSERT
 
 		IF EXISTS (SELECT TOP 1 1
 						FROM inserted WITH(NOLOCK)
-						WHERE Nom_Historico LIKE 'Estorno recebido%')
+						WHERE Estorno = 1)	-- TROCAR WHERE COM STRING
 			BEGIN
-				-- Atribuir valores �s vari�veis
+				PRINT 'CAIU NO IF'
+				-- Atribuir valores as variaveis
 				SELECT	@Id_Conta = Id_Cta,
 						@Id_Tarifa = Id_Tarifa,
 						@Operacao_Lancamento = 'C',
@@ -70,36 +72,37 @@ FOR INSERT
 						-- INSERT em Lancamentos
 						INSERT INTO Lancamentos
 							VALUES
-								(@Id_Conta, @Id_Usuario, @Id_Tarifa, @Operacao_Lancamento, @Valor_Tarifa, @Nome_Tarifa, GETDATE() )
+								(@Id_Conta, @Id_Usuario, @Id_Tarifa, @Operacao_Lancamento, @Valor_Tarifa, @Nome_Tarifa, GETDATE(), 1)
 					END
 		    END
 		ELSE IF EXISTS(SELECT TOP 1 1
 							FROM inserted WITH(NOLOCK)
-							WHERE Nom_Historico  NOT LIKE 'Estorno%'
-							AND	  Tipo_Lanc = 'D'
-							AND Id_Tarifa NOT IN (5,6))
+							WHERE Estorno = 0		-- TROCAR WHERE COM STRING
+							AND	  Tipo_Lanc = 'D'	-- TROCAR WHERE COM STRING
+							AND	  Id_Tarifa NOT IN (5,6,7))
 			BEGIN
-					-- Atribuir valores �s vari�veis
-					SELECT	@Id_Conta = Id_Cta,
-							@Id_Tarifa = Id_Tarifa,
-							@Operacao_Lancamento = Tipo_Lanc,
-							@Id_Usuario = Id_Usuario
-						FROM inserted
-			-- Identifico qual a tarifa e capturo o valor
-			IF @Id_Tarifa IS NOT NULL
-				BEGIN
-					SELECT	@Valor_Tarifa = Valor,
-							@Nome_Tarifa = Nome
-						FROM [dbo].[Tarifas] WITH(NOLOCK)
-						WHERE Id = @Id_Tarifa 
-				END
-			IF @Id_Conta IS NOT NULL
-				BEGIN
-					-- INSERT em Lancamentos
-					INSERT INTO Lancamentos
-						VALUES
-							(@Id_Conta, @Id_Usuario, @Id_Tarifa, @Operacao_Lancamento, @Valor_Tarifa, @Nome_Tarifa, GETDATE() )
-				END
+				PRINT 'CAIU NO ELSE'
+				-- Atribuir valores as variaveis
+				SELECT	@Id_Conta = Id_Cta,
+						@Id_Tarifa = Id_Tarifa,
+						@Operacao_Lancamento = Tipo_Lanc,
+						@Id_Usuario = Id_Usuario
+					FROM inserted
+				-- Identifico qual a tarifa e capturo o valor
+				IF @Id_Tarifa IS NOT NULL
+					BEGIN
+						SELECT	@Valor_Tarifa = Valor,
+								@Nome_Tarifa = Nome
+							FROM [dbo].[Tarifas] WITH(NOLOCK)
+							WHERE Id = @Id_Tarifa 
+					END
+				IF @Id_Conta IS NOT NULL
+					BEGIN
+						-- INSERT em Lancamentos
+						INSERT INTO Lancamentos
+							VALUES
+								(@Id_Conta, @Id_Usuario, @Id_Tarifa, @Operacao_Lancamento, @Valor_Tarifa, @Nome_Tarifa, GETDATE(), 0)
+					END
 		    END
 	END
 GO

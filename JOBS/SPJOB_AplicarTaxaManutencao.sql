@@ -55,7 +55,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 				FROM Tarifas
 				WHERE Id = 6
 
-		-- Comparar M�s/Ano Atual > DataAbertura Lan�ar @Data_Cobranca_TMC
+		-- Comparar Mes/Ano Atual > DataAbertura Lancar @Data_Cobranca_TMC
 			IF @Data_Abertura < @Data_Atual
 				BEGIN
 					IF DAY(@Data_Abertura) <= 28
@@ -78,7 +78,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 								'D',
 								@Valor_TMC,
 								@Nome_Tarifa,
-								@Data_Atual
+								@Data_Atual,
+								0
 							FROM [dbo].[Contas]
 							WHERE DAY(Dat_Abertura) = @Data_Cobranca_TMC_FinalDoMes
 				END
@@ -91,7 +92,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 								'D',
 								@Valor_TMC,
 								@Nome_Tarifa,
-								@Data_Atual
+								@Data_Atual,
+								0
 							FROM [dbo].[Contas]
 							WHERE DAY(Dat_Abertura) = @Data_Cobranca_TMC
 				END
