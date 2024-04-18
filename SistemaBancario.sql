@@ -1,45 +1,59 @@
 CREATE DATABASE SistemaBancario
+GO
+
 USE SistemaBancario
 GO
 
 CREATE TABLE Usuarios(
 	Id INT IDENTITY PRIMARY KEY, 
 	Nom_Usuario VARCHAR(50) NOT NULL 
-); 
+);
+
+CREATE TABLE CreditScore (
+	Id TINYINT IDENTITY,
+	Nome VARCHAR(50) NOT NULL,
+	Faixa DECIMAL(15,2) NOT NULL,
+	Aliquota DECIMAL(3,2) NOT NULL,
+	CONSTRAINT Id_CreditScore PRIMARY KEY(Id)
+);
 
 CREATE TABLE Contas (
-	Id INT IDENTITY PRIMARY KEY,
+	Id INT IDENTITY,
 	Vlr_SldInicial DECIMAL (15,2) NOT NULL, 
 	Vlr_Credito DECIMAL (15,2) NOT NULL,
 	Vlr_Debito DECIMAL (15,2) NOT NULL, 
 	Dat_Saldo DATE NOT NULL,
 	Dat_Abertura DATE NOT NULL,
 	Dat_Encerramento DATE, 
-	Ativo CHAR(1) NOT NULL,
-	Lim_ChequeEspecial DECIMAL(15,2) NOT NULL
-
+	Ativo BIT NOT NULL,
+	Lim_ChequeEspecial DECIMAL(15,2) NOT NULL,
+	IdCreditScore TINYINT,
+	CONSTRAINT PK_ContasId PRIMARY KEY(Id),
+	CONSTRAINT FK_IdCreditScoreContas FOREIGN KEY(IdCreditScore) REFERENCES CreditScore(Id)
 ); 
 
-CREATE TABLE Tarifas(
-	Id TINYINT PRIMARY KEY IDENTITY,
+CREATE TABLE Tarifas (
+	Id TINYINT IDENTITY,
 	Nome VARCHAR(50) NOT NULL, 
 	Valor DECIMAL(4,2),
-	Taxa DECIMAL(5,4)
-	);
+	Taxa DECIMAL(6,5),
+	CONSTRAINT PK_TarifasId PRIMARY KEY(Id)
+);
 
 
 CREATE TABLE Lancamentos(
 	Id INT IDENTITY PRIMARY KEY, 
 	Id_Cta INT NOT NULL,
 	Id_Usuario INT NOT NULL,
-	Id_Tarifa TINYINT NOT NULL,
+	Id_Tarifa TINYINT,
 	Tipo_Lanc CHAR(1)NOT NULL,
 	Vlr_Lanc Decimal (15,2) NOT NULL,
 	Nom_Historico VARCHAR(500) NOT NULL,
-	Dat_Lancamento DATETIME NOT NULL
+	Dat_Lancamento DATETIME NOT NULL,
+	Estorno BIT NOT NULL
 	CONSTRAINT FK_Conta_Lancamento FOREIGN KEY (Id_Cta) references Contas(Id),
 	CONSTRAINT FK_Usuario_Lancamento FOREIGN KEY (Id_Usuario) references Usuarios(Id),
-	CONSTRAINT CHK_Tipo_Lanc_C_D CHECK(Tipo_Lanc LIKE '[c,C]' OR Tipo_Lanc LIKE '[D,d]'),
+	CONSTRAINT CHK_Tipo_Lanc_C_D CHECK(Tipo_Lanc = 'C' OR Tipo_Lanc = 'D'),
 	CONSTRAINT FK_Tarifa_Lancamentos FOREIGN KEY (Id_Tarifa) references Tarifas(Id)
 );
 
@@ -54,25 +68,8 @@ CREATE TABLE Transferencias(
 	CONSTRAINT FK_Conta_Credito FOREIGN KEY (Id_CtaCre) REFERENCES Contas(Id),
 	CONSTRAINT FK_Conta_Debito FOREIGN KEY (Id_CtaDeb) REFERENCES Contas(Id),
 	CONSTRAINT FK_UsuarioTransferencia  FOREIGN KEY (Id_Usuario ) REFERENCES Usuarios(Id)
-
 ); 
 
 
-ALTER TABLE Contas ADD IdCreditScore TINYINT;
 
-
-CREATE TABLE CreditScore (
-	Id TINYINT IDENTITY,
-	Nome VARCHAR(50) NOT NULL,
-	Faixa DECIMAL(15,2) NOT NULL
-	CONSTRAINT Id_CreditScore PRIMARY KEY(Id)
-);
-
-ALTER TABLE Contas ADD CONSTRAINT FK_IdCreditScoreContas FOREIGN KEY(IdCreditScore) REFERENCES CreditScore(Id);
-
-INSERT INTO CreditScore VALUES('Péssimo', 200),
-							  ('Ruim', 400),
-							  ('Mediano', 600),
-							  ('Bom', 800),
-							  ('Ótimo', 1200);
 

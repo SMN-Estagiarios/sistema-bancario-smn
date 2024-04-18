@@ -7,13 +7,11 @@ CREATE OR ALTER PROCEDURE [dbo].[spjob_AtualizarCreditScore]
 			Autor.............: Gustavo Targino, Jo�o Victor Maia, Gabriel Damiani
 			Data..............: 16/04/2024
 			EX................:	BEGIN TRAN
-									
-									SELECT * FROM Contas
-
+								
+								SELECT * FROM Contas
 									EXEC [dbo].[spjob_AtualizarCreditScore]
-
-									SELECT * FROM Contas
-
+								SELECT * FROM Contas
+								select * from creditscore
 								ROLLBACK TRAN
 		*/
     BEGIN
@@ -22,7 +20,7 @@ CREATE OR ALTER PROCEDURE [dbo].[spjob_AtualizarCreditScore]
         DECLARE @DataInicio DATE = DATEADD(MONTH, -1, GETDATE()),
                 @DataFim DATE
 
-        SET @DataInicio = DATEADD(month, DATEDIFF(month, 0, @DataInicio), 0)
+        SET @DataInicio = DATEFROMPARTS(YEAR(DATEADD(MONTH, -1, GETDATE())), MONTH(DATEADD(MONTH, -1, GETDATE())), 01)
         SET @DataFim = EOMONTH(@DataInicio) 
 
         CREATE TABLE #TabelaData(
@@ -74,17 +72,32 @@ CREATE OR ALTER PROCEDURE [dbo].[spjob_AtualizarCreditScore]
                 INNER JOIN Contas C
                     ON C.Id = SD.ID_Conta
             WHERE SD.DataSaldo >= C.Dat_Abertura
-                  AND C.Ativo = 'S'
+                  AND C.Ativo = 1
             GROUP BY SD.ID_Conta
-			) UPDATE Contas
-				SET IdCreditScore = CASE WHEN MSM.MediaSaldoMensal > CS.Faixa THEN (SELECT MAX(Id) FROM CreditScore WHERE MSM.MediaSaldoMensal > Faixa) ELSE 1 END
+			) 
+			UPDATE Contas
+				SET IdCreditScore = CASE WHEN MSM.MediaSaldoMensal > CS.Faixa 
+										 THEN (SELECT MAX(Id) 
+													FROM CreditScore 
+													WHERE MSM.MediaSaldoMensal > Faixa) 
+										ELSE 1 
+									END,
+					Lim_ChequeEspecial = ABS(MSM.MediaSaldoMensal * (SELECT Aliquota
+																	FROM CreditScore
+																	WHERE Id = (SELECT MAX(Id)
+																					FROM CreditScore
+																					WHERE MSM.MediaSaldoMensal > Faixa)))
 					FROM Contas
 						INNER JOIN MediaSaldoMensal MSM
 							ON MSM.ID_Conta = Contas.ID
 						CROSS JOIN CreditScore CS
-					WHERE Contas.Id = MSM.ID_Conta;
+					WHERE Contas.Id = MSM.ID_Conta;		
 			
 		DROP TABLE #TabelaData
 
     END
 GO
+
+
+
+
