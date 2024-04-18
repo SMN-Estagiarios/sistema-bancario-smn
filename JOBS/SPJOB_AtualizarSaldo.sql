@@ -35,9 +35,7 @@ CREATE OR ALTER PROCEDURE [SPJOB_AtualizarSaldo]
 	*/
 	BEGIN 
 		--Declaracao de variavel 
-		DECLARE @DataAtualizacao DATE = GETDATE(),
-				@Msg VARCHAR(100),
-				@Error INT
+		DECLARE @DataAtualizacao DATE = GETDATE()
 			 
 		--Atualizacao das contas para quando a data do saldo for inferior a data de atualizacao 
 		UPDATE[dbo].[Contas] 

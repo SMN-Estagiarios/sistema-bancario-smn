@@ -187,3 +187,6 @@ CREATE  PROC [dbo].[SP_ListarExtratoTransferencia]
 				AND Id_Tarifa IS NULL
 	END
 GO
+
+
+
