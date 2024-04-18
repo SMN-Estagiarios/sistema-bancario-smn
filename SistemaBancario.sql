@@ -49,7 +49,8 @@ CREATE TABLE Lancamentos(
 	Tipo_Lanc CHAR(1)NOT NULL,
 	Vlr_Lanc Decimal (15,2) NOT NULL,
 	Nom_Historico VARCHAR(500) NOT NULL,
-	Dat_Lancamento DATETIME NOT NULL
+	Dat_Lancamento DATETIME NOT NULL,
+	Estorno BIT NOT NULL
 	CONSTRAINT FK_Conta_Lancamento FOREIGN KEY (Id_Cta) references Contas(Id),
 	CONSTRAINT FK_Usuario_Lancamento FOREIGN KEY (Id_Usuario) references Usuarios(Id),
 	CONSTRAINT CHK_Tipo_Lanc_C_D CHECK(Tipo_Lanc LIKE '[c,C]' OR Tipo_Lanc LIKE '[D,d]'),
