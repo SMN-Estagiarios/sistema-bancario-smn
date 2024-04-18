@@ -7,7 +7,7 @@ GO
 CREATE TABLE Usuarios(
 	Id INT IDENTITY PRIMARY KEY, 
 	Nom_Usuario VARCHAR(50) NOT NULL 
-); 
+);
 
 CREATE TABLE CreditScore (
 	Id TINYINT IDENTITY,
@@ -25,7 +25,7 @@ CREATE TABLE Contas (
 	Dat_Saldo DATE NOT NULL,
 	Dat_Abertura DATE NOT NULL,
 	Dat_Encerramento DATE, 
-	Ativo CHAR(1) NOT NULL,
+	Ativo BIT NOT NULL,
 	Lim_ChequeEspecial DECIMAL(15,2) NOT NULL,
 	IdCreditScore TINYINT,
 	CONSTRAINT PK_ContasId PRIMARY KEY(Id),
@@ -53,7 +53,7 @@ CREATE TABLE Lancamentos(
 	Estorno BIT NOT NULL
 	CONSTRAINT FK_Conta_Lancamento FOREIGN KEY (Id_Cta) references Contas(Id),
 	CONSTRAINT FK_Usuario_Lancamento FOREIGN KEY (Id_Usuario) references Usuarios(Id),
-	CONSTRAINT CHK_Tipo_Lanc_C_D CHECK(Tipo_Lanc LIKE '[c,C]' OR Tipo_Lanc LIKE '[D,d]'),
+	CONSTRAINT CHK_Tipo_Lanc_C_D CHECK(Tipo_Lanc = 'C' OR Tipo_Lanc = 'D'),
 	CONSTRAINT FK_Tarifa_Lancamentos FOREIGN KEY (Id_Tarifa) references Tarifas(Id)
 );
 
