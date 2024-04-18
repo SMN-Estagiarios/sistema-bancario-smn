@@ -1,10 +1,10 @@
-CREATE OR ALTER TRIGGER [dbo].[TRG_InserirTaxaSalgoNegativo]
+CREATE OR ALTER TRIGGER [dbo].[TRG_InserirTaxaSaldoNegativo]
 	ON [dbo].[Contas]
 	AFTER UPDATE
 	AS
 	 /*
 		Documentação
-		Arquivo Fonte........:	TRG_InserirTaxaSalgoNegativo.sql
+		Arquivo Fonte........:	TRG_InserirTaxaSaldoNegativo.sql
 		Objetivo.............:	Verificar diariamente quais contas estão negativas e aplicar a taxa de saldo negativo para a conta que estiver
 		Autor................:	Orcino Neto, Odlavir Florentino e Pedro Avelino
 		Data.................:	12/04/2024

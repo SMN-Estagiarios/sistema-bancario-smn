@@ -1,12 +1,12 @@
-CREATE OR ALTER TRIGGER [dbo].[TRG_TaxaAberturaConta]
+CREATE OR ALTER TRIGGER [dbo].[TRG_AplicarTaxaAberturaConta]
 ON [dbo].[Contas]
 FOR INSERT
 	AS
 	/*
-	DOCUMENTA��O
-	Arquivo Fonte........:	trg_taxaAberturaConta.sql
-	Objetivo.............:	Atualizar o SaldoInicial da tabela conta ap�s um lan�amento
-	Autor................:	Ol�vio Freitas, Danyel Targino e Rafael Maur�cio
+	DOCUMENTACAO
+	Arquivo Fonte........:	TRG_AplicarTaxaAberturaConta.sql
+	Objetivo.............:	Atualizar o SaldoInicial da tabela conta apos um lancamento
+	Autor................:	Olivio Freitas, Danyel Targino e Rafael Mauricio
 	Data.................:	10/04/2024
 	ObjetivoAlt..........:	N/A
 	AutorAlt.............:	N/A

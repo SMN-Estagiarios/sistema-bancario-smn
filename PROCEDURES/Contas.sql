@@ -21,7 +21,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarSaldoAtual]
 	
 		BEGIN
 				SELECT  Id AS IdConta,
-						[dbo].[Func_CalculaSaldoAtual](@Id_Conta, Vlr_SldInicial, Vlr_Credito,Vlr_Debito)
+						[dbo].[FNC_CalcularSaldoAtual](@Id_Conta, Vlr_SldInicial, Vlr_Credito,Vlr_Debito)
 				FROM Contas
 				WHERE Id = ISNULL(@Id_Conta, Id)
 		END
@@ -153,8 +153,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarConta]
 				BEGIN
 					RETURN 2
 				END
-			IF(	@Campo NOT LIKE 'Cr[e�]dito' AND 
-				@Campo NOT LIKE 'D[e�]bito')
+			IF(	@Campo NOT LIKE 'Cr[e,é]dito' AND 
+				@Campo NOT LIKE 'D[e,é]bito')
 				BEGIN
 					RETURN 3
 				END
@@ -167,11 +167,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarConta]
 			ELSE
 				BEGIN		-- Atualiza a conta com base no Id
 					UPDATE [dbo].[Contas] 
-						SET  Vlr_Credito = CASE WHEN @Campo LIKE 'Cr[�e]dito' 
+						SET  Vlr_Credito = CASE WHEN @Campo LIKE 'Cr[é,e]dito' 
 												THEN  @Vlr_Atualizacao 
 												ELSE Vlr_Credito 
 											END,
-							Vlr_Debito =   CASE	WHEN @Campo LIKE 'D[e�]bito' 
+							Vlr_Debito =   CASE	WHEN @Campo LIKE 'D[e,é]bito' 
 												THEN  @Vlr_Atualizacao
 												ELSE Vlr_Debito 
 											END

@@ -65,7 +65,7 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 				RETURN 1
 			END
 		--Verifica se o valor da transferencia é inferior ao valor de saldo
-		IF(@Vlr_Transferencia > (SELECT [dbo].[Func_CalcularSaldoAtual](@Id_ContaDeb, Vlr_SldInicial, Vlr_Credito,Vlr_Debito)
+		IF(@Vlr_Transferencia > (SELECT [dbo].[FNC_CalcularSaldoAtual](@Id_ContaDeb, Vlr_SldInicial, Vlr_Credito,Vlr_Debito)
 										FROM Contas 
 										WHERE Id = @Id_ContaDeb )) 
 			BEGIN

@@ -45,7 +45,7 @@ CREATE TABLE Lancamentos(
 	Id INT IDENTITY PRIMARY KEY, 
 	Id_Cta INT NOT NULL,
 	Id_Usuario INT NOT NULL,
-	Id_Tarifa TINYINT NOT NULL,
+	Id_Tarifa TINYINT,
 	Tipo_Lanc CHAR(1)NOT NULL,
 	Vlr_Lanc Decimal (15,2) NOT NULL,
 	Nom_Historico VARCHAR(500) NOT NULL,
@@ -67,7 +67,6 @@ CREATE TABLE Transferencias(
 	CONSTRAINT FK_Conta_Credito FOREIGN KEY (Id_CtaCre) REFERENCES Contas(Id),
 	CONSTRAINT FK_Conta_Debito FOREIGN KEY (Id_CtaDeb) REFERENCES Contas(Id),
 	CONSTRAINT FK_UsuarioTransferencia  FOREIGN KEY (Id_Usuario ) REFERENCES Usuarios(Id)
-
 ); 
 
 

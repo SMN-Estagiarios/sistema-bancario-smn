@@ -7,9 +7,9 @@ CREATE OR ALTER FUNCTION [DBO].[FNC_BalancoCD]()
 						)
 	AS
 		/*
-			Documenta��o
+			Documentacao
 			Arquivo Fonte.....: FNC_BalancoCD.sql
-			Objetivo.............: Calcular todo o balan�o de cr�dito e debito de uma conta desde o primeiro lan�amento
+			Objetivo.............: Calcular todo o balanco de credito e debito de uma conta desde o primeiro lancamento
 			Autor.................: Orcino Neto, Odlavir Florentino e Pedro Avelino
 			Data..................: 11/04/2024
 			EX.....................: BEGIN TRAN
@@ -19,10 +19,10 @@ CREATE OR ALTER FUNCTION [DBO].[FNC_BalancoCD]()
 
 	BEGIN
 		INSERT INTO @Tabela  SELECT	Id_Cta,
-														ISNULL(SUM(CASE WHEN Tipo_Lanc = 'C' THEN Vlr_Lanc END), 0.00) Credito,
-														ISNULL(SUM(CASE WHEN Tipo_Lanc = 'D' THEN Vlr_Lanc END), 0.00) Debito,
-														Dat_Lancamento
-												FROM [DBO].[Lancamentos] WITH(NOLOCK)												
-												GROUP BY Id_Cta, Dat_Lancamento
+									ISNULL(SUM(CASE WHEN Tipo_Lanc = 'C' THEN Vlr_Lanc END), 0.00) Credito,
+									ISNULL(SUM(CASE WHEN Tipo_Lanc = 'D' THEN Vlr_Lanc END), 0.00) Debito,
+									Dat_Lancamento
+							FROM [DBO].[Lancamentos] WITH(NOLOCK)												
+							GROUP BY Id_Cta, Dat_Lancamento
 		RETURN 
 	END

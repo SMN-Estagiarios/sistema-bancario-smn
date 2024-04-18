@@ -1,12 +1,12 @@
 CREATE OR ALTER TRIGGER [dbo].[TRG_TarifaTransferencia]
-ON [dbo].[lancamentos]
+ON [dbo].[Lancamentos]
 FOR INSERT
 	AS
 	/*
-	DOCUMENTA��O
-	Arquivo Fonte........:	trg_tarifaTransferencia.sql
-	Objetivo.............:	Atualizar o Saldo da tabela ap�s o registro de uma Transfer�ncia
-	Autor................:	Ol�vio Freitas, Danyel Targino e Rafael Maur�cio
+	DOCUMENTACAO
+	Arquivo Fonte........:	TRG_AplicarTarifaTransferencia.sql
+	Objetivo.............:	Atualizar o Saldo da tabela apos o registro de uma Transferencia
+	Autor................:	Olivio Freitas, Danyel Targino e Rafael Mauricio
 	Data.................:	11/04/2024
 	ObjetivoAlt..........:	N/A
 	AutorAlt.............:	N/A
@@ -103,5 +103,3 @@ FOR INSERT
 		    END
 	END
 GO
-
-select * from tarifas
