@@ -5,9 +5,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarCreditScore]
     AS
 	/*
 		Documenta��o
-		Arquivo Fonte.....: SPJob_AtualizarCreditScore.sql
+		Arquivo Fonte.....: SPJOB_AtualizarCreditScore.sql
 		Objetivo..........: Atualizar o CreditScore das contas
-		Autor.............: Gustavo Targino, Jo�o Victor Maia, Gabriel Damiani
+		Autor.............: Gustavo Targino, Joao Victor Maia, Gabriel Damiani
 		Data..............: 16/04/2024
 		EX................:	BEGIN TRAN
 								DBCC DROPCLEANBUFFERS;
@@ -33,7 +33,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarCreditScore]
 									FROM [dbo].[Contas] WITH(NOLOCK);
 
 								SELECT  @Ret AS Retorno,
-										DATEDIFF(MILLISECOND, @Dat_ini, GETDATE())
+										DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
 							ROLLBACK TRAN
 		*/
     BEGIN

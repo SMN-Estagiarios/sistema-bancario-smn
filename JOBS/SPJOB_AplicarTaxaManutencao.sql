@@ -1,10 +1,10 @@
-CREATE OR ALTER PROCEDURE [dbo].[spjob_taxaManutencao]
+CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 	AS
 	/*
-	DOCUMENTA��O
-	Arquivo Fonte........:	spjob_taxaManutencao.sql
-	Objetivo.............:	Aplica a Taxa de Manuten��o de Conta a partir da data de abertura da conta nos meses subsequentes
-	Autor................:	Ol�vio Freitas, Danyel Targino e Rafael Maur�cio
+	Documentacao
+	Arquivo Fonte........:	SPJOB_AplicarTaxaManutencao.sql
+	Objetivo.............:	Aplica a Taxa de Manutencao de Conta a partir da data de abertura da conta nos meses subsequentes
+	Autor................:	Olivio Freitas, Danyel Targino e Rafael Mauricio
 	Data.................:	11/04/2024
 	ObjetivoAlt..........:	N/A
 	AutorAlt.............:	N/A
@@ -14,15 +14,15 @@ CREATE OR ALTER PROCEDURE [dbo].[spjob_taxaManutencao]
 								DBCC FREEPROCCACHE;
 
 								DECLARE @RET INT, 
-						        @Dat_init DATETIME = GETDATE()
+										@Dat_init DATETIME = GETDATE()
 
 								SELECT * FROM Contas ORDER BY Dat_Abertura DESC
 								SELECT * FROM Lancamentos ORDER BY Dat_Lancamento DESC
 
-								EXEC @RET = [dbo].[spjob_taxaManutencao];
+								EXEC @RET = [dbo].[SPJOB_AplicarTaxaManutencao];
 
-								SELECT @RET AS RETORNO,
-								DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECU��O 
+								SELECT	@RET AS RETORNO,
+										DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS TempoExecucao
 
 								SELECT * FROM Lancamentos ORDER BY Dat_Lancamento DESC
 								SELECT * FROM Contas ORDER BY Dat_Abertura DESC
@@ -30,14 +30,16 @@ CREATE OR ALTER PROCEDURE [dbo].[spjob_taxaManutencao]
 							ROLLBACK TRAN
 	*/
 	BEGIN
-		-- Declarando vari�veis
+		-- Declarando variaveis
 		DECLARE @Data_Atual DATE = GETDATE(),
 				@Data_Abertura DATE,
 				@Data_Cobranca_TMC INT,
 				@Data_Cobranca_TMC_FinalDoMes INT,
 				@Id_Conta INT,
 				@Id_TarifaTMC INT,
-				@Valor_TMC INT
+				@Valor_TMC INT,
+				@Nome_Tarifa VARCHAR(50),
+				@Id_Admin INT = 1
 
 		-- Capturar a data de abertura da conta
 			BEGIN
@@ -48,9 +50,10 @@ CREATE OR ALTER PROCEDURE [dbo].[spjob_taxaManutencao]
 
 		-- Capturar Id_Taxa e Valor da Taxa
 			SELECT	@Id_TarifaTMC = Id,
-					@Valor_TMC = Valor
+					@Valor_TMC = Valor,
+					@Nome_Tarifa = Nome
 				FROM Tarifas
-				WHERE Nome = 'TMC'
+				WHERE Id = 6
 
 		-- Comparar M�s/Ano Atual > DataAbertura Lan�ar @Data_Cobranca_TMC
 			IF @Data_Abertura < @Data_Atual
@@ -65,16 +68,16 @@ CREATE OR ALTER PROCEDURE [dbo].[spjob_taxaManutencao]
 						END
 				END
 
-			-- Insert dos LAN�AMENTOS
+			-- Insert dos LANCAMENTOS
 			IF @Data_Cobranca_TMC IN (29, 30, 31) OR @Data_Cobranca_TMC_FinalDoMes IN (29, 30, 31)
 				BEGIN
 					INSERT INTO Lancamentos
 						SELECT	Id, 
-								1,
+								@Id_Admin,
 								@Id_TarifaTMC,
 								'D',
 								@Valor_TMC,
-								'TMC',
+								@Nome_Tarifa,
 								@Data_Atual
 							FROM [dbo].[Contas]
 							WHERE DAY(Dat_Abertura) = @Data_Cobranca_TMC_FinalDoMes
@@ -83,11 +86,11 @@ CREATE OR ALTER PROCEDURE [dbo].[spjob_taxaManutencao]
 				BEGIN
 					INSERT INTO Lancamentos
 						SELECT	Id, 
-								1,
+								@Id_Admin,
 								@Id_TarifaTMC,
 								'D',
 								@Valor_TMC,
-								'TMC',
+								@Nome_Tarifa,
 								@Data_Atual
 							FROM [dbo].[Contas]
 							WHERE DAY(Dat_Abertura) = @Data_Cobranca_TMC

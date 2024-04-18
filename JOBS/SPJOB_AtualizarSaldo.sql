@@ -4,7 +4,7 @@ GO
 CREATE OR ALTER PROCEDURE [SPJOB_AtualizarSaldo] 
 	AS 
 	/*
-		Documenta��o
+		Documentacao
 		Arquivo Fonte.....: SPJOB_AtualizarSaldo.sql
 		Objetivo..........: Job automatica que atualiza o saldo conforme o o dia mude 
 		Autor.............: Adriel Alexander 
@@ -24,7 +24,7 @@ CREATE OR ALTER PROCEDURE [SPJOB_AtualizarSaldo]
 
 								EXEC [dbo].[SPJOB_AtualizarSaldo];
 
-								SELECT DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS Resultado;
+								SELECT DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao;
 								SELECT  TOP 20	Id,
 												Vlr_SldInicial,
 												Vlr_Credito,
@@ -38,7 +38,8 @@ CREATE OR ALTER PROCEDURE [SPJOB_AtualizarSaldo]
 		DECLARE @DataAtualizacao DATE = GETDATE(),
 				@Msg VARCHAR(100),
 				@Error INT
-			 --Atualizacao das contas para quando a data do saldo for inferior a data de atualizacao 
+			 
+		--Atualizacao das contas para quando a data do saldo for inferior a data de atualizacao 
 		UPDATE[dbo].[Contas] 
 			SET Vlr_SldInicial = [dbo].[FNC_CalcularSaldoAtual](NULL, Vlr_SldInicial, Vlr_Credito, Vlr_Debito), 
 				Vlr_Credito = 0,
