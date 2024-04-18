@@ -22,6 +22,11 @@ INSERT INTO Tarifas(Nome, Taxa) VALUES
 ('TSN', 0.00334);
 GO
 
+-- INSERT DE Tarifa sem valor 
+INSERT INTO Tarifas(Nome) VALUES 
+('Sem Tarifa');
+GO
+
 --INSER��O DO ADMIN
 INSERT INTO Usuarios VALUES('ADM')
 GO
