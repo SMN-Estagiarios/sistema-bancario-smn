@@ -24,7 +24,7 @@ FOR INSERT
 								INSERT INTO Transferencias
 										(Id_Usuario, Id_CtaCre, Id_CtaDeb, Vlr_Trans, Nom_Referencia, Dat_Trans)
 									VALUES
-										(1, 6, 7, 100, 'Teste100', GETDATE())
+										(1, 2, 3, 100, 'Teste100', GETDATE())
 
 								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUCAO 
 

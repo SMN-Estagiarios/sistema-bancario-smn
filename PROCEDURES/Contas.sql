@@ -22,7 +22,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarSaldoAtual]
 		BEGIN
 				SELECT  Id AS IdConta,
 						[dbo].[FNC_CalcularSaldoAtual](@Id_Conta, Vlr_SldInicial, Vlr_Credito,Vlr_Debito)
-				FROM Contas
+				FROM [dbo].[Contas]
 				WHERE Id = ISNULL(@Id_Conta, Id)
 		END
 
