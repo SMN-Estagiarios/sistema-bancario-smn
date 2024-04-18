@@ -15,27 +15,26 @@ AS
 										DECLARE @DATA_INI DATETIME = GETDATE();
 
 										SELECT  Id,
-												Id_Usuario,
 												Vlr_SldInicial,
 												Vlr_Credito,
 												Vlr_Debito,
 												Dat_Saldo 
 											FROM [dbo].[Contas]
 											WHERE Id = 1
-
-										INSERT INTO Lancamentos(Id_Cta, Id_Usuario, Id_Tarifa, Tipo_Lanc, Vlr_Lanc, Nom_Historico, Dat_Lancamento)
-											VALUES (1,1,'C', 2000, 'TESTE TRIGGER', GETDATE())
+											select * from lancamentos
+										INSERT INTO Lancamentos(Id_Cta, Id_Usuario, Id_Tarifa, Tipo_Lanc, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
+											VALUES (1,1, null,'C', 2000, 'TESTE TRIGGER', '2024-04-12', 0)
 
 										SELECT DATEDIFF(MILLISECOND, @DATA_INI,GETDATE()) AS Execução
 
 										SELECT  Id,
-												Id_Usuario,
 												Vlr_SldInicial,
 												Vlr_Credito,
 												Vlr_Debito,
 												Dat_Saldo 
 											FROM [dbo].[Contas]
 											WHERE Id = 1
+											select * from lancamentos 
 								ROLLBACK TRAN
 	*/
 	BEGIN
@@ -73,34 +72,6 @@ AS
 										THEN Vlr_Debito
 											ELSE(Vlr_Debito + @Vlr_Lancamento)END)
 				WHERE Id = @Id_Conta
-				
-			
-		
-		--ATRIBUINDO VALORES AS VARIÁVEIS 
-			SELECT	@Id_Conta = Id_Cta,
-					@Tipo_Lancamento = Tipo_Lanc,
-					@Data_Lanc = Dat_Lancamento, 
-					@Vlr_Lancamento = Vlr_Lanc
-				FROM DELETED
-			
-				UPDATE [dbo].[Contas] 
-					SET  Vlr_SldInicial = (CASE WHEN @Data_Lanc < Dat_Saldo THEN Vlr_SldInicial + 
-																								(CASE	WHEN @Tipo_Lancamento = 'C' 
-																										THEN @Vlr_Lancamento * (-1)
-																									ELSE @Vlr_Lancamento 
-																								END)
-												ELSE Vlr_SldInicial 
-											END),
-
-							Vlr_Credito = (CASE WHEN @Data_Lanc < Dat_Saldo OR @Tipo_Lancamento = 'D' 
-												THEN Vlr_Credito
-														ELSE (Vlr_Credito - @Vlr_Lancamento) END),
-
-							Vlr_Debito =	(CASE	WHEN @Data_Lanc < Dat_Saldo OR @Tipo_Lancamento = 'C'
-												THEN Vlr_Debito
-													ELSE(Vlr_Debito - @Vlr_Lancamento)
-											END)
-					WHERE Id = @Id_Conta
 						
     END
 

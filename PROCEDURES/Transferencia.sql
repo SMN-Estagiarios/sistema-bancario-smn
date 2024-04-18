@@ -1,4 +1,4 @@
-CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
+CREATE PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 	@Id_Usuario INT,
 	@Id_ContaDeb INT,
 	@Id_ContaCre INT,
@@ -93,7 +93,7 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 	END
 GO
 
-CREATE OR ALTER PROC [dbo].[SP_RealizarEstornoTransferencia]
+CREATE  PROC [dbo].[SP_RealizarEstornoTransferencia]
 	@Id_Transferencia INT
 
 	AS
@@ -120,7 +120,7 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarEstornoTransferencia]
 
 									SELECT * from Lancamentos
 
-								  EXEC @RET = [dbo].[SP_RealizarEstornoTransferencia]12
+								  EXEC @RET = [dbo].[SP_RealizarEstornoTransferencia]1
 
 									SELECT @RET AS RETORNO,
 										   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUcaO
@@ -157,7 +157,7 @@ CREATE OR ALTER PROC [dbo].[SP_RealizarEstornoTransferencia]
 	END
 GO
 
-CREATE OR ALTER PROC [dbo].[SP_ListarExtratoTransferencia]
+CREATE  PROC [dbo].[SP_ListarExtratoTransferencia]
 	@Id_Conta INT = null
 
 	AS
@@ -184,9 +184,6 @@ CREATE OR ALTER PROC [dbo].[SP_ListarExtratoTransferencia]
 			Nom_Historico AS Descrição
 				FROM [dbo].[Lancamentos] WITH (NOLOCK)
 				WHERE Id_Cta = ISNULL(@Id_Conta, Id_Cta)
-				AND Id_Tarifa = (SELECT 
-										ID
-									FROM Tarifas
-									WHERE Nome = 'TEC')
+				AND Id_Tarifa IS NULL
 	END
 GO
