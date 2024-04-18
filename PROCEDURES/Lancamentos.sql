@@ -59,7 +59,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 		-- Caso a checagem tiver correta:
 		ELSE	
 			INSERT INTO [dbo].[Lancamentos]  (Id_Cta,Id_Usuario,Id_Tarifa,Tipo_Lanc,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
-																(@Id_Cta, @Id_Usuario, @Id_Tarifa,@Tipo_Lanc,@Vlr_Lanc,	@Nom_Historico,@Dat_Lancamento,@Estorno)
+																(@Id_Cta, @Id_Usuario, @Id_Tarifa,@Tipo_Lanc,@Vlr_Lanc,	@Nom_Historico,@Dat_Lancamento, @Estorno)
             IF @@ROWCOUNT <> 0
                 RETURN 0 
             ELSE 

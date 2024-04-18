@@ -93,7 +93,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirConta]
 GO
 	
 CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarConta]
-		@Id_Conta INT,
+		@Id INT,
 		@Campo VARCHAR(20),
 		@Vlr_Atualizacao DECIMAL(15,2)
 		
