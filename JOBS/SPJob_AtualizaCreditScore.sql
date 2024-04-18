@@ -72,7 +72,7 @@ CREATE OR ALTER PROCEDURE [dbo].[spjob_AtualizarCreditScore]
                 INNER JOIN Contas C
                     ON C.Id = SD.ID_Conta
             WHERE SD.DataSaldo >= C.Dat_Abertura
-                  AND C.Ativo = 1
+                  AND C.Ativo = 'S'
             GROUP BY SD.ID_Conta
 			) 
 			UPDATE Contas
