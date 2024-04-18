@@ -24,7 +24,7 @@ FOR INSERT
 								INSERT INTO Lancamentos
 										(Id_Cta, Id_Usuario, Id_Tarifa, Tipo_lanc ,Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 									VALUES
-										(1, 1, 1,'D', 50, 'Teste100', GETDATE(), 1)
+										(1, 1, 5,'C', 50, 'Teste100', GETDATE(), 1)
 
 								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUCAO 
 
@@ -43,7 +43,8 @@ FOR INSERT
 				@Nome_Tarifa VARCHAR(50),
 				@Valor_Debito DECIMAL(15,2),
 				@Operacao_Lancamento CHAR(1),
-				@Id_Usuario INT
+				@Id_Usuario INT, 
+				@Estorno BIT 
 				
 
 		IF EXISTS (SELECT TOP 1 1
@@ -56,7 +57,8 @@ FOR INSERT
 				SELECT	@Id_Conta = Id_Cta,
 						@Id_Tarifa = Id_Tarifa,
 						@Operacao_Lancamento = 'C',
-						@Id_Usuario = Id_Usuario
+						@Id_Usuario = Id_Usuario,
+						@Estorno = Estorno
 					FROM inserted
 			
 				-- Identifico qual a tarifa e capturo o valor
@@ -73,7 +75,7 @@ FOR INSERT
 						-- INSERT em Lancamentos
 						INSERT INTO Lancamentos
 							VALUES
-								(@Id_Conta, @Id_Usuario, @Id_Tarifa, @Operacao_Lancamento, @Valor_Tarifa, @Nome_Tarifa, GETDATE(), 1)
+								(@Id_Conta, @Id_Usuario, @Id_Tarifa, @Operacao_Lancamento, @Valor_Tarifa, @Nome_Tarifa, GETDATE(), @Estorno)
 					END
 		    END
 		ELSE IF EXISTS(SELECT TOP 1 1
@@ -87,7 +89,8 @@ FOR INSERT
 				SELECT	@Id_Conta = Id_Cta,
 						@Id_Tarifa = Id_Tarifa,
 						@Operacao_Lancamento = Tipo_Lanc,
-						@Id_Usuario = Id_Usuario
+						@Id_Usuario = Id_Usuario,
+						@Estorno = Estorno
 					FROM inserted
 				-- Identifico qual a tarifa e capturo o valor
 				IF @Id_Tarifa IS NOT NULL
@@ -102,7 +105,7 @@ FOR INSERT
 						-- INSERT em Lancamentos
 						INSERT INTO Lancamentos
 							VALUES
-								(@Id_Conta, @Id_Usuario, @Id_Tarifa, @Operacao_Lancamento, @Valor_Tarifa, @Nome_Tarifa, GETDATE(), 0)
+								(@Id_Conta, @Id_Usuario, @Id_Tarifa, @Operacao_Lancamento, @Valor_Tarifa, @Nome_Tarifa, GETDATE(), @Estorno)
 					END
 		    END
 	END
