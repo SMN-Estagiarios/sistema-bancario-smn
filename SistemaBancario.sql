@@ -36,7 +36,7 @@ CREATE TABLE Contas (
 ); 
 
 CREATE TABLE Tarifas (
-	Id TINYINT IDENTITY,
+	Id TINYINT,
 	Nome VARCHAR(50) NOT NULL, 
 	Valor DECIMAL(4,2),
 	Taxa DECIMAL(6,5),
@@ -44,7 +44,7 @@ CREATE TABLE Tarifas (
 );
 
  CREATE TABLE TipoLancamento (
-     Id INT IDENTITY PRIMARY KEY,
+     Id INT PRIMARY KEY,
      Nome VARCHAR(50) NOT NULL UNIQUE
  );
 

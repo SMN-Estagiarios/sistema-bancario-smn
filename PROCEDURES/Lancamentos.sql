@@ -1,6 +1,3 @@
-USE SistemaBancario
-GO
-
 CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 		@Id_Cta INT,
 		@Id_Usuario INT,
@@ -14,28 +11,27 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 	AS
 		/*
 			Documentação
-			Arquivo Fonte.....: Lancamentos.sql
-			Objetivo..........: Inserir Dados na Tabela Lançamentos, e não permitir lançamentos futuros
-			Autor.............: Orcino Neto, Isabella Siqueira, Thays Carvalho
- 			Data..............: 18/04/2024
-			Ex................:	BEGIN TRAN
-									DBCC DROPCLEANBUFFERS; 
-									DBCC FREEPROCCACHE;
+			Arquivo Fonte..: Lancamentos.sql
+			Objetivo..........: Inserir Dados na Tabela Lançamentos, não permitir lançamentos futuros, nem retroativos de meses passados.
+									Digitar Null no paramentro @Dat_Lancamento ira receber GETDATE().
+			Autor..............: Orcino Neto, Isabella Siqueira, Thays Carvalho
+ 			Data...............: 18/04/2024
+			Ex..................:	
+									BEGIN TRAN
+										DBCC DROPCLEANBUFFERS; 
+										DBCC FREEPROCCACHE;
 
-									DECLARE @Dat_init DATETIME = GETDATE(),
-                                            @RET INT,
-											@DataTeste DATETIME = GETDATE()
+										DECLARE @Dat_init DATETIME = GETDATE(),
+												@RET INT
+										SELECT TOP 10 * FROM Lancamentos
 
-									SELECT TOP 10 * FROM Lancamentos
+										EXEC @RET = [dbo].[SP_CriarLancamentos]	1, 1, 1,1, 'C', 100, 'Deposito', null, 0
+										SELECT TOP 10 * FROM Lancamentos
 
-									EXEC @RET = [dbo].[SP_CriarLancamentos]	1, 1, 1, 1, 'C', 100, 'Deposito', @DataTeste, 0
-									SELECT TOP 10 * FROM Lancamentos
+										SELECT @RET AS RETORNO
 
-                                    SELECT @RET AS RETORNO
-
-									SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS TempoExecucao
-
-								ROLLBACK TRAN	
+										SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS TempoExecucao
+									ROLLBACK TRAN	
                                     
 			    Lista de retornos:
                     0: Sucesso ao inserir o lançamento.
@@ -63,9 +59,21 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 			END
 		-- Caso a checagem tiver correta:
 		ELSE	
-			INSERT INTO [dbo].[Lancamentos] (Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno) VALUES 
-											(@Id_Cta, @Id_Usuario, @Id_TipoLancamento, @Id_Tarifa, @Tipo_Operacao, @Vlr_Lanc, @Nom_Historico, @Dat_Lancamento, @Estorno)
-            IF @@ROWCOUNT <> 0
+			-- Caso paramentro seja NULL sera atribuido a variavel @DataAtual para recerber GETDATE
+			IF @Dat_Lancamento IS NULL
+				BEGIN
+					DECLARE @DataAtual DATETIME
+					SET @DataAtual = GETDATE()
+
+					INSERT INTO [dbo].[Lancamentos]  (Id_Cta,Id_Usuario,Id_TipoLancamento,Id_Tarifa,Tipo_Operacao,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
+																		(@Id_Cta, @Id_Usuario,@Id_TipoLancamento,@Id_Tarifa,@Tipo_Operacao,@Vlr_Lanc,	@Nom_Historico,@DataAtual, @Estorno)
+				END
+
+			ELSE
+				INSERT INTO [dbo].[Lancamentos]  (Id_Cta,Id_Usuario,Id_TipoLancamento,Id_Tarifa,Tipo_Operacao,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
+																	(@Id_Cta, @Id_Usuario,@Id_TipoLancamento,@Id_Tarifa,@Tipo_Operacao,@Vlr_Lanc,	@Nom_Historico,@DataAtual, @Estorno)
+          
+		  IF @@ROWCOUNT <> 0
                 RETURN 0 
             ELSE 
                 RETURN 4

@@ -5,12 +5,9 @@ FOR INSERT
 	/*
 	DOCUMENTACAO
 	Arquivo Fonte........:	TRG_AplicarTaxaAberturaConta.sql
-	Objetivo.............:	Atualizar o SaldoInicial da tabela conta apos um lancamento
+	Objetivo.............:	Insere lancamento referente a taxa de abertura de conta.
 	Autor................:	Olivio Freitas, Danyel Targino e Rafael Mauricio
 	Data.................:	10/04/2024
-	ObjetivoAlt..........:	N/A
-	AutorAlt.............:	N/A
-	DataAlt..............:	N/A
 	Ex...................:	BEGIN TRAN
 								DBCC DROPCLEANBUFFERS;
 								DBCC FREEPROCCACHE;
@@ -31,41 +28,50 @@ FOR INSERT
 								SELECT * FROM Lancamentos ORDER BY Id DESC
 
 							ROLLBACK TRAN
-	Retornos.............:	0 - SUCESSO			   
 	*/
 	BEGIN
 		-- Declaro as variaveis que preciso
 		DECLARE @Id_Conta INT,
 				@Vlr_Tarifa DECIMAL(15,2),
-				@Id_TAC TINYINT = 5,
-				@Id_Usuario INT = 1, 
 				@Data_Lancamento DATETIME = GETDATE(),
-				@Operacao_Lancamento CHAR(1) = 'D',
+				
+				@Id_TAC TINYINT = 5, -- Código 5 se refere a taxa de abertura de conta
+				@Id_Usuario INT = 1, -- Setar para o Usuário 0 (usuário do sistema)
+				@Operacao_Lancamento CHAR(1) = 'D', -- setar
 				@Estorno BIT = 0,
 				@Id_TipoLancamento INT = 7
 				
 		-- Atribuir valores as variaveis
-		IF EXISTS (SELECT TOP 1 1 FROM inserted)
-			BEGIN
-				SELECT	@Id_Conta = Id
-					FROM inserted
-			END
+		SELECT @Vlr_Tarifa = Valor
+			FROM Tarifas WITH (NOLOCK)
+			WHERE ID = @Id_TAC
 
-		-- Salvo valor da taxa na variavel @Vlr_Tarifa
-		IF @Id_TAC IS NOT NULL
-			BEGIN
-				SELECT	@Vlr_Tarifa = Valor
-					FROM [dbo].[Tarifas] WITH(NOLOCK)
-					WHERE Id = @Id_TAC
-			END
+		SELECT	@Id_Conta = Id
+					FROM inserted
 
 		-- Gero um novo lancamento com o valor da taxa
-		IF @Id_Conta IS NOT NULL
-			BEGIN
-				INSERT INTO Lancamentos
-						(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
-					VALUES
-						(@Id_Conta, @Id_Usuario , @Id_TipoLancamento, @Id_TAC, @Operacao_Lancamento, @Vlr_Tarifa, 'Taxa de abertura de conta', @Data_Lancamento, @Estorno)
-			END
+		INSERT INTO Lancamentos	(	Id_Cta, 
+									Id_Usuario, 
+									Id_TipoLancamento, 
+									Id_Tarifa, 
+									Tipo_Operacao, 
+									Vlr_Lanc, 
+									Nom_Historico, 
+									Dat_Lancamento, 
+									Estorno
+								)
+					VALUES	(	@Id_Conta, 
+								@Id_Usuario , 
+								@Id_TipoLancamento, 
+								@Id_TAC, 
+								@Operacao_Lancamento, 
+								@Vlr_Tarifa, 
+								'Taxa de abertura de conta', 
+								@Data_Lancamento, 
+								@Estorno
+							)
+		-- Checagem de erro
+		IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
+	
 	END
 GO
