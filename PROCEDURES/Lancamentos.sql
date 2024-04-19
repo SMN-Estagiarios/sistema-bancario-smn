@@ -6,7 +6,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 		@Tipo_Operacao CHAR(1),
 		@Vlr_Lanc DECIMAL(15,2),
 		@Nom_Historico VARCHAR(500),
-		@Dat_Lancamento DATE,
+		@Dat_Lancamento DATETIME,
 		@Estorno BIT
 	AS
 		/*
@@ -49,7 +49,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 				 RETURN 1
 			END
 		-- Caso Data de Lançamento do Insert seja maior que a data atual:
-		IF @Dat_Lancamento > GETDATE()
+		IF @Dat_Lancamento > DATEADD(MINUTE, DATEDIFF(MINUTE, @Dat_Lancamento, GETDATE()), @Dat_Lancamento)
 			BEGIN			 
 				 RETURN 2
 			END
