@@ -91,3 +91,4 @@ DROP TABLE [dbo].[Lancamentos]
 GO
 DROP TABLE [dbo].[Transferencias]
 GO
+DROP TABLE [dbo].[TipoLancamento]

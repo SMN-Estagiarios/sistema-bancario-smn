@@ -40,47 +40,32 @@ CREATE TABLE Tarifas (
 	CONSTRAINT PK_TarifasId PRIMARY KEY(Id)
 );
 
--- CREATE TABLE TipoLancamento (
---     Id_TipoLancamento INT IDENTITY PRIMARY KEY,
---     Nome VARCHAR(50) NOT NULL UNIQUE
--- );
+ CREATE TABLE TipoLancamento (
+     Id INT IDENTITY PRIMARY KEY,
+     Nome VARCHAR(50) NOT NULL UNIQUE
+ );
 
-CREATE TABLE Lancamentos(
-	Id INT IDENTITY PRIMARY KEY, 
-	Id_Cta INT NOT NULL,
-	Id_Usuario INT NOT NULL,
-	Id_Tarifa TINYINT,
-	Tipo_Lanc CHAR(1)NOT NULL,
-	Vlr_Lanc Decimal (15,2) NOT NULL,
-	Nom_Historico VARCHAR(500) NOT NULL,
-	Dat_Lancamento DATETIME NOT NULL,
-	Estorno BIT NOT NULL
-	CONSTRAINT FK_Conta_Lancamento FOREIGN KEY (Id_Cta) references Contas(Id),
-	CONSTRAINT FK_Usuario_Lancamento FOREIGN KEY (Id_Usuario) references Usuarios(Id),
-	CONSTRAINT CHK_Tipo_Lanc_C_D CHECK(Tipo_Lanc = 'C' OR Tipo_Lanc = 'D'),
-	CONSTRAINT FK_Tarifa_Lancamentos FOREIGN KEY (Id_Tarifa) references Tarifas(Id)
+
+ CREATE TABLE Lancamentos (
+    Id INT IDENTITY PRIMARY KEY, 
+    Id_Cta INT NOT NULL,
+    Id_Usuario INT NOT NULL,
+    Id_TipoLancamento INT NOT NULL,
+    Id_Tarifa TINYINT,
+    Tipo_Operacao CHAR(1) NOT NULL,
+    Vlr_Lanc Decimal (15,2) NOT NULL,
+    Nom_Historico VARCHAR(500) NOT NULL,
+    Dat_Lancamento DATETIME NOT NULL,
+    Estorno BIT NOT NULL,
+    CONSTRAINT FK_Conta_Lancamento FOREIGN KEY (Id_Cta) REFERENCES Contas(Id),
+    CONSTRAINT FK_Usuario_Lancamento FOREIGN KEY (Id_Usuario) REFERENCES Usuarios(Id),
+	CONSTRAINT CHK_Tipo_Operacao_C_D CHECK(Tipo_Operacao = 'C' OR Tipo_Operacao = 'D'),
+    CONSTRAINT FK_TipoLancamento_Lancamentos FOREIGN KEY (Id_TipoLancamento) REFERENCES TipoLancamento(Id),
+    CONSTRAINT FK_Tarifa_Lancamentos FOREIGN KEY (Id_Tarifa) REFERENCES Tarifas(Id)
 );
 
--- CREATE TABLE Lancamentos(
---     Id INT IDENTITY PRIMARY KEY, 
---     Id_Cta INT NOT NULL,
---     Id_Usuario INT NOT NULL,
---     Id_TipoLancamento INT NOT NULL,
---     Id_Tarifa TINYINT,
---     Tipo_Operacao CHAR(1) NOT NULL,
---     Vlr_Lanc Decimal (15,2) NOT NULL,
---     Nom_Historico VARCHAR(500) NOT NULL,
---     Dat_Lancamento DATETIME NOT NULL,
---     Estorno BIT NOT NULL,
---     CONSTRAINT FK_Conta_Lancamento FOREIGN KEY (Id_Cta) REFERENCES Contas(Id),
---     CONSTRAINT FK_Usuario_Lancamento FOREIGN KEY (Id_Usuario) REFERENCES Usuarios(Id),
---     CONSTRAINT CHK_Tipo_Operacao_C_D CHECK(Tipo_Operacao = 'C' OR Tipo_Operacao = 'D'),
---     CONSTRAINT FK_TipoLancamento_Lancamentos FOREIGN KEY (Id_TipoLancamento) REFERENCES TipoLancamento(Id_TipoLancamento),
---     CONSTRAINT FK_Tarifa_Lancamentos FOREIGN KEY (Id_Tarifa) REFERENCES Tarifas(Id)
--- );
 
-
-CREATE TABLE Transferencias(
+CREATE TABLE Transferencias (
 	Id INT PRIMARY KEY IDENTITY, 
 	Id_Usuario INT NOT NULL,
 	Id_CtaCre INT NOT NULL, 

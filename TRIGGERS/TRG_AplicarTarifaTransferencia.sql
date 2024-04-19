@@ -2,39 +2,39 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_TarifaTransferencia]
 ON [dbo].[Lancamentos]
 FOR INSERT
 	AS
-	/*
-	DOCUMENTACAO
-	Arquivo Fonte........:	TRG_AplicarTarifaTransferencia.sql
-	Objetivo.............:	Atualizar o Saldo da tabela apos o registro de uma Transferencia
-	Autor................:	Olivio Freitas, Danyel Targino e Rafael Mauricio
-	Data.................:	11/04/2024
-	ObjetivoAlt..........:	N/A
-	AutorAlt.............:	N/A
-	DataAlt..............:	N/A
-	Ex...................:	BEGIN TRAN
-								DBCC DROPCLEANBUFFERS;
-								DBCC FREEPROCCACHE;
+		/*
+		DOCUMENTACAO
+		Arquivo Fonte........:	TRG_AplicarTarifaTransferencia.sql
+		Objetivo.............:	Atualizar o Saldo da tabela apos o registro de uma Transferencia
+		Autor................:	Olivio Freitas, Danyel Targino e Rafael Mauricio
+		Data.................:	11/04/2024
+		ObjetivoAlt..........:	N/A
+		AutorAlt.............:	N/A
+		DataAlt..............:	N/A
+		Ex...................:	BEGIN TRAN
+									DBCC DROPCLEANBUFFERS;
+									DBCC FREEPROCCACHE;
 
-								DECLARE @Dat_init DATETIME = GETDATE()
+									DECLARE @Dat_init DATETIME = GETDATE()
 
-								SELECT * FROM Contas
-								SELECT * FROM Transferencias
-								SELECT * FROM Lancamentos
+									SELECT * FROM Contas
+									SELECT * FROM Transferencias
+									SELECT * FROM Lancamentos
 
-								INSERT INTO Lancamentos
-										(Id_Cta, Id_Usuario, Id_Tarifa, Tipo_lanc ,Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
-									VALUES
-										(1, 1, 3,'D', 50, 'Teste100', GETDATE(), 0)
+									INSERT INTO Lancamentos
+											(Id_Cta, Id_Usuario, Id_Tarifa, Id_TipoLancamento, Tipo_Operacao ,Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
+										VALUES
+											(1, 1, 3, 3,'D', 50, 'Teste100', GETDATE(), 0)
 
-								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUCAO 
-	
-								SELECT * FROM Contas
-								SELECT * FROM Transferencias
-								SELECT * FROM Lancamentos
+									SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUCAO 
+		
+									SELECT * FROM Contas
+									SELECT * FROM Transferencias
+									SELECT * FROM Lancamentos
 
-							ROLLBACK TRAN
-	Retornos.............:	0 - SUCESSO			   
-	*/
+								ROLLBACK TRAN
+		Retornos.............:	0 - SUCESSO			   
+		*/
 	BEGIN
 		-- Declaro as variaveis que preciso
 		DECLARE @Id_Conta INT,
