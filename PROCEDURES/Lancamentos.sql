@@ -2,10 +2,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 		@Id_Cta INT,
 		@Id_Usuario INT,
 		@Id_Tarifa INT,
-		@Tipo_Lanc CHAR(1),
+		@Id_TipoLancamento INT,
 		@Vlr_Lanc DECIMAL(15,2),
 		@Nom_Historico VARCHAR(500),
-		@Dat_Lancamento DATE,
+		@Dat_Lancamento DATETIME,
 		@Estorno BIT
 	AS
 		/*
@@ -23,7 +23,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
                                             @RET INT
 									SELECT TOP 10 * FROM Lancamentos
 
-									EXEC @RET = [dbo].[SP_CriarLancamentos]	1, 1, 1, 'C', 100, 'Deposito', GETDATE(), 0
+									EXEC @RET = [dbo].[SP_CriarLancamentos]	1, 1, 1, 'C', 100, 'Deposito', null, 0
 									SELECT TOP 10 * FROM Lancamentos
 
                                     SELECT @RET AS RETORNO
@@ -47,7 +47,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 				 RETURN 1
 			END
 		-- Caso Data de Lançamento do Insert seja maior que a data atual:
-		IF @Dat_Lancamento > GETDATE()
+		IF @Dat_Lancamento > DATEADD(MINUTE, DATEDIFF(MINUTE, @Dat_Lancamento, GETDATE()), @Dat_Lancamento)
 			BEGIN			 
 				 RETURN 2
 			END
@@ -58,9 +58,20 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 			END
 		-- Caso a checagem tiver correta:
 		ELSE	
-			INSERT INTO [dbo].[Lancamentos]  (Id_Cta,Id_Usuario,Id_Tarifa,Tipo_Lanc,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
-																(@Id_Cta, @Id_Usuario, @Id_Tarifa,@Tipo_Lanc,@Vlr_Lanc,	@Nom_Historico,@Dat_Lancamento, @Estorno)
-            IF @@ROWCOUNT <> 0
+			IF @Dat_Lancamento IS NULL
+				BEGIN
+					DECLARE @DataAtual DATETIME
+					SET @DataAtual = GETDATE()
+
+					INSERT INTO [dbo].[Lancamentos]  (Id_Cta,Id_Usuario,Id_Tarifa,Id_TipoLancamento,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
+																		(@Id_Cta, @Id_Usuario, @Id_Tarifa,@Id_TipoLancamento,@Vlr_Lanc,	@Nom_Historico,@DataAtual, @Estorno)
+				END
+
+			ELSE
+				INSERT INTO [dbo].[Lancamentos]  (Id_Cta,Id_Usuario,Id_Tarifa,Id_TipoLancamento,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
+																	(@Id_Cta, @Id_Usuario, @Id_Tarifa,@Id_TipoLancamento,@Vlr_Lanc,	@Nom_Historico,@Dat_Lancamento, @Estorno)
+          
+		  IF @@ROWCOUNT <> 0
                 RETURN 0 
             ELSE 
                 RETURN 4
