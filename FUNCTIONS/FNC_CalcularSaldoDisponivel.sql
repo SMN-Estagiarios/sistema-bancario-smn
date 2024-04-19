@@ -13,7 +13,7 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_CalcularSaldoDisponivel](
 	/*
 		Documentação
 		Arquivo Fonte.........: FNC_CalcularSaldoDisponivel.sql
-		Objetivo..............: Calcular o saldo dispon�vel de uma conta específica
+		Objetivo..............: Calcular o saldo disponível de uma conta específica
 		Autor.................: Orcino Neto, Odlavir Florentino e Pedro Avelino
 		Data..................: 11/04/2024
 		EX....................: BEGIN TRAN

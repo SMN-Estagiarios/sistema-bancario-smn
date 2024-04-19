@@ -7,16 +7,16 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 		Autor.............: Orcino Neto, Odlavir Florentino e Pedro Avelino
 		Data..............: 18/04/2024
 		Ex................: BEGIN TRAN
-								
 								SELECT	Id_Cta,
 										Id_Usuario,
+										Id_TipoLancamento,
 										Id_Tarifa,
-										Tipo_Lanc,
+										Tipo_Operacao,
 										Vlr_Lanc,
 										Nom_Historico,
 										Dat_Lancamento,
 										Estorno
-									FROM [dbo].[Lancamentos]
+									FROM [dbo].[Lancamentos] WITH(NOLOCK)
 			
 								UPDATE Contas
 									SET Vlr_SldInicial = -15000,
@@ -32,7 +32,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 										Dat_Abertura,
 										Dat_Encerramento,
 										Ativo 
-									FROM Contas
+									FROM [dbo].[Contas]  WITH(NOLOCK)
                                 
                                 DBCC DROPCLEANBUFFERS
 								DBCC FREEPROCCACHE
@@ -49,13 +49,14 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 
 								SELECT	Id_Cta,
 										Id_Usuario,
+										Id_TipoLancamento,
 										Id_Tarifa,
-										Tipo_Lanc,
+										Tipo_Operacao,
 										Vlr_Lanc,
 										Nom_Historico,
 										Dat_Lancamento,
 										Estorno
-									FROM [dbo].[Lancamentos]
+									FROM [dbo].[Lancamentos] WITH(NOLOCK)
 
 								TRUNCATE TABLE [dbo].[Lancamentos]
 							ROLLBACK TRAN
@@ -77,9 +78,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 				SET @Taxa = (SELECT Taxa FROM Tarifas WHERE Id = 7)
 
 				-- Aplicar a taxa de saldo negativo para as mesmas
-				INSERT INTO [dbo].[Lancamentos]	(Id_Cta, Id_Usuario, Id_Tarifa, Tipo_Lanc, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
-					SELECT	Id ,
+				INSERT INTO [dbo].[Lancamentos]	(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
+					SELECT	Id,
 							1,
+							10,
 							7,
 							'D',
 							(@Taxa * ABS(Saldo)),
@@ -87,7 +89,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 							GETDATE(),
 							0
 						FROM FNC_ListarSaldoNegativo()
-
 				RETURN 0
 			END
 

@@ -8,7 +8,7 @@ CREATE PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 	/* 
 			Documentação
 			Arquivo Fonte.....: Transferencia.sql
-			Objetivo..........: Instancia uma nova trasnfer�ncia entre contas
+			Objetivo..........: Instancia uma nova trasnferência entre contas
 			Autor.............: Adriel Alexsander, Thays Carvalho, Isabella Tragante
  			Data..............: 02/04/2024
 			Ex................: BEGIN TRAN
@@ -18,27 +18,27 @@ CREATE PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 								DECLARE @RET INT, 
 								@Dat_init DATETIME = GETDATE()
 
-									SELECT  Id,
-											Vlr_SldInicial, 
-											Vlr_Credito,
-											Vlr_debito,
-											Dat_Saldo
-									FROM [dbo].[Contas]
+								SELECT  Id,
+										Vlr_SldInicial, 
+										Vlr_Credito,
+										Vlr_debito,
+										Dat_Saldo
+								FROM [dbo].[Contas]
 
-									SELECT * from Lancamentos
+								SELECT * from Lancamentos
 
-								 EXEC @RET = [SP_RealizarNovaTransferenciaBancaria] 1,1, 2,  50, 'Transfe pagamento aluguel' 
+								EXEC @RET = [SP_RealizarNovaTransferenciaBancaria] 1,1, 2,  50, 'Transfe pagamento aluguel' 
 
-									SELECT @RET AS RETORNO,
-										   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUcaO
-									SELECT  Id,
-											Vlr_SldInicial, 
-											Vlr_Credito,
-											Vlr_debito,
-											Dat_Saldo
-									FROM [dbo].[Contas]
+								SELECT @RET AS RETORNO,
+										DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUcaO
+								SELECT  Id,
+										Vlr_SldInicial, 
+										Vlr_Credito,
+										Vlr_debito,
+										Dat_Saldo
+								FROM [dbo].[Contas]
 
-										SELECT * from Lancamentos
+								SELECT * from Lancamentos
 									
 						   ROLLBACK TRAN
 
