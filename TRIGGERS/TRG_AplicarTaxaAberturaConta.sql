@@ -23,7 +23,7 @@ FOR INSERT
 								INSERT INTO Contas
 										(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura, Ativo, Lim_ChequeEspecial)
 									VALUES
-										(0, 0, 0, GETDATE(), GETDATE(), 'S', 0)
+										(0, 0, 0, GETDATE(), GETDATE(), 1, 0)
 
 								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUCAO
 
@@ -38,8 +38,10 @@ FOR INSERT
 		DECLARE @Id_Conta INT,
 				@Vlr_Tarifa DECIMAL(15,2),
 				@Id_TAC TINYINT = 5,
+				@Id_Usuario INT = 1, 
 				@Data_Lancamento DATETIME = GETDATE(),
-				@Operacao_Lancamento CHAR(1) = 'D'
+				@Operacao_Lancamento CHAR(1) = 'D',
+				@Estorno BIT = 0 
 
 		-- Atribuir valores as variaveis
 		IF EXISTS (SELECT TOP 1 1 FROM inserted)
@@ -60,8 +62,9 @@ FOR INSERT
 		IF @Id_Conta IS NOT NULL
 			BEGIN
 				INSERT INTO Lancamentos
+						(Id_Cta, Id_Usuario, Id_Tarifa, Tipo_Lanc, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 					VALUES
-						(@Id_Conta, 1, @Id_TAC, @Operacao_Lancamento, @Vlr_Tarifa, 'Taxa de abertura de conta', @Data_Lancamento,0)
+						(@Id_Conta, @Id_Usuario , @Id_TAC, @Operacao_Lancamento, @Vlr_Tarifa, 'Taxa de abertura de conta', @Data_Lancamento, @Estorno)
 			END
 	END
 GO
