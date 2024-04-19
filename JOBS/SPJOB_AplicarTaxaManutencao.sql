@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 	AS
 	/*

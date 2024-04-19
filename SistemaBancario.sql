@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE DATABASE SistemaBancario
 GO
 

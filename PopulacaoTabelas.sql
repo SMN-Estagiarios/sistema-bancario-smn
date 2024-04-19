@@ -49,5 +49,6 @@ INSERT INTO TipoLancamento 	(Nome) VALUES
 							('Tarifa'),                   -- Cobrança de tarifas bancárias
 							('Investimento'),             -- Transações relacionadas a investimentos
 							('Empréstimo'),               -- Transações de empréstimos
-							('Juros');                    -- Cobrança de juros sobre saldo devedor
+							('Juros'),
+							('Estorno');                    -- Cobrança de juros sobre saldo devedor
 GO

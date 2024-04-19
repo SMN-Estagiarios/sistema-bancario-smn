@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 		@Id_Cta INT,
 		@Id_Usuario INT,
