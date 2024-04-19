@@ -39,15 +39,15 @@ INSERT INTO CreditScore (Nome, Faixa, Aliquota) VALUES
 						('Excelente', 3000, 2.0);
 GO
 
--- INSERT INTO TipoLancamento (Nome) VALUES 
--- ('Depósito'),                 -- Operação de depósito em conta corrente
--- ('Saque'),                    -- Retirada de dinheiro de conta corrente
--- ('Transferência Recebida'),   -- Transferência de entrada de outra conta
--- ('Transferência Enviada'),    -- Transferência de saída para outra conta
--- ('Pagamento'),                -- Pagamento de contas ou faturas
--- ('Recebimento'),              -- Recebimento de valores de terceiros
--- ('Tarifa'),                   -- Cobrança de tarifas bancárias
--- ('Investimento'),             -- Transações relacionadas a investimentos
--- ('Empréstimo'),               -- Transações de empréstimos
--- ('Juros');                    -- Cobrança de juros sobre saldo devedor
---GO
+INSERT INTO TipoLancamento 	(Nome) VALUES 
+							('Depósito'),                 -- Operação de depósito em conta corrente
+							('Saque'),                    -- Retirada de dinheiro de conta corrente
+							('Transferência Recebida'),   -- Transferência de entrada de outra conta
+							('Transferência Enviada'),    -- Transferência de saída para outra conta
+							('Pagamento'),                -- Pagamento de contas ou faturas
+							('Recebimento'),              -- Recebimento de valores de terceiros
+							('Tarifa'),                   -- Cobrança de tarifas bancárias
+							('Investimento'),             -- Transações relacionadas a investimentos
+							('Empréstimo'),               -- Transações de empréstimos
+							('Juros');                    -- Cobrança de juros sobre saldo devedor
+GO
