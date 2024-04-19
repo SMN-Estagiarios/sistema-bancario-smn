@@ -24,10 +24,10 @@ FOR INSERT
 								INSERT INTO Lancamentos
 										(Id_Cta, Id_Usuario, Id_Tarifa, Tipo_lanc ,Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 									VALUES
-										(1, 1, 5,'C', 50, 'Teste100', GETDATE(), 1)
+										(1, 1, 3,'D', 50, 'Teste100', GETDATE(), 0)
 
 								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUCAO 
-
+	
 								SELECT * FROM Contas
 								SELECT * FROM Transferencias
 								SELECT * FROM Lancamentos
