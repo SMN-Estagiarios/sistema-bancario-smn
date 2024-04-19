@@ -205,7 +205,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovaConta]
 												Dat_Saldo 
 											FROM [dbo].[Contas]
 
-										EXEC @RET = [dbo].[SP_InserirNovaConta] 0, 200, 400 
+										EXEC @RET = [dbo].[SP_InserirNovaConta]
 
 											SELECT @RET AS RETORNO,
 												DATEDIFF(millisecond, @Dat_init, GETDATE()) AS TempoExecucao
