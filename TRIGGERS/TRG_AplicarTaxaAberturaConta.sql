@@ -21,7 +21,7 @@ FOR INSERT
 								SELECT * FROM Lancamentos ORDER BY Id DESC
 
 								INSERT INTO Contas
-										(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura, Ativo, Lim_ChequeEspecial)
+										(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura ,Ativo, Lim_ChequeEspecial)
 									VALUES
 										(0, 0, 0, GETDATE(), GETDATE(), 1, 0)
 
@@ -41,8 +41,9 @@ FOR INSERT
 				@Id_Usuario INT = 1, 
 				@Data_Lancamento DATETIME = GETDATE(),
 				@Operacao_Lancamento CHAR(1) = 'D',
-				@Estorno BIT = 0 
-
+				@Estorno BIT = 0,
+				@Id_TipoLancamento INT = 7
+				
 		-- Atribuir valores as variaveis
 		IF EXISTS (SELECT TOP 1 1 FROM inserted)
 			BEGIN
@@ -62,9 +63,9 @@ FOR INSERT
 		IF @Id_Conta IS NOT NULL
 			BEGIN
 				INSERT INTO Lancamentos
-						(Id_Cta, Id_Usuario, Id_Tarifa, Tipo_Lanc, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
+						(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 					VALUES
-						(@Id_Conta, @Id_Usuario , @Id_TAC, @Operacao_Lancamento, @Vlr_Tarifa, 'Taxa de abertura de conta', @Data_Lancamento, @Estorno)
+						(@Id_Conta, @Id_Usuario , @Id_TipoLancamento, @Id_TAC, @Operacao_Lancamento, @Vlr_Tarifa, 'Taxa de abertura de conta', @Data_Lancamento, @Estorno)
 			END
 	END
 GO
