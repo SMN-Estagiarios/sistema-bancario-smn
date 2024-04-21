@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER TRIGGER [dbo].[TRG_AplicarTaxaAberturaConta]
 ON [dbo].[Contas]
 FOR INSERT
@@ -71,7 +74,7 @@ FOR INSERT
 								@Estorno
 							)
 		-- Checagem de erro
-		IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
+		--IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
 	
 	END
 GO

@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER TRIGGER [dbo].[TRG_GerarLancamentosTransferidos]
 ON [dbo].[Transferencias]
 FOR INSERT, DELETE, UPDATE
