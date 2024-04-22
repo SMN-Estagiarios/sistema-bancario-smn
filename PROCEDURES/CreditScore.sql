@@ -23,11 +23,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarCreditSCore]
 
 
     BEGIN
-       
-            SELECT  Id,
-                    Nome,
-                    Faixa,
-                    Aliquota
-                FROM [dbo].[CreditScore] WITH(NOLOCK)
-
+		SELECT  Id,
+				Nome,
+				Faixa,
+				Aliquota
+			FROM [dbo].[CreditScore] WITH(NOLOCK)
     END

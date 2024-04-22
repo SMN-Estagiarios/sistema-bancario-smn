@@ -30,5 +30,4 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarTarifas]
                     Valor,
                     Taxa
                 FROM [dbo].[Tarifas] WITH(NOLOCK)
-
     END

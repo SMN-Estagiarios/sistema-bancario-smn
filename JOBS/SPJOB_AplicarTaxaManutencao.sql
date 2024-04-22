@@ -33,7 +33,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 							ROLLBACK TRAN
 	*/
 	IF EXISTS (SELECT TOP 1 1
-					FROM [dbo].Contas
+					FROM [dbo].[Contas]
 					WHERE DAY(Dat_Abertura) = DAY(GETDATE()))
 		BEGIN
 			-- Declarando variaveis
@@ -73,7 +73,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 				END
 
 			-- Insert dos LANCAMENTOS
-			INSERT INTO Lancamentos
+			INSERT INTO [dbo].[Lancamentos]
 						(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 				SELECT	Id, 
 						@Id_Admin,
@@ -84,7 +84,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 						@Nome_Tarifa,
 						@Data_Atual,
 						0
-					FROM [dbo].[Contas]
+					FROM [dbo].[Contas] WITH (NOLOCK)
 					WHERE DAY(Dat_Abertura) = @Data_Cobranca
 		END
 GO
