@@ -1,7 +1,7 @@
 USE SistemaBancario
 GO
 
-CREATE OR ALTER PROCEDURE [SPJOB_AtualizarSaldo] 
+CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarSaldo] 
 	AS 
 	/*
 		Documentacao

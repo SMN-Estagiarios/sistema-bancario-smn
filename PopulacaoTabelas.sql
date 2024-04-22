@@ -1,5 +1,5 @@
 USE SistemaBancario
-GO
+GO 
 INSERT INTO Contas	(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura, Ativo, Lim_ChequeEspecial) VALUES 
 					(0.00, 0.00, 0.00, '2024-04-01', '2024-03-01', 1, 0.00),
 					(0.00, 0.00, 0.00, '2024-04-01', '2024-04-15', 1, 0.00),
@@ -8,17 +8,17 @@ INSERT INTO Contas	(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Aber
 					(0.00, 0.00, 0.00, '2024-04-01', '2024-04-12', 1, 0.00);
 GO
 -- INSERT DE TARIFAS COM VALORES FIXOS
-INSERT INTO Tarifas (id, Nome, Valor) VALUES 
-					(1,'Pix', 10),
-					(2,'DOC', 20),
-					(3,'TED', 30),
-					(4,'TEC', 0),
-					(5,'TAC', 15),
-					(6,'TMC', 25);
+INSERT INTO Tarifas (id, Nome, Valor, Dat_InicioValidade) VALUES
+					(1,'Pix', 10, '01/04/2024'),
+					(2,'DOC', 20, '01/04/2024'),
+					(3,'TED', 30, '01/04/2024'),
+					(4,'TEC', 0, '01/04/2024'),
+					(5,'TAC', 15, '01/04/2024'),
+					(6,'TMC', 25, '01/04/2024');
 
 -- INSERT DE TARIFAS COM TAXA 
-INSERT INTO Tarifas (id, Nome, Taxa) VALUES 
-					(7, 'TSN', 0.00334);
+INSERT INTO Tarifas (id, Nome, Taxa, Dat_InicioValidade) VALUES 
+					(7, 'TSN', 0.00334, '01/04/2024');
 GO
 
 
@@ -40,14 +40,13 @@ INSERT INTO CreditScore (Nome, Faixa, Aliquota) VALUES
 GO
 
 INSERT INTO TipoLancamento 	(Id, Nome) VALUES 
-							(1,'Depósito'),                 
-							(2,'Saque'),                    
-							(3,'Transferência'),            
-							(4,'Pagamento'),                
-							(5,'Recebimento'),              
-							(6,'Tarifa'),                   
-							(7,'Investimento'),             
-							(8,'Empréstimo'),              
-							(9,'Juros')            			
-
+							(1,'Depósito'),
+							(2,'Saque'),
+							(3,'Transferência'),
+							(4,'Pagamento'),
+							(5,'Recebimento'),
+							(6,'Tarifa'),
+							(7,'Investimento'),
+							(8,'Empréstimo'),
+							(9,'Juros')
 GO

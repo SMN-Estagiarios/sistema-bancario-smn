@@ -4,7 +4,7 @@ GO
 CREATE OR ALTER TRIGGER [dbo].[TRG_AtualizarSaldo]
 	ON [dbo].[Lancamentos]
 	FOR INSERT
-AS
+	AS
 	/*
 		DOCUMENTAÇÃO
 		Arquivo Fonte........:	TRG_AtualizarSaldo.sql
@@ -77,6 +77,4 @@ AS
 				WHERE Id = @Id_Conta
 						
     END
-
-
-
+GO

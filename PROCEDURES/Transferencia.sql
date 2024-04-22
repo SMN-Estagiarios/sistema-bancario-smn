@@ -1,7 +1,7 @@
 USE SistemaBancario
 GO
 
-CREATE PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
+CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarNovaTransferenciaBancaria]
 	@Id_Usuario INT,
 	@Id_ContaDeb INT,
 	@Id_ContaCre INT,
@@ -96,7 +96,7 @@ CREATE PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 	END
 GO
 
-CREATE  PROC [dbo].[SP_RealizarEstornoTransferencia]
+CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEstornoTransferencia]
 	@Id_Transferencia INT
 
 	AS
@@ -160,7 +160,7 @@ CREATE  PROC [dbo].[SP_RealizarEstornoTransferencia]
 	END
 GO
 
-CREATE  PROC [dbo].[SP_ListarExtratoTransferencia]
+CREATE OR ALTER PROCEDURE [dbo].[SP_ListarExtratoTransferencia]
 	@Id_Conta INT = null
 
 	AS
@@ -190,6 +190,3 @@ CREATE  PROC [dbo].[SP_ListarExtratoTransferencia]
 				AND Id_Tarifa IS NULL
 	END
 GO
-
-
-
