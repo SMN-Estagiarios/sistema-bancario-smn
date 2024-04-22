@@ -73,7 +73,9 @@ AS
 				Vlr_Debito = (CASE	WHEN @Data_Lanc < Dat_Saldo  OR @Tipo_Lancamento = 'C' 
 									THEN Vlr_Debito
 										ELSE(Vlr_Debito + @Vlr_Lancamento)END)
-			WHERE Id IN (SELECT Id_Cta FROM INSERTED)
+			WHERE Id IN (SELECT Id_Cta FROM inserted)
+
+			--WHERE Id IN (SELECT Id_Cta FROM INSERTED)
 	END
 
 

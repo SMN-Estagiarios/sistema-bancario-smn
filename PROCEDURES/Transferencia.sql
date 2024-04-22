@@ -69,7 +69,7 @@ CREATE PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 			END
 		--Verifica se o valor da transferencia é inferior ao valor de saldo
 		IF(@Vlr_Transferencia > (SELECT [dbo].[FNC_CalcularSaldoAtual](@Id_ContaDeb, Vlr_SldInicial, Vlr_Credito,Vlr_Debito)
-										FROM Contas 
+										FROM [dbo].[Contas]
 										WHERE Id = @Id_ContaDeb )) 
 			BEGIN
 				RETURN 2
@@ -89,7 +89,7 @@ CREATE PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 		--Gerar Inserts em transferência
 	    ELSE
 			BEGIN
-				INSERT INTO Transferencias(Id_Usuario, Id_CtaCre, Id_CtaDeb, Vlr_TRans, Nom_Referencia, Dat_Trans)
+				INSERT INTO [dbo].[Transferencias] (Id_Usuario, Id_CtaCre, Id_CtaDeb, Vlr_TRans, Nom_Referencia, Dat_Trans)
 					VALUES( @Id_Usuario, @Id_ContaCre, @Id_ContaDeb, @Vlr_Transferencia, @Nom_referencia, GETDATE())
 			END
 		RETURN 0
@@ -149,7 +149,7 @@ CREATE  PROC [dbo].[SP_RealizarEstornoTransferencia]
 							RETURN 1
 						END
 					--efetuando a deleção de registro de transferência para disparo do trigger
-					DELETE Transferencias
+					DELETE [dbo].[Transferencias]
 						WHERE Id = @Id_Transferencia
 						RETURN 0
 				END
@@ -190,6 +190,3 @@ CREATE  PROC [dbo].[SP_ListarExtratoTransferencia]
 				AND Id_Tarifa IS NULL
 	END
 GO
-
-
-

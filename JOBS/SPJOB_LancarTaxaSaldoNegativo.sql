@@ -30,7 +30,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 									SET Vlr_SldInicial = -1500,
 										Vlr_Credito = 150,
 										Vlr_Debito = 500
-									--WHERE Id = 1
+									-- WHERE Id = 1
 
 								SELECT	Id,
 										Vlr_SldInicial,
@@ -98,7 +98,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 							INNER JOIN [dbo].[Tarifas] t WITH(NOLOCK)
 								ON t.Id = @IdTarifa
 
-				IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
+				IF @@ERROR <> 0 OR @@ROWCOUNT <> (SELECT COUNT(Id) FROM [dbo].FNC_ListarSaldoNegativo())
 					BEGIN
 						RAISERROR('Erro ao lancar a taxa de saldo negativo para uma data anterior.', 16, 1)
 					END

@@ -30,7 +30,7 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_CalcularSaldoDisponivel](
 							@Credito = Vlr_Credito,
 							@Debito = Vlr_Debito,
 							@LimiteCredito = Lim_ChequeEspecial
-						FROM [DBO].[Contas] WITH(NOLOCK)
+						FROM [dbo].[Contas] WITH(NOLOCK)
 						WHERE Id = @Id_Conta
 				END
 

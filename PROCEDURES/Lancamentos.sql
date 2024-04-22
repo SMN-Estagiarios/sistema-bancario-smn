@@ -72,9 +72,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 			ELSE
 				INSERT INTO [dbo].[Lancamentos]  (Id_Cta,Id_Usuario,Id_TipoLancamento,Id_Tarifa,Tipo_Operacao,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
 								 (@Id_Cta, @Id_Usuario,@Id_TipoLancamento,@Id_Tarifa,@Tipo_Operacao,@Vlr_Lanc,	@Nom_Historico,@DataAtual, @Estorno)
-          
-		  IF @@ROWCOUNT <> 0
-                	RETURN 0 
-            	  ELSE 
-                	RETURN 4
+				
+				IF @@ROWCOUNT <> 0
+					RETURN 0 
+				ELSE 
+					RETURN 4
 	END;

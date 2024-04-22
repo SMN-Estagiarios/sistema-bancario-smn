@@ -78,7 +78,7 @@ FOR INSERT
 				IF @Id_Conta IS NOT NULL
 					BEGIN
 						-- INSERT em Lancamentos
-						INSERT INTO Lancamentos
+						INSERT INTO [dbo].[Lancamentos]
 								(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 							VALUES
 								(@Id_Conta, @Id_Usuario, @Id_TipoLancamento,@Id_Tarifa, @Operacao_Lancamento, @Valor_Tarifa, @Nome_Tarifa, GETDATE(), @Estorno)
@@ -110,7 +110,7 @@ FOR INSERT
 				IF @Id_Conta IS NOT NULL
 					BEGIN
 						-- INSERT em Lancamentos
-						INSERT INTO Lancamentos
+						INSERT INTO [dbo].[Lancamentos]
 								(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 							VALUES
 								(@Id_Conta, @Id_Usuario, @Id_TipoLancamento, @Id_Tarifa, @Operacao_Lancamento, @Valor_Tarifa, @Nome_Tarifa, GETDATE(), @Estorno)
