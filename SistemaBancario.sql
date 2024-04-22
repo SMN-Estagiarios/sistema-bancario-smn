@@ -34,16 +34,23 @@ CREATE TABLE Contas (
 
 CREATE TABLE Tarifas (
 	Id TINYINT,
-	Nome VARCHAR(50) NOT NULL, 
-	Valor DECIMAL(4,2),
-	Taxa DECIMAL(6,5),
-	Dat_InicioValidade DATE NOT NULL,
+	Nome VARCHAR(50) NOT NULL,
 	CONSTRAINT PK_IdTarifas PRIMARY KEY(Id)
 );
 
+CREATE TABLE PrecoTarifas (
+	Id INT,
+	IdTarifa TINYINT NOT NULL,
+	Valor DECIMAL(4,2),
+	Taxa DECIMAL(6,5),
+	DataInicial DATE NOT NULL,
+	CONSTRAINT PK_PrecoTarifasId PRIMARY KEY(Id),
+	CONSTRAINT FK_IdTarifaPreco FOREIGN KEY(IdTarifa) REFERENCES Tarifas(Id)
+);
+
  CREATE TABLE TipoLancamento (
-     Id INT PRIMARY KEY,
-     Nome VARCHAR(50) NOT NULL UNIQUE
+    Id INT PRIMARY KEY,
+    Nome VARCHAR(50) NOT NULL UNIQUE
  );
 
 
@@ -65,15 +72,6 @@ CREATE TABLE Tarifas (
 	CONSTRAINT CHK_Tipo_Operacao_C_D CHECK(Tipo_Operacao = 'C' OR Tipo_Operacao = 'D')
 );
 
-CREATE TABLE PrecoTarifas (
-	Id INT,
-	IdTarifa TINYINT NOT NULL,
-	Valor DECIMAL(4,2) NOT NULL,
-	Taxa DECIMAL(6,5) NOT NULL,
-	DataInicial DATE NOT NULL,
-	CONSTRAINT PK_PrecoTarifasId PRIMARY KEY(Id),
-	CONSTRAINT FK_IdTarifaPreco FOREIGN KEY(IdTarifa) REFERENCES Tarifas(Id)
-);
 
 CREATE TABLE Transferencias (
 	Id INT PRIMARY KEY IDENTITY, 

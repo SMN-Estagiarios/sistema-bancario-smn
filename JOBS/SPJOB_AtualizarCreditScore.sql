@@ -89,7 +89,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarCreditScore]
 						  AND C.Ativo = 1
 					GROUP BY SD.ID_Conta
 				) 
-					UPDATE Contas
+					UPDATE [dbo].[Contas]
 						SET IdCreditScore = CASE WHEN MSM.MediaSaldoMensal > CS.Faixa 
 												 THEN (SELECT MAX(Id) 
 															FROM CreditScore 

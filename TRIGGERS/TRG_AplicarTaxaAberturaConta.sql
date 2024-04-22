@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER TRIGGER [dbo].[TRG_AplicarTaxaAberturaConta]
 ON [dbo].[Contas]
 FOR INSERT
@@ -34,7 +37,6 @@ FOR INSERT
 		DECLARE @Id_Conta INT,
 				@Vlr_Tarifa DECIMAL(15,2),
 				@Data_Lancamento DATETIME = GETDATE(),
-				
 				@Id_TAC TINYINT = 5, -- Código 5 se refere a taxa de abertura de conta
 				@Id_Usuario INT = 1, -- Setar para o Usuário 0 (usuário do sistema)
 				@Operacao_Lancamento CHAR(1) = 'D', -- setar
@@ -43,35 +45,35 @@ FOR INSERT
 				
 		-- Atribuir valores as variaveis
 		SELECT @Vlr_Tarifa = Valor
-			FROM Tarifas WITH (NOLOCK)
+			FROM [dbo].[Tarifas] WITH (NOLOCK)
 			WHERE ID = @Id_TAC
 
 		SELECT	@Id_Conta = Id
-					FROM inserted
+			FROM inserted
 
 		-- Gero um novo lancamento com o valor da taxa
-		INSERT INTO Lancamentos	(	Id_Cta, 
-									Id_Usuario, 
-									Id_TipoLancamento, 
-									Id_Tarifa, 
-									Tipo_Operacao, 
-									Vlr_Lanc, 
-									Nom_Historico, 
-									Dat_Lancamento, 
-									Estorno
-								)
-					VALUES	(	@Id_Conta, 
-								@Id_Usuario , 
-								@Id_TipoLancamento, 
-								@Id_TAC, 
-								@Operacao_Lancamento, 
-								@Vlr_Tarifa, 
-								'Taxa de abertura de conta', 
-								@Data_Lancamento, 
-								@Estorno
-							)
+		INSERT INTO [dbo].[Lancamentos]	(	Id_Cta, 
+											Id_Usuario, 
+											Id_TipoLancamento, 
+											Id_Tarifa, 
+											Tipo_Operacao, 
+											Vlr_Lanc, 
+											Nom_Historico, 
+											Dat_Lancamento, 
+											Estorno
+										)
+								VALUES	(	@Id_Conta, 
+											@Id_Usuario , 
+											@Id_TipoLancamento, 
+											@Id_TAC, 
+											@Operacao_Lancamento, 
+											@Vlr_Tarifa, 
+											'Taxa de abertura de conta', 
+											@Data_Lancamento, 
+											@Estorno
+										)
 		-- Checagem de erro
-		IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
+		--IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
 	
 	END
 GO
