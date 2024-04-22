@@ -1,4 +1,7 @@
-CREATE PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
+USE SistemaBancario
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarNovaTransferenciaBancaria]
 	@Id_Usuario INT,
 	@Id_ContaDeb INT,
 	@Id_ContaCre INT,
@@ -8,7 +11,7 @@ CREATE PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 	/* 
 			Documentação
 			Arquivo Fonte.....: Transferencia.sql
-			Objetivo..........: Instancia uma nova trasnfer�ncia entre contas
+			Objetivo..........: Instancia uma nova trasnferência entre contas
 			Autor.............: Adriel Alexsander, Thays Carvalho, Isabella Tragante
  			Data..............: 02/04/2024
 			Ex................: BEGIN TRAN
@@ -18,27 +21,27 @@ CREATE PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 								DECLARE @RET INT, 
 								@Dat_init DATETIME = GETDATE()
 
-									SELECT  Id,
-											Vlr_SldInicial, 
-											Vlr_Credito,
-											Vlr_debito,
-											Dat_Saldo
-									FROM [dbo].[Contas]
+								SELECT  Id,
+										Vlr_SldInicial, 
+										Vlr_Credito,
+										Vlr_debito,
+										Dat_Saldo
+								FROM [dbo].[Contas]
 
-									SELECT * from Lancamentos
+								SELECT * from Lancamentos
 
-								 EXEC @RET = [SP_RealizarNovaTransferenciaBancaria] 1,1, 2,  50, 'Transfe pagamento aluguel' 
+								EXEC @RET = [SP_RealizarNovaTransferenciaBancaria] 1,1, 2,  50, 'Transfe pagamento aluguel' 
 
-									SELECT @RET AS RETORNO,
-										   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUcaO
-									SELECT  Id,
-											Vlr_SldInicial, 
-											Vlr_Credito,
-											Vlr_debito,
-											Dat_Saldo
-									FROM [dbo].[Contas]
+								SELECT @RET AS RETORNO,
+										DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUcaO
+								SELECT  Id,
+										Vlr_SldInicial, 
+										Vlr_Credito,
+										Vlr_debito,
+										Dat_Saldo
+								FROM [dbo].[Contas]
 
-										SELECT * from Lancamentos
+								SELECT * from Lancamentos
 									
 						   ROLLBACK TRAN
 
@@ -93,7 +96,7 @@ CREATE PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
 	END
 GO
 
-CREATE  PROC [dbo].[SP_RealizarEstornoTransferencia]
+CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEstornoTransferencia]
 	@Id_Transferencia INT
 
 	AS
@@ -157,7 +160,7 @@ CREATE  PROC [dbo].[SP_RealizarEstornoTransferencia]
 	END
 GO
 
-CREATE  PROC [dbo].[SP_ListarExtratoTransferencia]
+CREATE OR ALTER PROCEDURE [dbo].[SP_ListarExtratoTransferencia]
 	@Id_Conta INT = null
 
 	AS
@@ -187,6 +190,3 @@ CREATE  PROC [dbo].[SP_ListarExtratoTransferencia]
 				AND Id_Tarifa IS NULL
 	END
 GO
-
-
-

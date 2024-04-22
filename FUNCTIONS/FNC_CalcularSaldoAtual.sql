@@ -22,7 +22,7 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_CalcularSaldoAtual](
 							DBCC FREEPROCCACHE;
 								
 							DECLARE @Dat_ini DATETIME = GETDATE()
-							SELECT	[dbo].[Func_CalcularSaldoAtual](NULL,200,500,100) AS Resultado,
+							SELECT	[dbo].[FNC_CalcularSaldoAtual](NULL,200,500,100) AS Resultado,
 									DATEDIFF(millisecond, @Dat_ini, GETDATE()) AS Tempo_Execucao	
 	*/
 	BEGIN

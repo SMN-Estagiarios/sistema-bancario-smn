@@ -1,7 +1,10 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER TRIGGER [dbo].[TRG_AtualizarSaldo]
 	ON [dbo].[Lancamentos]
 	FOR INSERT
-AS
+	AS
 	/*
 		DOCUMENTAÇÃO
 		Arquivo Fonte........:	TRG_AtualizarSaldo.sql
@@ -22,8 +25,8 @@ AS
 											FROM [dbo].[Contas]
 											WHERE Id = 1
 											select * from lancamentos
-										INSERT INTO Lancamentos(Id_Cta, Id_Usuario, Id_Tarifa, Tipo_Lanc, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
-											VALUES (1,1, null,'C', 2000, 'TESTE TRIGGER', '2024-04-12', 0)
+										INSERT INTO Lancamentos(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
+											VALUES (1,1,5, null,'C', 2000, 'TESTE TRIGGER', '2024-04-12', 0)
 
 										SELECT DATEDIFF(MILLISECOND, @DATA_INI,GETDATE()) AS Execução
 
@@ -46,7 +49,7 @@ AS
 			 
 		--ATRIBUINDO VALORES AS VARIÁVEIS 
 			SELECT @Id_Conta = Id_Cta,
-					@Tipo_Lancamento = Tipo_Lanc,
+					@Tipo_Lancamento = Tipo_Operacao,
 					@Data_Lanc = Dat_Lancamento, 
 					@Vlr_Lancamento = Vlr_Lanc
 				FROM INSERTED
@@ -74,6 +77,4 @@ AS
 				WHERE Id = @Id_Conta
 						
     END
-
-
-
+GO

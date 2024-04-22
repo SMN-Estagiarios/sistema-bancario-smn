@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 	AS
 	/*
@@ -41,7 +44,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 					@Id_TarifaTMC INT,
 					@Valor_TMC INT,
 					@Nome_Tarifa VARCHAR(50),
-					@Id_Admin INT = 1
+					@Id_Admin INT = 1,
+					@Id_TipoLancamento INT = 7
 
 			-- Capturar a data de abertura da conta
 			BEGIN
@@ -70,8 +74,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 
 			-- Insert dos LANCAMENTOS
 			INSERT INTO Lancamentos
+						(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 				SELECT	Id, 
 						@Id_Admin,
+						@Id_TipoLancamento,
 						@Id_TarifaTMC,
 						'D',
 						@Valor_TMC,

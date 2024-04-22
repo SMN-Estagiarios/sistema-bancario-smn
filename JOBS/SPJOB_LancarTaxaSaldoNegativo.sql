@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 	AS
 	/*
@@ -7,16 +10,16 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 		Autor.............: Orcino Neto, Odlavir Florentino e Pedro Avelino
 		Data..............: 18/04/2024
 		Ex................: BEGIN TRAN
-								
 								SELECT	Id_Cta,
 										Id_Usuario,
+										Id_TipoLancamento,
 										Id_Tarifa,
-										Tipo_Lanc,
+										Tipo_Operacao,
 										Vlr_Lanc,
 										Nom_Historico,
 										Dat_Lancamento,
 										Estorno
-									FROM [dbo].[Lancamentos]
+									FROM [dbo].[Lancamentos] WITH(NOLOCK)
 			
 								UPDATE Contas
 									SET Vlr_SldInicial = -15000,
@@ -32,7 +35,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 										Dat_Abertura,
 										Dat_Encerramento,
 										Ativo 
-									FROM Contas
+									FROM [dbo].[Contas]  WITH(NOLOCK)
                                 
                                 DBCC DROPCLEANBUFFERS
 								DBCC FREEPROCCACHE
@@ -43,19 +46,30 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 
 								EXEC @RET = [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 
+								SELECT	Id,
+										Vlr_SldInicial,
+										Vlr_Credito,
+										Vlr_Debito,
+										Dat_Saldo,
+										Dat_Abertura,
+										Dat_Encerramento,
+										Ativo 
+									FROM [dbo].[Contas]  WITH(NOLOCK)
+
 								SELECT DATEDIFF(MILLISECOND, @Data_ini, GETDATE()) AS TempoExecucao
 
                                 SELECT @RET Retorno
 
 								SELECT	Id_Cta,
 										Id_Usuario,
+										Id_TipoLancamento,
 										Id_Tarifa,
-										Tipo_Lanc,
+										Tipo_Operacao,
 										Vlr_Lanc,
 										Nom_Historico,
 										Dat_Lancamento,
 										Estorno
-									FROM [dbo].[Lancamentos]
+									FROM [dbo].[Lancamentos] WITH(NOLOCK)
 
 								TRUNCATE TABLE [dbo].[Lancamentos]
 							ROLLBACK TRAN
@@ -67,33 +81,23 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 	*/
 
 	BEGIN
-		-- Conferir se existe conta(s) com saldo negativo no dia
-		IF EXISTS (SELECT TOP 1 1
-						FROM FNC_ListarSaldoNegativo())
-			BEGIN
-				-- Declarar variável da taxa e setar o seu valor
-				DECLARE @Taxa DECIMAL(6,5)
+		-- Aplicar a taxa de saldo negativo para as mesmas
+		INSERT INTO [dbo].[Lancamentos]	(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
+			SELECT	s.Id,
+					1,
+					10,
+					7,
+					'D',
+					(t.Taxa * ABS(s.Saldo)),
+					'Valor REF sobre cobranças de limite cheque especial',
+					GETDATE(),
+					0
+				FROM [dbo].FNC_ListarSaldoNegativo() s
+					INNER JOIN [dbo].[Tarifas] t WITH(NOLOCK)
+						ON t.Id = 7
 
-				SET @Taxa = (SELECT Taxa FROM Tarifas WHERE Id = 7)
-
-				-- Aplicar a taxa de saldo negativo para as mesmas
-				INSERT INTO [dbo].[Lancamentos]	(Id_Cta, Id_Usuario, Id_Tarifa, Tipo_Lanc, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
-					SELECT	Id ,
-							1,
-							7,
-							'D',
-							(@Taxa * ABS(Saldo)),
-							'Valor REF sobre cobranças de limite cheque especial',
-							GETDATE(),
-							0
-						FROM FNC_ListarSaldoNegativo()
-
-				RETURN 0
-			END
-
-		ELSE
-			BEGIN
-				RETURN 1
-			END
+				--IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
+		RETURN 0
 	END
+
 		

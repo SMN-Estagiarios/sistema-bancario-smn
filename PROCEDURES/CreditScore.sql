@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER PROCEDURE [dbo].[SP_ListarCreditSCore] 
     AS  
         /*
@@ -14,8 +17,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarCreditSCore]
 
                                     EXEC [dbo].[SP_ListarCreditSCore] 
 
-                                    SELECT  @Ret AS Retorno,
-                                            DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
+                                    SELECT  DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
                                 ROLLBACK TRAN
 		*/
 
