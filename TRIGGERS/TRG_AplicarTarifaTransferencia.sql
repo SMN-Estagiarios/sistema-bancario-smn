@@ -9,11 +9,13 @@ FOR INSERT
 		DOCUMENTACAO
 		Arquivo Fonte........:	TRG_AplicarTarifaTransferencia.sql
 		Objetivo.............:	Atualizar o Saldo da tabela apos o registro de uma Transferencia
+								Na parte de Estorno, estou setando o TipoOperacao como 'C'
 		Autor................:	Olivio Freitas, Danyel Targino e Rafael Mauricio
 		Data.................:	11/04/2024
-		ObjetivoAlt..........:	N/A
-		AutorAlt.............:	N/A
-		DataAlt..............:	N/A
+		ObjetivoAlt..........:	A tabela de tarifas sofreu uma alteracao e os valores agora estao localizados na tabela PrecoTarifas,
+								portanto preciso alterar para a nova estrutura do banco de dados.
+		AutorAlt.............:	Olivio Freitas
+		DataAlt..............:	23/04/2024
 		Ex...................:	BEGIN TRAN
 									DBCC DROPCLEANBUFFERS;
 									DBCC FREEPROCCACHE;
@@ -25,15 +27,16 @@ FOR INSERT
 									SELECT * FROM Lancamentos
 
 									INSERT INTO Lancamentos
-											(Id_Cta, Id_Usuario, Id_Tarifa, Id_TipoLancamento, Tipo_Operacao ,Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
+											(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao ,Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 										VALUES
-											(1, 1, 3, 4,'D', 50, 'Teste100', GETDATE(), 0)
+											(1, 0, 3, 3,'D', 50, 'Teste100', GETDATE(), 0)
 
 									SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUCAO 
 		
 									SELECT * FROM Contas
 									SELECT * FROM Transferencias
 									SELECT * FROM Lancamentos
+
 
 								ROLLBACK TRAN
 		Retornos.............:	0 - SUCESSO			   
@@ -69,10 +72,12 @@ FOR INSERT
 				-- Identifico qual a tarifa e capturo o valor
 				IF @Id_Tarifa IS NOT NULL
 					BEGIN
-						SELECT	@Valor_Tarifa = Valor,
-								@Nome_Tarifa = Nome
-							FROM [dbo].[Tarifas] WITH(NOLOCK)
-							WHERE Id = @Id_Tarifa
+						SELECT	@Valor_Tarifa = PT.Valor,
+								@Nome_Tarifa = T.Nome
+							FROM [dbo].[Tarifas] T WITH(NOLOCK)
+								INNER JOIN [dbo].[PrecoTarifas] PT WITH(NOLOCK)
+									ON PT.IdTarifa = T.Id
+							WHERE T.Id = @Id_Tarifa
 					END
 
 				IF @Id_Conta IS NOT NULL
@@ -81,7 +86,7 @@ FOR INSERT
 						INSERT INTO [dbo].[Lancamentos]
 								(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 							VALUES
-								(@Id_Conta, @Id_Usuario, @Id_TipoLancamento,@Id_Tarifa, @Operacao_Lancamento, @Valor_Tarifa, @Nome_Tarifa, GETDATE(), @Estorno)
+								(@Id_Conta, @Id_Usuario, @Id_TipoLancamento,@Id_Tarifa, 'C', @Valor_Tarifa, @Nome_Tarifa, GETDATE(), @Estorno)
 					END
 		    END
 		ELSE IF EXISTS(SELECT TOP 1 1
@@ -104,8 +109,10 @@ FOR INSERT
 					BEGIN
 						SELECT	@Valor_Tarifa = Valor,
 								@Nome_Tarifa = Nome
-							FROM [dbo].[Tarifas] WITH(NOLOCK)
-							WHERE Id = @Id_Tarifa 
+							FROM [dbo].[Tarifas] T WITH(NOLOCK)
+								INNER JOIN [dbo].[PrecoTarifas] PT WITH(NOLOCK)
+									ON PT.IdTarifa = T.Id
+							WHERE T.Id = @Id_Tarifa 
 					END
 				IF @Id_Conta IS NOT NULL
 					BEGIN
