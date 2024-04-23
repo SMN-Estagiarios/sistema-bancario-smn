@@ -94,10 +94,13 @@ DROP TABLE [dbo].[CreditScore]
 GO
 DROP TABLE [dbo].[Contas]
 GO
-DROP TABLE [dbo].[Tarifas]
-GO
 DROP TABLE [dbo].[Lancamentos]
 GO
 DROP TABLE [dbo].[Transferencias]
 GO
 DROP TABLE [dbo].[TipoLancamento]
+GO
+DROP TABLE [dbo].[PrecoTarifas]
+GO
+DROP TABLE [dbo].[Tarifas]
+GO

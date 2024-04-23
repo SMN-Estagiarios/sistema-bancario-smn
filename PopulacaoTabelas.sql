@@ -8,17 +8,22 @@ INSERT INTO Contas	(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Aber
 					(0.00, 0.00, 0.00, '2024-04-01', '2024-04-12', 1, 0.00);
 GO
 -- INSERT DE TARIFAS COM VALORES FIXOS
-INSERT INTO Tarifas (id, Nome, Valor, Dat_InicioValidade) VALUES
-					(1,'Pix', 10, '01/04/2024'),
-					(2,'DOC', 20, '01/04/2024'),
-					(3,'TED', 30, '01/04/2024'),
-					(4,'TEC', 0, '01/04/2024'),
-					(5,'TAC', 15, '01/04/2024'),
-					(6,'TMC', 25, '01/04/2024');
+INSERT INTO Tarifas (Id, Nome) VALUES
+					(1, 'Pix'),
+					(2, 'DOC'),
+					(3, 'TED'),
+					(5, 'TAC'),
+					(6, 'TMC'),
+					(7, 'TSN');
 
 -- INSERT DE TARIFAS COM TAXA 
-INSERT INTO Tarifas (id, Nome, Taxa, Dat_InicioValidade) VALUES 
-					(7, 'TSN', 0.00334, '01/04/2024');
+INSERT INTO PrecoTarifas (Id, IdTarifa, Valor, Taxa, DataInicial) VALUES 
+							(1, 1, 10, NULL, '01/04/2024'),
+							(2, 2, 20, NULL, '01/04/2024'),
+							(3, 3, 30, NULL, '01/04/2024'),
+							(5, 5, 15, NULL, '01/04/2024'),
+							(6, 6,  25, NULL, '01/04/2024'),
+							(7, 7, NULL, 0.00334, '01/04/2024');
 GO
 
 

@@ -42,7 +42,8 @@ FOR INSERT, DELETE, UPDATE
 				@Id_Usuario INT, 
 				@Vlr_Transferencia DECIMAL(15,2),
 				@Nom_Referencia VARCHAR(200), 
-				@Dat_Transferencia DATETIME
+				@Dat_Transferencia DATETIME,
+				@TipoLancamento = 3
 
 	   	-- atribui��o de valores para casos de Insert
 		SELECT  @Id_Transferencia = Id,
@@ -58,7 +59,7 @@ FOR INSERT, DELETE, UPDATE
 			BEGIN	
 				--inser��o do lan�amento para a conta que est� transferindo 
 				INSERT INTO [dbo].[Lancamentos] (Id_Cta, Id_Usuario, Id_TipoLancamento, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno )VALUES
-										(@Id_ContaDeb, @Id_Usuario, 4,'D', @Vlr_Transferencia, CONCAT(@Nom_Referencia,' Código Transferência: ', @Id_Transferencia), @Dat_Transferencia, 0)
+										(@Id_ContaDeb, @Id_Usuario, @TipoLancamento,'D', @Vlr_Transferencia, CONCAT(@Nom_Referencia,' Código Transferência: ', @Id_Transferencia), @Dat_Transferencia, 0)
 					
 				IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
 					BEGIN 
@@ -66,7 +67,7 @@ FOR INSERT, DELETE, UPDATE
 					END
 				--inser��o do lancamento para a conta que est� recebendo a transferencia
 				INSERT INTO [dbo].[Lancamentos] (Id_Cta, Id_Usuario, Id_TipoLancamento, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno )VALUES
-							(@Id_ContaCre,@Id_Usuario,  3,'C',@Vlr_Transferencia, CONCAT(@Nom_Referencia,' Código Transferência: ', @Id_Transferencia), @Dat_Transferencia, 0)
+							(@Id_ContaCre,@Id_Usuario,  @TipoLancamento,'C',@Vlr_Transferencia, CONCAT(@Nom_Referencia,' Código Transferência: ', @Id_Transferencia), @Dat_Transferencia, 0)
 				
 				IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
 					BEGIN 
@@ -89,7 +90,7 @@ FOR INSERT, DELETE, UPDATE
 				BEGIN
 					--insercao do lancamento ESTORNO para a conta que recebeu a transferencia
 					INSERT INTO [dbo].[Lancamentos] (Id_Cta, Id_Usuario, Id_TipoLancamento, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno )VALUES
-						(@Id_ContaCre, @Id_Usuario, 4 , 'D', @Vlr_Transferencia, CONCAT('Estorno enviado: ', @Nom_Referencia, ' Código Transferencia desfeita: ', @Id_Transferencia), @Dat_Transferencia, 1)
+						(@Id_ContaCre, @Id_Usuario, @TipoLancamento , 'D', @Vlr_Transferencia, CONCAT('Estorno enviado: ', @Nom_Referencia, ' Código Transferencia desfeita: ', @Id_Transferencia), @Dat_Transferencia, 1)
 
 					IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
 						BEGIN 
@@ -97,7 +98,7 @@ FOR INSERT, DELETE, UPDATE
 						END
 						--insercao do lancamento ESTORNO para a conta recebeu a transferencia
 					INSERT INTO [dbo].[Lancamentos] (Id_Cta, Id_Usuario, Id_TipoLancamento, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno )VALUES
-						(@Id_ContaDeb,@Id_Usuario, 3,'C',@Vlr_Transferencia, CONCAT('Estorno recebido: ', @Nom_Referencia , ' Código Transferencia desfeita: ', @Id_Transferencia), @Dat_Transferencia,1)
+						(@Id_ContaDeb,@Id_Usuario, @TipoLancamento,'C',@Vlr_Transferencia, CONCAT('Estorno recebido: ', @Nom_Referencia , ' Código Transferencia desfeita: ', @Id_Transferencia), @Dat_Transferencia,1)
 
 					 IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
 						BEGIN 
