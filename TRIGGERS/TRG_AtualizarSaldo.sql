@@ -4,7 +4,7 @@ GO
 CREATE OR ALTER TRIGGER [dbo].[TRG_AtualizarSaldo]
 	ON [dbo].[Lancamentos]
 	AFTER INSERT
-	AS
+AS
 	/*
 		DOCUMENTAÇÃO
 		Arquivo Fonte........:	TRG_AtualizarSaldo.sql
@@ -27,10 +27,19 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_AtualizarSaldo]
 
 										SELECT * FROM [dbo].[Lancamentos]
 
-									INSERT INTO Lancamentos(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
-										VALUES (1, 1, 5, NULL, 'C', 2000, 'TESTE TRIGGER', '2024-04-12', 0)
+									INSERT INTO Lancamentos(	Id_Cta, 
+																Id_Usuario,
+																Id_TipoLancamento,
+																Id_Tarifa,
+																Tipo_Operacao,
+																Vlr_Lanc,
+																Nom_Historico,
+																Dat_Lancamento,
+																Estorno
+															)
+										VALUES (1, 0, 3, NULL, 'C', 2000, 'TESTE TRIGGER', GETDATE(), 0)
 
-									SELECT DATEDIFF(MILLISECOND, @DATA_INI,GETDATE()) AS Execução
+									SELECT DATEDIFF(MILLISECOND, @DATA_INI,GETDATE()) AS TempoExecução
 
 									SELECT	Id,
 											Vlr_SldInicial,
@@ -75,4 +84,6 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_AtualizarSaldo]
 										ELSE(Vlr_Debito + @Vlr_Lancamento)END)
 			WHERE Id IN (SELECT Id_Cta FROM INSERTED)
 	END
-GO
+
+
+

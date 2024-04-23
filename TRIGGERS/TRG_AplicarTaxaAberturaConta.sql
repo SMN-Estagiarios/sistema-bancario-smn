@@ -9,8 +9,17 @@ FOR INSERT
 	DOCUMENTACAO
 	Arquivo Fonte........:	TRG_AplicarTaxaAberturaConta.sql
 	Objetivo.............:	Insere lancamento referente a taxa de abertura de conta.
+							Id_Usuario = 0 Usuário do sistema
+							Id_Tarifa = 5 que se refere a taxa de abertura de conta
+							Tipo_Operacao = 'D', pois será um débito na conta 
+							Estorno = 0, pois não será um estorno.
+							Id_TipoLancamento = 6, referente a um Tarifa
 	Autor................:	Olivio Freitas, Danyel Targino e Rafael Mauricio
 	Data.................:	10/04/2024
+	ObjetivoAlt..........:	A tabela de tarifas sofreu uma alteracao e os valores agora estao localizados na tabela PrecoTarifas,
+							portanto preciso alterar para a nova estrutura do banco de dados
+	AutorAlt.............:	Danyel Targino 
+	DataAlt..............:	23/04/2024
 	Ex...................:	BEGIN TRAN
 								DBCC DROPCLEANBUFFERS;
 								DBCC FREEPROCCACHE;
@@ -25,7 +34,7 @@ FOR INSERT
 									VALUES
 										(0, 0, 0, GETDATE(), GETDATE(), 1, 0)
 
-								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUCAO
+								SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS TempoExecucao
 
 								SELECT * FROM Contas ORDER BY Id DESC
 								SELECT * FROM Lancamentos ORDER BY Id DESC
@@ -36,17 +45,14 @@ FOR INSERT
 		-- Declaro as variaveis que preciso
 		DECLARE @Id_Conta INT,
 				@Vlr_Tarifa DECIMAL(15,2),
-				@Data_Lancamento DATETIME = GETDATE(),
-				@Id_TAC TINYINT = 5, -- Código 5 se refere a taxa de abertura de conta
-				@Id_Usuario INT = 1, -- Setar para o Usuário 0 (usuário do sistema)
-				@Operacao_Lancamento CHAR(1) = 'D', -- setar
-				@Estorno BIT = 0,
-				@Id_TipoLancamento INT = 7
+				@Data_Lancamento DATETIME = GETDATE()
 				
 		-- Atribuir valores as variaveis
 		SELECT @Vlr_Tarifa = Valor
-			FROM [dbo].[PrecoTarifas] pt WITH (NOLOCK)
-			WHERE pt.IdTarifa = @Id_TAC
+			FROM [dbo].[Tarifas] T WITH (NOLOCK)
+				INNER JOIN [dbo].[PrecoTarifas] PT
+					ON PT.IdTarifa = T.Id
+			WHERE T.Id = 5
 
 		SELECT	@Id_Conta = Id
 			FROM inserted
@@ -62,18 +68,25 @@ FOR INSERT
 											Dat_Lancamento, 
 											Estorno
 										)
-								VALUES	(	@Id_Conta, 
-											@Id_Usuario , 
-											@Id_TipoLancamento, 
-											@Id_TAC, 
-											@Operacao_Lancamento, 
-											@Vlr_Tarifa, 
-											'Taxa de abertura de conta', 
-											@Data_Lancamento, 
-											@Estorno
+								VALUES	(	@Id_Conta,
+											0,
+											6,
+											5,
+											'D',
+											@Vlr_Tarifa,
+											'Taxa de abertura de conta',
+											@Data_Lancamento,
+											0
 										)
 		-- Checagem de erro
-		--IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
-	
+		DECLARE @MSG VARCHAR(100),
+				@ERRO INT
+			SET @ERRO = @@ERROR
+			
+				IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
+					BEGIN
+						SET @MSG = 'ERRO' + CAST(@ERRO AS VARCHAR(3)) + ', na aplicacao de Taxa de Abertura de Conta'
+							RAISERROR(@MSG, 16, 1)
+					END
 	END
 GO
