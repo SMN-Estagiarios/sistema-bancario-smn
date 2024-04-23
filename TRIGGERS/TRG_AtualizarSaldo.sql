@@ -4,7 +4,7 @@ GO
 CREATE OR ALTER TRIGGER [dbo].[TRG_AtualizarSaldo]
 	ON [dbo].[Lancamentos]
 	AFTER INSERT
-AS
+	AS
 	/*
 		DOCUMENTAÇÃO
 		Arquivo Fonte........:	TRG_AtualizarSaldo.sql
@@ -75,6 +75,4 @@ AS
 										ELSE(Vlr_Debito + @Vlr_Lancamento)END)
 			WHERE Id IN (SELECT Id_Cta FROM INSERTED)
 	END
-
-
-
+GO

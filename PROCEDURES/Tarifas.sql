@@ -25,9 +25,12 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarTarifas]
 
     BEGIN
        
-            SELECT  Id,
-                    Nome,
-                    Valor,
-                    Taxa
-                FROM [dbo].[Tarifas] WITH(NOLOCK)
-    END
+            SELECT  t.Id,
+                    t.Nome,
+                    pt.Valor,
+                    pt.Taxa
+                FROM [dbo].[Tarifas] t WITH(NOLOCK)
+					INNER JOIN [dbo].[PrecoTarifas] pt WITH(NOLOCK)
+						ON pt.IdTarifa = t.Id
+    END		
+GO

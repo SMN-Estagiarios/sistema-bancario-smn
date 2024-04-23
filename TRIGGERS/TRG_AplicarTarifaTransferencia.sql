@@ -2,8 +2,8 @@ USE SistemaBancario
 GO
 
 CREATE OR ALTER TRIGGER [dbo].[TRG_TarifaTransferencia]
-ON [dbo].[Lancamentos]
-FOR INSERT
+	ON [dbo].[Lancamentos]
+	FOR INSERT
 	AS
 		/*
 		DOCUMENTACAO
