@@ -2,8 +2,8 @@ USE SistemaBancario
 GO
 
 CREATE OR ALTER TRIGGER [dbo].[TRG_TarifaTransferencia]
-ON [dbo].[Lancamentos]
-FOR INSERT
+	ON [dbo].[Lancamentos]
+	FOR INSERT
 	AS
 		/*
 		DOCUMENTACAO
@@ -69,10 +69,12 @@ FOR INSERT
 				-- Identifico qual a tarifa e capturo o valor
 				IF @Id_Tarifa IS NOT NULL
 					BEGIN
-						SELECT	@Valor_Tarifa = Valor,
-								@Nome_Tarifa = Nome
-							FROM [dbo].[Tarifas] WITH(NOLOCK)
-							WHERE Id = @Id_Tarifa
+						SELECT	@Valor_Tarifa = pt.Valor,
+								@Nome_Tarifa = t.Nome
+							FROM [dbo].[Tarifas] t WITH(NOLOCK)
+								INNER JOIN [dbo].[PrecoTarifas] pt WITH(NOLOCK)
+									ON pt.IdTarifa = t.Id
+							WHERE t.Id = @Id_Tarifa
 					END
 
 				IF @Id_Conta IS NOT NULL
@@ -102,10 +104,12 @@ FOR INSERT
 				-- Identifico qual a tarifa e capturo o valor
 				IF @Id_Tarifa IS NOT NULL
 					BEGIN
-						SELECT	@Valor_Tarifa = Valor,
-								@Nome_Tarifa = Nome
-							FROM [dbo].[Tarifas] WITH(NOLOCK)
-							WHERE Id = @Id_Tarifa 
+						SELECT	@Valor_Tarifa = pt.Valor,
+								@Nome_Tarifa = t.Nome
+							FROM [dbo].[Tarifas] t WITH(NOLOCK)
+							INNER JOIN [dbo].[PrecoTarifas] pt WITH(NOLOCK)
+									ON pt.IdTarifa = t.Id
+							WHERE t.Id = @Id_Tarifa 
 					END
 				IF @Id_Conta IS NOT NULL
 					BEGIN

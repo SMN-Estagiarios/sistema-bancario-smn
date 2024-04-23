@@ -2,8 +2,8 @@ USE SistemaBancario
 GO
 
 CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
-																@Id_Conta INT = NULL,
-																@DataPassada DATE = NULL
+	@Id_Conta INT = NULL,
+	@DataPassada DATE = NULL
 	AS
 	/*
 		DOCUMENTAÇÃO
@@ -90,13 +90,15 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 							9,
 							@IdTarifa,
 							'D',
-							(t.Taxa * ABS(s.Saldo)),
+							(pt.Taxa * ABS(s.Saldo)),
 							'Valor REF sobre cobranças de limite cheque especial',
 							GETDATE(),
 							0
 						FROM [dbo].FNC_ListarSaldoNegativo() s
 							INNER JOIN [dbo].[Tarifas] t WITH(NOLOCK)
 								ON t.Id = @IdTarifa
+							INNER JOIN [dbo].[PrecoTarifas] pt WITH(NOLOCK)
+								ON pt.IdTarifa = t.Id
 
 				IF @@ERROR <> 0 OR @@ROWCOUNT <> (SELECT COUNT(Id) FROM [dbo].FNC_ListarSaldoNegativo())
 					BEGIN
@@ -166,12 +168,14 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 									9,
 									@IdTarifa,
 									'D',
-									(t.Taxa * ABS(@Valor)),
+									(pt.Taxa * ABS(@Valor)),
 									'Valor REF sobre cobranças de limite cheque especial de uma data anterior',
 									GETDATE(),
 									0
 								FROM [dbo].[Tarifas] t WITH(NOLOCK)
-								WHERE Id = @IdTarifa
+									INNER JOIN [dbo].[PrecoTarifas] pt WITH(NOLOCK)
+									ON pt.IdTarifa = t.Id
+								WHERE t.Id = @IdTarifa
 
 						IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
 							BEGIN
@@ -182,5 +186,4 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 			END
 		
 	END
-
-		
+GO

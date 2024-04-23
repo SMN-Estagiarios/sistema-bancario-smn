@@ -29,3 +29,4 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarCreditSCore]
 				Aliquota
 			FROM [dbo].[CreditScore] WITH(NOLOCK)
     END
+GO

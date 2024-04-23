@@ -43,7 +43,7 @@ FOR INSERT, DELETE, UPDATE
 				@Vlr_Transferencia DECIMAL(15,2),
 				@Nom_Referencia VARCHAR(200), 
 				@Dat_Transferencia DATETIME,
-				@TipoLancamento = 3
+				@TipoLancamento INT = 3
 
 	   	-- atribui��o de valores para casos de Insert
 		SELECT  @Id_Transferencia = Id,
@@ -106,3 +106,4 @@ FOR INSERT, DELETE, UPDATE
 						END
 				END
 	END
+GO

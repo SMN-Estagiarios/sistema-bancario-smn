@@ -45,8 +45,8 @@ FOR INSERT
 				
 		-- Atribuir valores as variaveis
 		SELECT @Vlr_Tarifa = Valor
-			FROM [dbo].[Tarifas] WITH (NOLOCK)
-			WHERE ID = @Id_TAC
+			FROM [dbo].[PrecoTarifas] pt WITH (NOLOCK)
+			WHERE pt.IdTarifa = @Id_TAC
 
 		SELECT	@Id_Conta = Id
 			FROM inserted

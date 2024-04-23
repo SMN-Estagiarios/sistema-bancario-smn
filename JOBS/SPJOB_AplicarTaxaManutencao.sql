@@ -50,16 +50,18 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 			-- Capturar a data de abertura da conta
 			BEGIN
 				SELECT  @Data_Abertura = Dat_Abertura
-					FROM [dbo].[Contas]
+					FROM [dbo].[Contas] WITH(NOLOCK)
 					WHERE Ativo = 1
 			END
 
 			-- Capturar Id_Taxa e Valor da Taxa
-			SELECT	@Id_TarifaTMC = Id,
-					@Valor_TMC = Valor,
-					@Nome_Tarifa = Nome
-				FROM [dbo].[Tarifas]
-				WHERE Id = 6
+			SELECT	@Id_TarifaTMC = t.Id,
+					@Valor_TMC = pt.Valor,
+					@Nome_Tarifa = t.Nome
+				FROM [dbo].[Tarifas] t WITH(NOLOCK)
+					INNER JOIN [dbo].[PrecoTarifas] pt WITH(NOLOCK)
+							ON pt.IdTarifa = t.Id
+				WHERE t.Id = 6
 
 			-- Comparar Mes/Ano Atual > DataAbertura Lancar @Data_Cobranca
 			IF DATEDIFF(MONTH, @Data_Abertura, @Data_Atual) > 0

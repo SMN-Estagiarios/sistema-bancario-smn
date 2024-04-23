@@ -80,4 +80,5 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 					RETURN 0 
 				ELSE 
 					RETURN 4
-	END;
+	END
+GO
