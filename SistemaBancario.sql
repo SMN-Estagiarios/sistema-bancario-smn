@@ -85,3 +85,24 @@ CREATE TABLE Transferencias (
 	CONSTRAINT FK_Conta_Debito_Transferencias FOREIGN KEY (Id_CtaDeb) REFERENCES Contas(Id),
 	CONSTRAINT FK_Usuario_Transferencias FOREIGN KEY (Id_Usuario ) REFERENCES Usuarios(Id)
 );
+
+CREATE TABLE StatusEmprestimos (
+	Id TINYINT,
+	Nome VARCHAR(20) UNIQUE NOT NULL,
+	CONSTRAINT PK_StatusEmpresimosId PRIMARY KEY(Id)
+);
+
+CREATE TABLE Emprestimos (
+	Id INT PRIMARY KEY IDENTITY,
+	IdStatus TINYINT NOT NULL,
+	Id_Cta INT NOT NULL,
+	Id_Tarifa TINYINT NOT NULL,
+	Valor DECIMAL(15,2) NOT NULL,
+	NumeroParcelas TINYINT NOT NULL,
+	Tipo CHAR(3) NOT NULL,
+	DataInicio DATE,
+	CONSTRAINT FK_StatusEmprestimos_Emprestimos FOREIGN KEY(IdStatus) REFERENCES StatusEmprestimos(Id),
+	CONSTRAINT FK_Contas_Emprestimos FOREIGN KEY(Id_Cta) REFERENCES Contas(Id),
+	CONSTRAINT FK_Tarifas_Emprestimos FOREIGN KEY(Id_Tarifa) REFERENCES Tarifas(Id),
+	CHECK(Tipo IN('PRE', 'POS'))
+);
