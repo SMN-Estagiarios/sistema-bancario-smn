@@ -7,9 +7,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 	Documentacao
 	Arquivo Fonte........:	SPJOB_AplicarTaxaManutencao.sql
 	Objetivo.............:	Aplica a Taxa de Manutencao de Conta a partir da data de abertura da conta nos meses subsequentes
-                            Id_Usuario o valor é 0, pois é usuario do sistema
-                            Id_TipoLancamento o valor é 6, pois refere-se a Tarifa
-							Id_Tarifa o valor é 6, pois refere-se a Taxa de Manutencao de Conta (TMC)
+                                Id_Usuario o valor Ã© 0, pois Ã© usuario do sistema
+                                Id_TipoLancamento o valor Ã© 6, pois refere-se a Tarifa
+			        Id_Tarifa o valor Ã© 6, pois refere-se a Taxa de Manutencao de Conta (TMC)
 	Autor................:	Olivio Freitas, Danyel Targino e Rafael Mauricio
 	Data.................:	11/04/2024
 	ObjetivoAlt..........:	N/A
@@ -43,7 +43,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 			DECLARE @Data_Atual DATE = GETDATE(),
 					@Data_Abertura DATE,
 					@Data_Cobranca INT,
-					@Id_Conta INT,
 					@Valor_TMC INT,
 					@Nome_Tarifa VARCHAR(50)
 
@@ -77,16 +76,16 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 
 			-- Insert dos LANCAMENTOS
 			INSERT INTO [dbo].[Lancamentos]	(	Id_Cta,
-												Id_Usuario,
-												Id_TipoLancamento,
-												Id_Tarifa,
-												Tipo_Operacao,
-												Vlr_Lanc,
-												Nom_Historico,
-												Dat_Lancamento,
-												Estorno
-											)
-				SELECT	Id, 
+								Id_Usuario,
+								Id_TipoLancamento,
+								Id_Tarifa,
+								Tipo_Operacao,
+								Vlr_Lanc,
+								Nom_Historico,
+								Dat_Lancamento,
+								Estorno
+							)
+				SELECT		Id, 
 						0,
 						6,
 						6,
