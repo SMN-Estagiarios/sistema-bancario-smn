@@ -17,13 +17,13 @@ INSERT INTO Tarifas (Id, Nome) VALUES
 					(7, 'TSN');
 
 -- INSERT DE TARIFAS COM TAXA 
-INSERT INTO PrecoTarifas (Id, IdTarifa, Valor, Taxa, DataInicial) VALUES 
-							(1, 1, 10, NULL, '01/04/2024'),
-							(2, 2, 20, NULL, '01/04/2024'),
-							(3, 3, 30, NULL, '01/04/2024'),
-							(5, 5, 15, NULL, '01/04/2024'),
-							(6, 6,  25, NULL, '01/04/2024'),
-							(7, 7, NULL, 0.00334, '01/04/2024');
+INSERT INTO PrecoTarifas (IdTarifa, Valor, Taxa, DataInicial) VALUES 
+							(1, 10, NULL, '01/04/2024'),
+							(2, 20, NULL, '01/04/2024'),
+							(3, 30, NULL, '01/04/2024'),
+							(5, 15, NULL, '01/04/2024'),
+							(6,  25, NULL, '01/04/2024'),
+							(7, NULL, 0.00334, '01/04/2024');
 GO
 
 
