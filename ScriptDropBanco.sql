@@ -3,7 +3,7 @@ GO
 		-- DROPANDO CONSTRAINT DE FK 
 
 -- Executando o drop de constraint de FK na tabela contas
-ALTER TABLE CONTAS
+ALTER TABLE Contas
 	DROP CONSTRAINT FK_IdCreditScoreContas
 GO
 
@@ -17,16 +17,40 @@ GO
 ALTER TABLE Lancamentos
 	DROP CONSTRAINT FK_Usuario_Lancamento
 GO
+ALTER TABLE Lancamentos
+	DROP CONSTRAINT FK_TipoLancamento_Lancamentos
+GO
 
 -- Executando o drop de constraint de FK na tabela Transferencias
 ALTER TABLE Transferencias
-	DROP CONSTRAINT FK_Conta_Credito
+	DROP CONSTRAINT FK_Conta_Credito_Transferencias
 GO
 ALTER TABLE Transferencias
-	DROP CONSTRAINT FK_Conta_Debito
+	DROP CONSTRAINT FK_Conta_Debito_Transferencias
 GO
 ALTER TABLE Transferencias
-	DROP CONSTRAINT FK_UsuarioTransferencia
+	DROP CONSTRAINT FK_Usuario_Transferencias
+GO
+
+-- Executando o drop de constraint de FK na tabela Emprestimos
+ALTER TABLE Emprestimos
+	DROP CONSTRAINT FK_StatusEmprestimos_Emprestimos
+GO
+ALTER TABLE Emprestimos
+	DROP CONSTRAINT FK_Contas_Emprestimos
+GO
+ALTER TABLE Emprestimos
+	DROP CONSTRAINT FK_Tarifas_Emprestimos
+GO
+
+-- Executando o drop de constraint de FK na tabela StatusEmprestimos
+ALTER TABLE StatusEmprestimos
+	DROP CONSTRAINT FK_StatusEmprestimos_Emprestimos
+GO
+
+-- Executando o drop de constraint de FK na tabela PrecoTarifas
+ALTER TABLE PrecoTarifas
+	DROP CONSTRAINT FK_IdTarifaPreco
 GO
 
 		-- DROPANDO TRIGGERS DO SISTEMA BANCARIO
@@ -103,4 +127,8 @@ GO
 DROP TABLE [dbo].[PrecoTarifas]
 GO
 DROP TABLE [dbo].[Tarifas]
+GO
+DROP TABLE [dbo].[Emprestimos]
+GO
+DROP TABLE [dbo].[StatusEmprestimos]
 GO

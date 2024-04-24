@@ -9,7 +9,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 		DOCUMENTAÇÃO
 		Arquivo fonte.....: SPJOB_LancarTaxaSaldoNegativo.sql
 		Objetivo..........: Verificar diariamente quais as contas que estão negativas e lançar uma taxa de saldo nelas.
-							Para o insert atribuimos diretamente o valor de Id_Usuario = 1 que é o equivalente ao ADMIN,
+							Para o insert atribuimos diretamente o valor de Id_Usuario = 0 que é o equivalente ao ADMIN,
 							Id_TipoLancamento = 9 que é o de juros, Id_Tarifa = 7 que é o de taxa saldo negativo e Estorno = 0,
 							que evidencia que não é um estorno.
 		Autor.............: Orcino Neto, Odlavir Florentino e Pedro Avelino
@@ -86,7 +86,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 				-- Aplicar a taxa de saldo negativo para as mesmas
 				INSERT INTO [dbo].[Lancamentos]	(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 					SELECT	s.Id,
-							1,
+							0,
 							9,
 							@IdTarifa,
 							'D',
@@ -164,7 +164,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 						-- Aplicar a taxa de saldo negativo para as mesmas
 						INSERT INTO [dbo].[Lancamentos]	(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 							SELECT	@Id_Conta,
-									1,
+									0,
 									9,
 									@IdTarifa,
 									'D',

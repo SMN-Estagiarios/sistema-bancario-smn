@@ -87,9 +87,8 @@ CREATE TABLE Transferencias (
 );
 
 CREATE TABLE StatusEmprestimos (
-	Id TINYINT,
-	Nome VARCHAR(20) UNIQUE NOT NULL,
-	CONSTRAINT PK_StatusEmpresimosId PRIMARY KEY(Id)
+	Id TINYINT PRIMARY KEY,
+	Nome VARCHAR(20) UNIQUE NOT NULL
 );
 
 CREATE TABLE Emprestimos (
@@ -97,7 +96,8 @@ CREATE TABLE Emprestimos (
 	IdStatus TINYINT NOT NULL,
 	Id_Cta INT NOT NULL,
 	Id_Tarifa TINYINT NOT NULL,
-	Valor DECIMAL(15,2) NOT NULL,
+	ValorSolicitado DECIMAL(15,2) NOT NULL,
+	ValorParcela DECIMAL(15,2) NOT NULL,
 	NumeroParcelas TINYINT NOT NULL,
 	Tipo CHAR(3) NOT NULL,
 	DataInicio DATE,
