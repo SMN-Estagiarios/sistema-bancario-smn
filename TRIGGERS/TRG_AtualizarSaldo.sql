@@ -84,6 +84,6 @@ AS
 										ELSE(Vlr_Debito + @Vlr_Lancamento)END)
 			WHERE Id IN (SELECT Id_Cta FROM INSERTED)
 	END
-
+GO 
 
 

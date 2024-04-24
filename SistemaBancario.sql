@@ -47,6 +47,17 @@ CREATE TABLE Contas (
 	CONSTRAINT FK_IdCorrentistaContas FOREIGN KEY(IdCorrentista) REFERENCES Correntista(Id)
 ); 
 
+CREATE TABLE SaldoDiario(
+    Id INT IDENTITY PRIMARY KEY,
+    IdCta INT NOT NULL,
+    Vlr_SldInicial DECIMAL(15,2) NOT NULL,
+    Vlr_SldFinal DECIMAL(15,2) NOT NULL,
+    Vlr_Credito DECIMAL(15,2) NOT NULL,
+    Vlr_Debito DECIMAL(15,2) NOT NULL,
+    Dat_Saldo DATE NOT NULL
+    CONSTRAINT FK_SaldoDiarioContas FOREIGN KEY (IdCta) REFERENCES Contas(Id)
+);
+
 CREATE TABLE StatusCartaoCredito(
 	Id TINYINT IDENTITY,
 	Nome VARCHAR(500),
