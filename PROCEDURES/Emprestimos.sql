@@ -1,11 +1,12 @@
 USE SistemaBancario
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo] @Id_Cta INT,
-														@ValorSolicitado DECIMAL(15,2),
-														@NumeroParcelas INT,
-														@Tipo CHAR(3),
-														@DataInicio DATE = NULL
+CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo] 
+	@Id_Cta INT,
+	@ValorSolicitado DECIMAL(15,2),
+	@NumeroParcelas INT,
+	@Tipo CHAR(3),
+	@DataInicio DATE = NULL
 	AS
 	/* 
 			Documentação
@@ -17,72 +18,75 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo] @Id_Cta INT,
 									DBCC DROPCLEANBUFFERS;
 									DBCC FREEPROCCACHE;
 
-									DECLARE @Dat_init DATETIME = GETDATE()
+									DECLARE @Ret INT,
+											@Dat_ini DATETIME = GETDATE()
 
 
-									EXEC [dbo].[SP_RealizarEmprestimo] 1, 2000, 2, 'PRE', '2024-04-25'
+									EXEC @Ret = [dbo].[SP_RealizarEmprestimo] 1, 2000, 2, 'PRE', '2024-04-25'
 
-									SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS ResultadoExecucao
+									SELECT	@Ret AS Retorno,
+											DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS ResultadoExecucao
 								ROLLBACK TRAN
 
-							-- RETORNO --
+								-- RETORNO --
 							
-							00.................: Sucesso ao realizar um emprestimo.
-							01.................: Erro, data informada excedeu o limite estipulado
-							02.................: Erro, o valor é maior que o limite disponivel para emprestimo.
+								00.................: Sucesso ao realizar um emprestimo
+								01.................: Erro, data informada excedeu o limite estipulado de até 3 meses
+								02.................: Erro, o valor é maior que o limite disponivel para emprestimo
+								03.................: Erro, a quantidade de parcelas não está dentro do permitido
 	*/
 	BEGIN
 		DECLARE @DataAtual DATE = GETDATE(),
 				@Id_Tarifa INT;
+				
+		-- Caso o parâmetro da primeira parcela for nulo, será passada para daqui a 1 mês e a data não poderá ser em um fim de semana
+		SET @DataInicio = ISNULL(@DataInicio, DATEADD(MONTH, 1, @DataAtual))
+		SET @DataInicio = CASE	WHEN @DataInicio = 'Sábado' THEN DATEADD(DAY, 2, @DataInicio)
+								WHEN @DataInicio = 'Domingo' THEN DATEADD(DAY, 1, @DataInicio)
+								ELSE @DataInicio
+						  END
 
-		-- Analisar se a data foi passada na procedure
-		IF @DataInicio IS NULL
-			BEGIN
-				-- Caso não tenha sido, utilizar a data atual
-				SET @DataInicio = @DataAtual;
-			END
-		-- Analisar se a data passada foi maior que dois meses ou anterior a data atual
-		ELSE IF @DataInicio >= DATEADD(MONTH, 2, @DataAtual) OR @DataInicio < @DataAtual
+		-- Analisar se a data de início for maior que três meses ou anterior a data atual
+		IF @DataInicio > DATEADD(MONTH, 3, @DataAtual) OR @DataInicio < @DataAtual
 			BEGIN
 				RETURN 1
 			END
-		ELSE
+		-- Verificar se o valor solicitado está dentro do limite de três vezes o cheque especial
+		IF @ValorSolicitado > 3 * (SELECT Lim_ChequeEspecial 
+										FROM [dbo].[Contas] WITH(NOLOCK)
+										WHERE Id = @Id_Cta
+								  )
 			BEGIN
-				-- Verificar se o valor solicitado está dentro do limite de três vezes o cheque especial
-				IF @ValorSolicitado <= 3 * (SELECT Lim_ChequeEspecial 
-						  FROM [dbo].[Contas] WITH(NOLOCK)
-						  WHERE Id = @Id_Cta)
-					BEGIN
-						-- Criar o emprestimo
-						INSERT INTO [dbo].[Emprestimos] (	IdStatus,
-															Id_Cta,
-															Id_Tarifa,
-															ValorSolicitado,
-															ValorParcela,
-															NumeroParcelas,
-															Tipo,
-															DataInicio
-														)
-														VALUES
-														(
-															'*',
-															@Id_Cta,
-															@Id_Tarifa,
-															@ValorSolicitado,
-															FORMAT((@ValorSolicitado * POWER((1 + (SELECT Taxa
-																											FROM PrecoTarifas WITH(NOLOCK)
-																											WHERE Id = @Id_Tarifa)), @NumeroParcelas)) / @NumeroParcelas , 'C'),
-															@NumeroParcelas,
-															@Tipo,
-															@DataInicio
-														)
-						RETURN 0
-					END
-				ELSE
-					BEGIN
-						RETURN 2
-					END
+				RETURN 2
+			END 
+		-- Verificar se a quantidade de parcelas está dentro do permitido
+		IF NOT EXISTS (SELECT TOP 1 1
+							FROM [dbo].[FNC_ListarPossiveisQuantidadesParcelasEmprestimo]()
+							WHERE QuantidadeParcela = @NumeroParcelas
+					  )
+			BEGIN
+				RETURN 3
 			END
+		-- Criar o emprestimo
+		INSERT INTO [dbo].[Emprestimos] (	IdStatus,
+											Id_Cta,
+											Id_Tarifa,
+											Valor,
+											NumeroParcelas,
+											Tipo,
+											DataInicio
+										)
+										VALUES
+										(
+											1,
+											@Id_Cta,
+											@Id_Tarifa,
+											@ValorSolicitado,
+											@NumeroParcelas,
+											@Tipo,
+											@DataInicio
+										)
+		RETURN 0
 	END
 GO
 
@@ -99,7 +103,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarEmprestimo]	@IdConta INT = NULL,
 								DBCC DROPCLEANBUFFERS;
 								DBCC FREEPROCCACHE;
 
-								DECLARE @Dat_init DATETIME = GETDATE()
+								DECLARE @Dat_ini DATETIME = GETDATE()
 
 								INSERT INTO [dbo].[StatusEmprestimos] (Id, Nome) VALUES (1, 'Em processamento')
 
@@ -180,33 +184,28 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarSimulacaoEmprestimo]
 	@ValorEmprestimo DECIMAL(15,2)
 	AS
 	/*
-	Documentação
-	Arquivo Fonte.........: Emprestimos.sql
-	Objetivo..............: Listar uma simulação de empréstimo do valor passado como parâmetro. Será listado o valor
-							das parcelas mensais de 1 a 72 meses
-	Autor.................: João Victor Maia, Odlavir Florentino, Rafael Maurício
-	Data..................: 23/04/2024
-	Ex....................: EXEC [dbo].[SP_ListarSimulacaoEmprestimo] 100
+		Documentação
+		Arquivo Fonte.........: Emprestimos.sql
+		Objetivo..............: Listar uma simulação de empréstimo do valor passado como parâmetro. Será listado o valor
+								das parcelas mensais e a quantidade das mesmas
+		Autor.................: João Victor Maia, Odlavir Florentino, Rafael Maurício
+		Data..................: 23/04/2024
+		Ex....................: DBCC FREEPROCCACHE
+								DECLARE @Ret INT,
+										@Dat_ini DATETIME = GETDATE()
+
+								EXEC @Ret = [dbo].[SP_ListarSimulacaoEmprestimo] 1000
+
+								SELECT	@Ret AS Retorno,
+										DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
 	*/
 	BEGIN
-
-		--Declarar variáveis
-		DECLARE @Mes TINYINT = 1
-		DECLARE @TaxaTotal DECIMAL(5,4) = 0.0595 + 0.0038
-		--Criar e popular tabela com a quantidade de parcelas de 1 a 72
-		CREATE TABLE #QuantidadeParcela	(
-										Quantidade TINYINT
-										)
-		WHILE @Mes <= 72
-			BEGIN
-				IF(@Mes <= 12 OR @Mes = 24 OR @Mes = 36 OR @Mes = 48 OR @Mes = 60 OR @Mes = 72)
-				INSERT INTO #QuantidadeParcela VALUES(@Mes)
-				SET @Mes += 1
-			END
-
-		--Listar a simulação de empréstimo
-		SELECT	qm.Quantidade AS TotalParcelas,
-				FORMAT(@ValorEmprestimo * @TaxaTotal / (1 - POWER(1 + @TaxaTotal, - qm.Quantidade)), 'C') AS PrecoParcela
-			FROM #QuantidadeParcela qm
+		--Declarar variável da taxa sendo 7% de juros ao mês + IOF
+		DECLARE @TaxaTotal DECIMAL(5,4) = 0.07 + 0.0038
+		--Listar a simulação de empréstimo em que o valor da parcela seja maior que 100
+		SELECT	QuantidadeParcela AS TotalParcelas,
+				FORMAT(@ValorEmprestimo * @TaxaTotal / (1 - POWER(1 + @TaxaTotal, - QuantidadeParcela)), 'C') AS PrecoParcela
+			FROM [dbo].[FNC_ListarPossiveisQuantidadesParcelasEmprestimo]()
+			WHERE @ValorEmprestimo * @TaxaTotal / (1 - POWER(1 + @TaxaTotal, - QuantidadeParcela)) > 100
 	END
 GO
