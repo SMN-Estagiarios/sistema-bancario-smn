@@ -17,6 +17,21 @@ CREATE TABLE CreditScore (
 	CONSTRAINT Id_CreditScore PRIMARY KEY(Id)
 );
 
+CREATE TABLE Correntista(
+	Id INT IDENTITY,
+	Nome VARCHAR(500),
+	Pf BIT NOT NULL,
+	Cpf BIGINT,
+	DataNasc DATE,
+	Cnpj BIGINT,
+	RazaoSocial VARCHAR(500),
+	Contato BIGINT NOT NULL,
+	Email VARCHAR(500) NOT NULL,
+	Logradouro VARCHAR(500) NOT NULL,
+	Numero SMALLINT,
+	CONSTRAINT PK_IdCorrentista PRIMARY KEY(Id)
+);
+
 CREATE TABLE Contas (
 	Id INT IDENTITY,
 	Vlr_SldInicial DECIMAL (15,2) NOT NULL, 
@@ -28,9 +43,65 @@ CREATE TABLE Contas (
 	Ativo BIT NOT NULL,
 	Lim_ChequeEspecial DECIMAL(15,2) NOT NULL,
 	IdCreditScore TINYINT,
+	IdCorrentista INT NOT NULL,
 	CONSTRAINT PK_IdContas PRIMARY KEY(Id),
-	CONSTRAINT FK_IdCreditScoreContas FOREIGN KEY(IdCreditScore) REFERENCES CreditScore(Id)
+	CONSTRAINT FK_IdCreditScoreContas FOREIGN KEY(IdCreditScore) REFERENCES CreditScore(Id),
+	CONSTRAINT FK_IdCorrentistaContas FOREIGN KEY(IdCorrentista) REFERENCES Correntista(Id)
 ); 
+
+CREATE TABLE StatusCartaoCredito(
+	Id TINYINT IDENTITY,
+	Nome VARCHAR(500),
+	CONSTRAINT PK_IdStatusCartaoCredito PRIMARY KEY(Id)
+);
+
+CREATE TABLE CartaoCredito(
+	Id INT IDENTITY,
+	NomeImpresso VARCHAR(500) NOT NULL,
+	Numero BIGINT NOT NULL UNIQUE,
+	Cvc SMALLINT NOT NULL,
+	Limite DECIMAL(15,2) NOT NULL,
+	DataEmissao DATE NOT NULL,
+	DataValidade DATE NOT NULL,
+	Aproximacao BIT NOT NULL,
+	VencimentoDia TINYINT NOT NULL,
+	IdConta INT NOT NULL,
+	IdStatusCartaoCredito TINYINT NOT NULL,
+	CONSTRAINT PK_IdCartaoCredito PRIMARY KEY(Id),
+	CONSTRAINT FK_IdContasCartaoCredito FOREIGN KEY(IdConta) REFERENCES Contas(Id),
+	CONSTRAINT FK_IdStatusCartaoCreditoCartaoCredito FOREIGN KEY (IdStatusCartaoCredito) REFERENCES StatusCartaoCredito(Id)
+);
+
+CREATE TABLE StatusFatura(
+	Id TINYINT IDENTITY,
+	Nome VARCHAR(500),
+	CONSTRAINT PK_IdStatusFatura PRIMARY KEY(Id)
+);
+
+CREATE TABLE Fatura(
+	Id INT IDENTITY,
+	CodigoBarra BIGINT NOT NULL,
+	DataEmissao DATE NOT NULL,
+	DataVencimento DATE NOT NULL,
+	IdStatusFatura TINYINT NOT NULL,
+	IdConta INT NOT NULL,
+	CONSTRAINT PK_IdFatura PRIMARY KEY(Id),
+	CONSTRAINT FK_IdStatusFaturaFatura FOREIGN KEY (IdStatusFatura) REFERENCES StatusFatura(Id),
+	CONSTRAINT FK_IdContaFatura FOREIGN KEY(IdConta) REFERENCES Contas(Id)
+);
+
+CREATE TABLE TransacaoCartaoCredito(
+	Id INT IDENTITY,
+	Nom_Historico VARCHAR(500) NOT NULL,
+	Dat_Trans DATETIME NOT NULL,
+	Valor_Trans DECIMAL(15,2) NOT NULL,
+	Estorno BIT NOT NULL,
+	IdCartaoCredito INT NOT NULL,
+	IdFatura INT NOT NULL,
+	CONSTRAINT PK_IdTransacaoCartaoCredito PRIMARY KEY (Id),
+	CONSTRAINT FK_IdCartaoCreditoTransacaoCartaoCredito FOREIGN KEY (IdCartaoCredito) REFERENCES CartaoCredito(Id),
+	CONSTRAINT FK_IdFaturaTransacaoCartaoCredito FOREIGN KEY (IdFatura) REFERENCES Fatura(Id)
+);
 
 CREATE TABLE Tarifas (
 	Id TINYINT,
@@ -53,11 +124,10 @@ CREATE TABLE PrecoTarifas (
     Nome VARCHAR(50) NOT NULL UNIQUE
  );
 
-
  CREATE TABLE Lancamentos (
     Id INT IDENTITY PRIMARY KEY, 
     Id_Cta INT NOT NULL,
-    Id_Usuario INT NOT NULL,
+	Id_Usuario INT NOT NULL,
     Id_TipoLancamento INT NOT NULL,
     Id_Tarifa TINYINT,
     Tipo_Operacao CHAR(1) NOT NULL,
@@ -66,15 +136,14 @@ CREATE TABLE PrecoTarifas (
     Dat_Lancamento DATETIME NOT NULL,
     Estorno BIT NOT NULL,
     CONSTRAINT FK_Conta_Lancamentos FOREIGN KEY (Id_Cta) REFERENCES Contas(Id),
-    CONSTRAINT FK_Usuario_Lancamentos FOREIGN KEY (Id_Usuario) REFERENCES Usuarios(Id),
+	CONSTRAINT FK_Usuario_Lancamentos FOREIGN KEY (Id_Usuario) REFERENCES Usuarios(Id),
     CONSTRAINT FK_TipoLancamento_Lancamentos FOREIGN KEY (Id_TipoLancamento) REFERENCES TipoLancamento(Id),
     CONSTRAINT FK_Tarifa_Lancamentos FOREIGN KEY (Id_Tarifa) REFERENCES Tarifas(Id),
 	CONSTRAINT CHK_Tipo_Operacao_C_D CHECK(Tipo_Operacao = 'C' OR Tipo_Operacao = 'D')
 );
 
-
 CREATE TABLE Transferencias (
-	Id INT PRIMARY KEY IDENTITY, 
+	Id INT PRIMARY KEY IDENTITY,
 	Id_Usuario INT NOT NULL,
 	Id_CtaCre INT NOT NULL, 
 	Id_CtaDeb INT NOT NULL, 
