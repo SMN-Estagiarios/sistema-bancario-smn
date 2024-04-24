@@ -22,7 +22,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo] @Id_Cta INT,
 
 									EXEC [dbo].[SP_RealizarEmprestimo] 1, 2000, 2, 'PRE', '2024-04-25'
 
-									SELECT DATEDIFF(millisecond, @Dat_init, GETDATE()) AS ResultadoExecucao
+									SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS ResultadoExecucao
 								ROLLBACK TRAN
 
 							-- RETORNO --
@@ -90,73 +90,73 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarEmprestimo]	@IdConta INT = NULL,
 														@DataInicio DATE = NULL
 	AS
 	/*
-	Documentação
-	Arquivo Fonte.....: Emprestimos.sql
-	Objetivo..........: Listar todas ou somente registros com os atributos de id ou data passados pelos parametros
-	Autor.............: Odlavir Florentino, Rafael Mauricio, Joao Victor
-	Data..............: 23/04/2024
-	Ex................: BEGIN TRAN
-							DBCC DROPCLEANBUFFERS;
-							DBCC FREEPROCCACHE;
+		Documentação
+		Arquivo Fonte.....: Emprestimos.sql
+		Objetivo..........: Listar todas ou somente registros com os atributos de id ou data passados pelos parametros
+		Autor.............: Odlavir Florentino, Rafael Mauricio, Joao Victor
+		Data..............: 23/04/2024
+		Ex................: BEGIN TRAN
+								DBCC DROPCLEANBUFFERS;
+								DBCC FREEPROCCACHE;
 
-							DECLARE @Dat_init DATETIME = GETDATE()
+								DECLARE @Dat_init DATETIME = GETDATE()
 
-							INSERT INTO [dbo].[StatusEmprestimos] (Id, Nome) VALUES (1, 'Em processamento')
+								INSERT INTO [dbo].[StatusEmprestimos] (Id, Nome) VALUES (1, 'Em processamento')
 
-							INSERT INTO [dbo].[Emprestimos] (	IdStatus,
-																Id_Cta,
-																Id_Tarifa,
-																ValorSolicitado,
-																ValorParcela,
-																NumeroParcelas,
-																Tipo,
-																DataInicio
-															)
-														VALUES
-															(
-															1,
-															1,
-															1,
-															1000,
-															100,
-															10,
-															'PRE',
-															'2024-04-23'
-															)
+								INSERT INTO [dbo].[Emprestimos] (	IdStatus,
+																	Id_Cta,
+																	Id_Tarifa,
+																	ValorSolicitado,
+																	ValorParcela,
+																	NumeroParcelas,
+																	Tipo,
+																	DataInicio
+																)
+															VALUES
+																(
+																1,
+																1,
+																1,
+																1000,
+																100,
+																10,
+																'PRE',
+																'2024-04-23'
+																)
 
-							INSERT INTO [dbo].[Emprestimos] (	IdStatus,
-																Id_Cta,
-																Id_Tarifa,
-																ValorSolicitado,
-																ValorParcela,
-																NumeroParcelas,
-																Tipo,
-																DataInicio
-															)
-														VALUES
-															(
-															1,
-															2,
-															1,
-															1500,
-															100,
-															15,
-															'PRE',
-															'2024-04-25'
-															)
+								INSERT INTO [dbo].[Emprestimos] (	IdStatus,
+																	Id_Cta,
+																	Id_Tarifa,
+																	ValorSolicitado,
+																	ValorParcela,
+																	NumeroParcelas,
+																	Tipo,
+																	DataInicio
+																)
+															VALUES
+																(
+																1,
+																2,
+																1,
+																1500,
+																100,
+																15,
+																'PRE',
+																'2024-04-25'
+																)
 
 							
 
-							EXEC [dbo].[SP_ListarEmprestimo] 1
+								EXEC [dbo].[SP_ListarEmprestimo] 1
 
-							SELECT DATEDIFF(millisecond, @Dat_init, GETDATE()) AS ResultadoExecucao
+								SELECT DATEDIFF(millisecond, @Dat_init, GETDATE()) AS ResultadoExecucao
 
-							TRUNCATE TABLE [dbo].[Emprestimos]
-						ROLLBACK TRAN
+								TRUNCATE TABLE [dbo].[Emprestimos]
+							ROLLBACK TRAN
 
-							-- RETORNO --
+								-- RETORNO --
 							
-							00.................:
+								00.................:
 	*/
 	BEGIN
 			BEGIN
@@ -176,7 +176,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarEmprestimo]	@IdConta INT = NULL,
 	END
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_ListarSimulacaoEmprestimo] @ValorEmprestimo DECIMAL(15,2)
+CREATE OR ALTER PROCEDURE [dbo].[SP_ListarSimulacaoEmprestimo] 
+	@ValorEmprestimo DECIMAL(15,2)
 	AS
 	/*
 	Documentação
@@ -188,48 +189,24 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarSimulacaoEmprestimo] @ValorEmprestimo 
 	Ex....................: EXEC [dbo].[SP_ListarSimulacaoEmprestimo] 100
 	*/
 	BEGIN
-<<<<<<< HEAD
+
 		--Declarar variáveis
-=======
-		--Declarar vari�veis
->>>>>>> a66fda7b4c71a0adc70f5c258c55c402cb0dac22
 		DECLARE @Mes TINYINT = 1
+		DECLARE @TaxaTotal DECIMAL(5,4) = 0.0595 + 0.0038
 		--Criar e popular tabela com a quantidade de parcelas de 1 a 72
 		CREATE TABLE #QuantidadeParcela	(
 										Quantidade TINYINT
-									)
+										)
 		WHILE @Mes <= 72
 			BEGIN
+				IF(@Mes <= 12 OR @Mes = 24 OR @Mes = 36 OR @Mes = 48 OR @Mes = 60 OR @Mes = 72)
 				INSERT INTO #QuantidadeParcela VALUES(@Mes)
 				SET @Mes += 1
 			END
-<<<<<<< HEAD
+
 		--Listar a simulação de empréstimo
 		SELECT	qm.Quantidade AS TotalParcelas,
-				FORMAT((@ValorEmprestimo * POWER((1 + 0.07), qm.Quantidade)) / qm.Quantidade , 'C') AS PrecoParcela
+				FORMAT(@ValorEmprestimo * @TaxaTotal / (1 - POWER(1 + @TaxaTotal, - qm.Quantidade)), 'C') AS PrecoParcela
 			FROM #QuantidadeParcela qm
 	END
 GO
-=======
-		--Listar a simula��o de empr�stimo
-		SELECT	qm.Quantidade AS TotalParcelas,
-				FORMAT((@ValorEmprestimo * POWER((1 + 0.06), qm.Quantidade)) / qm.Quantidade , 'C') AS PrecoParcela
-			FROM #QuantidadeParcela qm
-	END
-GO
-
-CREATE OR ALTER PROCEDURE [dbo].[SP_CriarEmprestimo]
-	AS	
-	/*
-	Documenta��o
-	Arquivo Fonte.........: Emprestimos.sql
-	Objetivo..............: Criar um empr�stimo para um cliente com o valor e a quantidade de parcelas dados no par�metro
-							Numero de parcelas fixo entre 1 e 72
-	Autor.................: Jo�o Victor Maia, Odlavir Florentino, Rafael Maur�cio
-	Data..................: 23/04/2024
-	Ex....................: 
-	*/
-	BEGIN
-		
-	END
->>>>>>> a66fda7b4c71a0adc70f5c258c55c402cb0dac22
