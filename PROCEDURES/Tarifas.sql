@@ -17,7 +17,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarTarifas]
 
                                     EXEC [dbo].[SP_ListarTarifas]
 
-                                    SELECT  @Ret AS Retorno,
+                                    SELECT 
                                             DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
                                 ROLLBACK TRAN
 		*/
@@ -25,12 +25,16 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarTarifas]
 
     BEGIN
        
-            SELECT  t.Id,
-                    t.Nome,
-                    pt.Valor,
-                    pt.Taxa
-                FROM [dbo].[Tarifas] t WITH(NOLOCK)
-					INNER JOIN [dbo].[PrecoTarifas] pt WITH(NOLOCK)
-						ON pt.IdTarifa = t.Id
+		DECLARE @DataAtual DATE = GETDATE()
+
+            SELECT	T.Nome,
+					P.Taxa,
+					P.Valor,
+					P.DataInicial
+				FROM [dbo].[Tarifas] T WITH(NOLOCK)
+					INNER JOIN [dbo].[PrecoTarifas] P WITH(NOLOCK)
+						ON P.IdTarifa = T.Id
+				ORDER BY P.DataInicial DESC
+				
     END		
-GO
+GO	

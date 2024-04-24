@@ -7,44 +7,44 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_TarifaTransferencia]
 	AS
 		/*
 		DOCUMENTACAO
-		Arquivo Fonte........:	TRG_AplicarTarifaTransferencia.sql
-		Objetivo.............:	Atualizar o Saldo da tabela apos o registro de uma Transferencia
-								Na parte de Estorno, estou setando o TipoOperacao como 'C'
-		Autor................:	Olivio Freitas, Danyel Targino e Rafael Mauricio
-		Data.................:	11/04/2024
-		ObjetivoAlt..........:	A tabela de tarifas sofreu uma alteracao e os valores agora estao localizados na tabela PrecoTarifas,
-								portanto preciso alterar para a nova estrutura do banco de dados.
-		AutorAlt.............:	Olivio Freitas
-		DataAlt..............:	23/04/2024
-		Ex...................:	BEGIN TRAN
-									DBCC DROPCLEANBUFFERS;
-									DBCC FREEPROCCACHE;
+			Arquivo Fonte........:	TRG_AplicarTarifaTransferencia.sql
+			Objetivo.............:	Atualizar o Saldo da tabela apos o registro de uma Transferencia
+									Na parte de Estorno, estou setando o TipoOperacao como 'C'
+			Autor................:	Olivio Freitas, Danyel Targino e Rafael Mauricio
+			Data.................:	11/04/2024
+			ObjetivoAlt..........:	A tabela de tarifas sofreu uma alteracao e os valores agora estao localizados na tabela PrecoTarifas,
+									portanto preciso alterar para a nova estrutura do banco de dados.
+			AutorAlt.............:	Olivio Freitas
+			DataAlt..............:	23/04/2024
+			Ex...................:	BEGIN TRAN
+										DBCC DROPCLEANBUFFERS;
+										DBCC FREEPROCCACHE;
 
-									DECLARE @Dat_init DATETIME = GETDATE()
+										DECLARE @Dat_init DATETIME = GETDATE()
 
-									SELECT * FROM Contas
-									SELECT * FROM Transferencias
-									SELECT * FROM Lancamentos
+										SELECT * FROM Contas
+										SELECT * FROM Transferencias
+										SELECT * FROM Lancamentos
 
-									INSERT INTO Lancamentos
-											(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao ,Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
-										VALUES
-											(1, 0, 3, 3,'D', 50, 'Teste100', GETDATE(), 0)
+										INSERT INTO Lancamentos
+												(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao ,Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
+											VALUES
+												(1, 0, 3, 3,'D', 50, 'Teste100', GETDATE(), 0)
 
-									SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUCAO 
+										SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS EXECUCAO 
 		
-									SELECT * FROM Contas
-									SELECT * FROM Transferencias
-									SELECT * FROM Lancamentos
+										SELECT * FROM Contas
+										SELECT * FROM Transferencias
+										SELECT * FROM Lancamentos
 
 
-								ROLLBACK TRAN
-		Retornos.............:	0 - SUCESSO			   
+									ROLLBACK TRAN
+			Retornos.............:	0 - SUCESSO			   
 		*/
 	BEGIN
 		-- Declaro as variaveis que preciso
 		DECLARE @Id_Conta INT,
-				@Id_Tarifa SMALLINT,
+				@Id_Tarifa TINYINT,
 				@Valor_Tarifa DECIMAL(4,2),
 				@Nome_Tarifa VARCHAR(50),
 				@Valor_Debito DECIMAL(15,2),
@@ -55,7 +55,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_TarifaTransferencia]
 				
 
 		IF EXISTS (SELECT TOP 1 1
-						FROM inserted WITH(NOLOCK)
+						FROM INSERTED WITH(NOLOCK)
 						WHERE Estorno = 1 
 							AND Id_Tarifa NOT IN (5,6,7)
 							AND Id_Tarifa IS NOT NULL)
@@ -67,17 +67,15 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_TarifaTransferencia]
 						@Id_Usuario = Id_Usuario,
 						@Estorno = Estorno,
 						@Id_TipoLancamento = Id_TipoLancamento
-					FROM inserted
+					FROM INSERTED
 			
 				-- Identifico qual a tarifa e capturo o valor
 				IF @Id_Tarifa IS NOT NULL
 					BEGIN
-						SELECT	@Valor_Tarifa = PT.Valor,
-								@Nome_Tarifa = T.Nome
-							FROM [dbo].[Tarifas] T WITH(NOLOCK)
-								INNER JOIN [dbo].[PrecoTarifas] PT WITH(NOLOCK)
-									ON PT.IdTarifa = T.Id
-							WHERE T.Id = @Id_Tarifa
+						SELECT	@Valor_Tarifa = vt.Valor,
+								@Nome_Tarifa = vt.Nome
+							FROM [dbo].[FNC_ListarValorAtualTarifa](@Id_Tarifa) vt
+							
 					END
 
 				IF @Id_Conta IS NOT NULL
@@ -86,11 +84,11 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_TarifaTransferencia]
 						INSERT INTO [dbo].[Lancamentos]
 								(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 							VALUES
-								(@Id_Conta, @Id_Usuario, @Id_TipoLancamento,@Id_Tarifa, 'C', @Valor_Tarifa, @Nome_Tarifa, GETDATE(), @Estorno)
+								(@Id_Conta, @Id_Usuario, @Id_TipoLancamento, @Id_Tarifa, 'C', @Valor_Tarifa, @Nome_Tarifa, GETDATE(), @Estorno)
 					END
 		    END
 		ELSE IF EXISTS(SELECT TOP 1 1
-							FROM inserted WITH(NOLOCK)
+							FROM INSERTED WITH(NOLOCK)
 							WHERE Estorno = 0
 							AND	  Tipo_Operacao = 'D'
 							AND	  Id_Tarifa NOT IN (5,6,7)
@@ -103,16 +101,13 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_TarifaTransferencia]
 						@Id_Usuario = Id_Usuario,
 						@Estorno = Estorno,
 						@Id_TipoLancamento = Id_TipoLancamento
-					FROM inserted
+					FROM INSERTED
 				-- Identifico qual a tarifa e capturo o valor
 				IF @Id_Tarifa IS NOT NULL
 					BEGIN
-						SELECT	@Valor_Tarifa = Valor,
-								@Nome_Tarifa = Nome
-							FROM [dbo].[Tarifas] T WITH(NOLOCK)
-								INNER JOIN [dbo].[PrecoTarifas] PT WITH(NOLOCK)
-									ON PT.IdTarifa = T.Id
-							WHERE T.Id = @Id_Tarifa 
+						SELECT	@Valor_Tarifa = vt.Valor,
+								@Nome_Tarifa = vt.Nome
+							FROM [dbo].[FNC_ListarValorAtualTarifa](@Id_Tarifa) vt
 					END
 				IF @Id_Conta IS NOT NULL
 					BEGIN

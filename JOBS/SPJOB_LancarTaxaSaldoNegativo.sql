@@ -73,32 +73,31 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 										Estorno
 									FROM [dbo].[Lancamentos] WITH(NOLOCK)
 
-								TRUNCATE TABLE [dbo].[Lancamentos]
 							ROLLBACK TRAN
 	*/
 
 	BEGIN
 		-- Criar a atribuir o valor da variavel de taxa
-		DECLARE @IdTarifa INT = 7
+		DECLARE @IdTarifa TINYINT = 7
 
 		IF @DataPassada IS NULL OR @Id_Conta IS NULL
 			BEGIN
 				-- Aplicar a taxa de saldo negativo para as mesmas
 				INSERT INTO [dbo].[Lancamentos]	(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 					SELECT	s.Id,
-							1,
+							0,
 							9,
 							@IdTarifa,
 							'D',
-							(pt.Taxa * ABS(s.Saldo)),
+							(vt.Taxa * ABS(s.Saldo)),
 							'Valor REF sobre cobranças de limite cheque especial',
 							GETDATE(),
 							0
 						FROM [dbo].FNC_ListarSaldoNegativo() s
-							INNER JOIN [dbo].[Tarifas] t WITH(NOLOCK)
-								ON t.Id = @IdTarifa
-							INNER JOIN [dbo].[PrecoTarifas] pt WITH(NOLOCK)
-								ON pt.IdTarifa = t.Id
+							INNER JOIN [dbo].[FNC_ListarValorAtualTarifa](@IdTarifa) vt
+								ON vt.IdTarifa = @IdTarifa
+
+
 
 				IF @@ERROR <> 0 OR @@ROWCOUNT <> (SELECT COUNT(Id) FROM [dbo].FNC_ListarSaldoNegativo())
 					BEGIN
