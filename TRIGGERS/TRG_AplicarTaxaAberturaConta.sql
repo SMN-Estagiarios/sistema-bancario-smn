@@ -52,7 +52,7 @@ FOR INSERT
 			FROM INSERTED
 
 		-- Gero um novo lancamento com o valor da taxa
-		INSERT INTO [dbo].[Lancamentos]	(	Id_Cta, 
+		INSERT INTO [dbo].[Lancamentos]	(	Id_Conta, 
 											Id_Usuario, 
 											Id_TipoLancamento, 
 											Id_Tarifa, 

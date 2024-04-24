@@ -78,7 +78,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirConta]
 		--Se existe Lancamentos para essa Conta
 		    IF EXISTS (SELECT TOP 1 1
 								FROM [dbo].[Lancamentos] L WITH(NOLOCK)
-								WHERE L.Id_Cta = @Id_Conta)
+								WHERE L.Id_Conta = @Id_Conta)
 				BEGIN
 					RETURN 2
 				END

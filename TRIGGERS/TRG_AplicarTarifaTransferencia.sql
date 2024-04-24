@@ -61,7 +61,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_TarifaTransferencia]
 							AND Id_Tarifa IS NOT NULL)
 			BEGIN
 				-- Atribuir valores as variaveis
-				SELECT	@Id_Conta = Id_Cta,
+				SELECT	@Id_Conta = Id_Conta,
 						@Id_Tarifa = Id_Tarifa,
 						@Operacao_Lancamento = 'C',
 						@Id_Usuario = Id_Usuario,
@@ -82,7 +82,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_TarifaTransferencia]
 					BEGIN
 						-- INSERT em Lancamentos
 						INSERT INTO [dbo].[Lancamentos]
-								(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
+								(Id_Conta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 							VALUES
 								(@Id_Conta, @Id_Usuario, @Id_TipoLancamento, @Id_Tarifa, 'C', @Valor_Tarifa, @Nome_Tarifa, GETDATE(), @Estorno)
 					END
@@ -95,7 +95,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_TarifaTransferencia]
 							AND   Id_Tarifa IS NOT NULL)
 			BEGIN
 				-- Atribuir valores as variaveis
-				SELECT	@Id_Conta = Id_Cta,
+				SELECT	@Id_Conta = Id_Conta,
 						@Id_Tarifa = Id_Tarifa,
 						@Operacao_Lancamento = Tipo_Operacao,
 						@Id_Usuario = Id_Usuario,
@@ -113,7 +113,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_TarifaTransferencia]
 					BEGIN
 						-- INSERT em Lancamentos
 						INSERT INTO [dbo].[Lancamentos]
-								(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
+								(Id_Conta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 							VALUES
 								(@Id_Conta, @Id_Usuario, @Id_TipoLancamento, @Id_Tarifa, @Operacao_Lancamento, @Valor_Tarifa, @Nome_Tarifa, GETDATE(), @Estorno)
 					END

@@ -185,7 +185,7 @@ CREATE TABLE Tarifas (
 );
 
 CREATE TABLE PrecoTarifas (
-	Id INT,
+	Id INT IDENTITY,
 	Id_Tarifa TINYINT NOT NULL,
 	Valor DECIMAL(4,2)NOT NULL,
 	DataInicial DATE NOT NULL,

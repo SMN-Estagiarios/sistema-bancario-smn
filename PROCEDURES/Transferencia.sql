@@ -181,12 +181,12 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarExtratoTransferencia]
 
 	BEGIN
 		SELECT
-			Id_Cta AS Id_Conta,
+			Id_Conta,
 			Dat_Lancamento AS Data_Transferencia,
 			Vlr_Lanc AS Vlr_Transferencia,
 			Nom_Historico AS Descrição
 				FROM [dbo].[Lancamentos] WITH (NOLOCK)
-				WHERE Id_Cta = ISNULL(@Id_Conta, Id_Cta)
-				AND Id_Tarifa IS NULL
+				WHERE Id_Conta =	ISNULL(@Id_Conta, Id_Conta) AND 
+									Id_Tarifa IS NULL
 	END
 GO

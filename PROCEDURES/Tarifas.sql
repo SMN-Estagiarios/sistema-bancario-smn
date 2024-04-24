@@ -28,12 +28,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarTarifas]
 		DECLARE @DataAtual DATE = GETDATE()
 
             SELECT	T.Nome,
-					P.Taxa,
 					P.Valor,
 					P.DataInicial
 				FROM [dbo].[Tarifas] T WITH(NOLOCK)
 					INNER JOIN [dbo].[PrecoTarifas] P WITH(NOLOCK)
-						ON P.IdTarifa = T.Id
+						ON P.Id_Tarifa = T.Id
 				ORDER BY P.DataInicial DESC
 				
     END		

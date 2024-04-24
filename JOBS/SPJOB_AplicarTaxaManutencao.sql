@@ -71,7 +71,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 
 			-- Insert dos LANCAMENTOS
 			INSERT INTO [dbo].[Lancamentos]	(	
-								Id_Cta,
+								Id_Conta,
 								Id_Usuario,
 								Id_TipoLancamento,
 								Id_Tarifa,
