@@ -1,12 +1,12 @@
 USE SistemaBancario
 GO 
 
-INSERT INTO Correntista (Nome, Cpf, DataNasc, Contato, Email, Logradouro) VALUES
-						('Mozai', 98765432107, '1992/12/13', '988723360', 'mozai@mail.com', 'Rua da Aurora'),
-						('Lutz', 03216549873, '1999/10/24', '987654321', 'lutz@mail.com', 'Avenida Minerva'),
-						('Top Slyder', 14725836902, '1984/06/24', '991234568', 'slyder@mail.com', 'Rua da Areia'),
-						('ovatsuG', 96385274100, '2001/04/24', '999582634', 'ovatsug@mail.com', 'Rua dos Ferreiros'),
-						('Tails', 54623198726, '1988/04/27', '999888777', 'tails@mail.com', 'Rua da Thays');
+INSERT INTO Correntista (Nome, Cpf, DataNasc, Contato, Email, Logradouro, Ativo) VALUES
+						('Mozai', 98765432107, '1992/12/13', 988723360, 'mozai@mail.com', 'Rua da Aurora', 1),
+						('Lutz', 03216549873, '1999/10/24', 987654321, 'lutz@mail.com', 'Avenida Minerva', 1),
+						('Top Slyder', 14725836902, '1984/06/24', 991234568, 'slyder@mail.com', 'Rua da Areia', 1),
+						('ovatsuG', 96385274100, '2001/04/24', 999582634, 'ovatsug@mail.com', 'Rua dos Ferreiros', 1),
+						('Tails', 54623198726, '1988/04/27', 999888777, 'tails@mail.com', 'Rua da Thays', 1);
 GO
 
 INSERT INTO Contas	(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura, Ativo, Lim_ChequeEspecial, IdCorrentista) VALUES 
@@ -23,7 +23,9 @@ INSERT INTO Tarifas (Id, Nome) VALUES
 					(3, 'TED'),
 					(5, 'TAC'),
 					(6, 'TMC'),
-					(7, 'TSN');
+					(7, 'TSN'),
+					(8, 'TCC'),
+					(9, 'TCD');
 
 -- INSERT DE TARIFAS COM TAXA 
 INSERT INTO PrecoTarifas (Id, IdTarifa, Valor, Taxa, DataInicial) VALUES 
@@ -32,7 +34,9 @@ INSERT INTO PrecoTarifas (Id, IdTarifa, Valor, Taxa, DataInicial) VALUES
 							(3, 3, 30, NULL, '01/04/2024'),
 							(5, 5, 15, NULL, '01/04/2024'),
 							(6, 6,  25, NULL, '01/04/2024'),
-							(7, 7, NULL, 0.00334, '01/04/2024');
+							(7, 7, NULL, 0.00334, '01/04/2024'),
+							(8, 8, 10, NULL, '01/04/2024'),
+							(9, 9, NULL, 0.0002, '01/04/2024');
 GO
 
 

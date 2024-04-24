@@ -6,27 +6,57 @@ GO
 ALTER TABLE CONTAS
 	DROP CONSTRAINT FK_IdCreditScoreContas
 GO
+ALTER TABLE CONTAS
+	DROP CONSTRAINT FK_IdCorrentistaContas
+GO
+
+-- Executando o drop de constraint de FK na tabela CartaoCredito
+ALTER TABLE CartaoCredito
+	DROP CONSTRAINT FK_IdContasCartaoCredito
+GO
+ALTER TABLE CartaoCredito
+	DROP CONSTRAINT FK_IdStatusCartaoCreditoCartaoCredito
+GO
+
+-- Executando o drop de constraint de FK na tabela Fatura
+ALTER TABLE Fatura
+	DROP CONSTRAINT FK_IdStatusFaturaFatura
+GO
+ALTER TABLE Fatura
+	DROP CONSTRAINT FK_IdContaFatura
+GO
+
+-- Executando o drop de constraint de FK na tabela TransacaoCartaoCredito
+ALTER TABLE TransacaoCartaoCredito
+	DROP CONSTRAINT FK_IdCartaoCreditoTransacaoCartaoCredito
+GO
+ALTER TABLE TransacaoCartaoCredito
+	DROP CONSTRAINT FK_IdFaturaTransacaoCartaoCredito
+GO
 
 -- Executando o drop de constraint de FK na tabela Lancamentos
 ALTER TABLE Lancamentos
-	DROP CONSTRAINT FK_Conta_Lancamento
+	DROP CONSTRAINT FK_Conta_Lancamentos
 GO
 ALTER TABLE Lancamentos
 	DROP CONSTRAINT FK_Tarifa_Lancamentos
 GO
 ALTER TABLE Lancamentos
-	DROP CONSTRAINT FK_Usuario_Lancamento
+	DROP CONSTRAINT FK_Usuario_Lancamentos
+GO
+ALTER TABLE Lancamentos
+	DROP CONSTRAINT FK_TipoLancamento_Lancamentos
 GO
 
 -- Executando o drop de constraint de FK na tabela Transferencias
 ALTER TABLE Transferencias
-	DROP CONSTRAINT FK_Conta_Credito
+	DROP CONSTRAINT FK_Conta_Credito_Transferencias
 GO
 ALTER TABLE Transferencias
-	DROP CONSTRAINT FK_Conta_Debito
+	DROP CONSTRAINT FK_Conta_Debito_Transferencias
 GO
 ALTER TABLE Transferencias
-	DROP CONSTRAINT FK_UsuarioTransferencia
+	DROP CONSTRAINT FK_Usuario_Transferencias
 GO
 
 		-- DROPANDO TRIGGERS DO SISTEMA BANCARIO
@@ -92,7 +122,19 @@ DROP TABLE [dbo].[Usuarios]
 GO
 DROP TABLE [dbo].[CreditScore]
 GO
+DROP TABLE [dbo].[Correntista]
+GO
 DROP TABLE [dbo].[Contas]
+GO
+DROP TABLE [dbo].[StatusCartaoCredito]
+GO
+DROP TABLE [dbo].[CartaoCredito]
+GO
+DROP TABLE [dbo].[StatusFatura]
+GO
+DROP TABLE [dbo].[Fatura]
+GO
+DROP TABLE [dbo].[TransacaoCartaoCredito]
 GO
 DROP TABLE [dbo].[Lancamentos]
 GO
