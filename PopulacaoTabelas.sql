@@ -1,11 +1,20 @@
 USE SistemaBancario
 GO 
-INSERT INTO Contas	(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura, Ativo, Lim_ChequeEspecial) VALUES 
-					(0.00, 0.00, 0.00, '2024-04-01', '2024-03-01', 1, 0.00),
-					(0.00, 0.00, 0.00, '2024-04-01', '2024-04-15', 1, 0.00),
-					(0.00, 0.00, 0.00, '2024-04-01', '2024-04-20', 1, 0.00),
-					(0.00, 0.00, 0.00, '2024-04-01', '2024-04-28', 1, 0.00),
-					(0.00, 0.00, 0.00, '2024-04-01', '2024-04-12', 1, 0.00);
+
+INSERT INTO Correntista (Nome, Cpf, DataNasc, Contato, Email, Logradouro) VALUES
+						('Mozai', 98765432107, '1992/12/13', '988723360', 'mozai@mail.com', 'Rua da Aurora'),
+						('Lutz', 03216549873, '1999/10/24', '987654321', 'lutz@mail.com', 'Avenida Minerva'),
+						('Top Slyder', 14725836902, '1984/06/24', '991234568', 'slyder@mail.com', 'Rua da Areia'),
+						('ovatsuG', 96385274100, '2001/04/24', '999582634', 'ovatsug@mail.com', 'Rua dos Ferreiros'),
+						('Tails', 54623198726, '1988/04/27', '999888777', 'tails@mail.com', 'Rua da Thays');
+GO
+
+INSERT INTO Contas	(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura, Ativo, Lim_ChequeEspecial, IdCorrentista) VALUES 
+					(0.00, 0.00, 0.00, '2024-04-01', '2024-03-01', 1, 0.00, 1),
+					(0.00, 0.00, 0.00, '2024-04-01', '2024-04-15', 1, 0.00, 2),
+					(0.00, 0.00, 0.00, '2024-04-01', '2024-04-20', 1, 0.00, 3),
+					(0.00, 0.00, 0.00, '2024-04-01', '2024-04-28', 1, 0.00, 4),
+					(0.00, 0.00, 0.00, '2024-04-01', '2024-04-12', 1, 0.00, 5);
 GO
 -- INSERT DE TARIFAS COM VALORES FIXOS
 INSERT INTO Tarifas (Id, Nome) VALUES
@@ -27,7 +36,7 @@ INSERT INTO PrecoTarifas (Id, IdTarifa, Valor, Taxa, DataInicial) VALUES
 GO
 
 
---INSER��O DO ADMIN
+--INSERCAO DO ADMIN
 INSERT INTO Usuarios(Nom_Usuario) VALUES
 					('ADM')
 GO
