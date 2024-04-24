@@ -41,11 +41,12 @@ FOR INSERT
 		-- Declaro as variaveis que preciso
 		DECLARE @Id_Conta INT,
 				@Vlr_Tarifa DECIMAL(15,2),
-				@Data_Lancamento DATETIME = GETDATE()
+				@Data_Lancamento DATETIME = GETDATE(),
+				@IdTarifa TINYINT = 5
 				
 		-- Atribuir valores as variaveis
 		SELECT @Vlr_Tarifa = VT.Valor
-			FROM [dbo].[FNC_ListarValorAtualTarifa](5) VT
+			FROM [dbo].[FNC_ListarValorAtualTarifa](@IdTarifa) VT
 				
 		SELECT	@Id_Conta = Id
 			FROM INSERTED
@@ -64,7 +65,7 @@ FOR INSERT
 								VALUES	(	@Id_Conta,
 											0,
 											6,
-											5,
+											@IdTarifa,
 											'D',
 											@Vlr_Tarifa,
 											'Taxa de abertura de conta',

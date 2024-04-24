@@ -13,7 +13,7 @@ AS
 
                                     DECLARE @Dat_ini DATETIME = GETDATE();
 
-                                   SELECT * FROM [dbo].[FNC_ListarValorAtualTarifa](5)
+                                   SELECT * FROM [dbo].[FNC_ListarValorAtualTarifa](6)
 
                                     SELECT 
                                             DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
