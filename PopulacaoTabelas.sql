@@ -1,12 +1,12 @@
 USE SistemaBancario
 GO 
 
-INSERT INTO Correntista (Nome, Cpf, DataNasc, Contato, Email, Logradouro) VALUES
-						('Mozai', 98765432107, '1992/12/13', '988723360', 'mozai@mail.com', 'Rua da Aurora'),
-						('Lutz', 03216549873, '1999/10/24', '987654321', 'lutz@mail.com', 'Avenida Minerva'),
-						('Top Slyder', 14725836902, '1984/06/24', '991234568', 'slyder@mail.com', 'Rua da Areia'),
-						('ovatsuG', 96385274100, '2001/04/24', '999582634', 'ovatsug@mail.com', 'Rua dos Ferreiros'),
-						('Tails', 54623198726, '1988/04/27', '999888777', 'tails@mail.com', 'Rua da Thays');
+INSERT INTO Correntista (Nome, Cpf, DataNasc, Contato, Email, Logradouro, Ativo) VALUES
+						('Mozai', 98765432107, '1992/12/13', 988723360, 'mozai@mail.com', 'Rua da Aurora', 1),
+						('Lutz', 03216549873, '1999/10/24', 987654321, 'lutz@mail.com', 'Avenida Minerva', 1),
+						('Top Slyder', 14725836902, '1984/06/24', 991234568, 'slyder@mail.com', 'Rua da Areia', 1),
+						('ovatsuG', 96385274100, '2001/04/24', 999582634, 'ovatsug@mail.com', 'Rua dos Ferreiros', 1),
+						('Tails', 54623198726, '1988/04/27', 999888777, 'tails@mail.com', 'Rua da Thays', 1);
 GO
 
 INSERT INTO Contas	(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura, Ativo, Lim_ChequeEspecial, IdCorrentista) VALUES 
