@@ -6,7 +6,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarSaldo]
 	/*
 		Documentacao
 		Arquivo Fonte.....: SPJOB_AtualizarSaldo.sql
-		Objetivo..........: Job automatica que atualiza o saldo conforme o o dia mude 
+		Objetivo..........: Job que atualiza diariamente o saldo de todas as contas
 		Autor.............: Adriel Alexander 
 		Data..............: 08/04/2024
 		EX................:	BEGIN TRAN
