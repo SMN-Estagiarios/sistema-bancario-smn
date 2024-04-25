@@ -18,38 +18,37 @@ AS
 									DECLARE @DATA_INI DATETIME = GETDATE();
 
 									SELECT	Id,
-											Vlr_SldInicial,
-											Vlr_Credito,
-											Vlr_Debito,
-											Dat_Saldo 
-										FROM [dbo].[Contas]
-										WHERE Id = 1
+										Vlr_SldInicial,
+										Vlr_Credito,
+										Vlr_Debito,
+										Dat_Saldo 
+									FROM [dbo].[Contas]
+									WHERE Id = 1
 
 										SELECT * FROM [dbo].[Lancamentos]
 
-									INSERT INTO Lancamentos(	Id_Cta, 
-																Id_Usuario,
-																Id_TipoLancamento,
-																Id_Tarifa,
-																Tipo_Operacao,
-																Vlr_Lanc,
-																Nom_Historico,
-																Dat_Lancamento,
-																Estorno
-															)
-										VALUES (1, 0, 3, NULL, 'C', 2000, 'TESTE TRIGGER', GETDATE(), 0)
+									INSERT INTO Lancamentos(	Id_Conta, 
+													Id_Usuario,
+													Id_TipoLancamento,																
+													Tipo_Operacao,
+													Vlr_Lanc,
+													Nom_Historico,
+													Dat_Lancamento,
+													Estorno
+												)
+										VALUES (1, 0, 3, 'C', 2000, 'TESTE TRIGGER', GETDATE(), 0)
 
 									SELECT DATEDIFF(MILLISECOND, @DATA_INI,GETDATE()) AS TempoExecução
 
 									SELECT	Id,
-											Vlr_SldInicial,
-											Vlr_Credito,
-											Vlr_Debito,
-											Dat_Saldo 
-										FROM [dbo].[Contas]
-										WHERE Id = 1
+										Vlr_SldInicial,
+										Vlr_Credito,
+										Vlr_Debito,
+										Dat_Saldo 
+									FROM [dbo].[Contas]
+									WHERE Id = 1
 
-										SELECT * FROM [dbo].[Lancamentos]
+									SELECT * FROM [dbo].[Lancamentos]
 								ROLLBACK TRAN
 	*/
 	BEGIN
@@ -84,6 +83,3 @@ AS
 										ELSE(Vlr_Debito + @Vlr_Lancamento)END)
 			WHERE Id IN (SELECT Id_Conta FROM INSERTED)
 	END
-
-
-

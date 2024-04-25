@@ -27,7 +27,7 @@ GO
 INSERT INTO [dbo].[TaxaCartao]	(Id, Nome) VALUES
 									(1, 'Anuidade'),
 									(2, 'Multa'),
-									(5, 'IOF');
+									(3, 'IOF');
 GO
 
 INSERT INTO [dbo].[ValorTaxaCartao]	(Id_TaxaCartao, Aliquota, DataInicial) VALUES
@@ -47,9 +47,9 @@ INSERT INTO [dbo].[Taxa]	(Id, Nome) VALUES
 							(2, 'IOF');
 GO
 
-INSERT INTO [dbo].[ValorTaxa]	(Id, Nome, Aliquota, DataInicial) VALUES
-								(0.00334, '01/04/2024'),
-								(0.0038, '01/04/2024');
+INSERT INTO [dbo].[ValorTaxa]	(Id_Taxa, Aliquota, DataInicial) VALUES
+								(1, 0.00334, '01/04/2024'),
+								(2, 0.0038, '01/04/2024');
 GO
 
 INSERT INTO [dbo].[CreditScore]	(Nome, Faixa, Aliquota) VALUES
@@ -80,36 +80,36 @@ INSERT INTO [dbo].[Contas]	(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, 
 GO
 
 INSERT INTO [dbo].[TaxaEmprestimo]	(Id, Nome) VALUES 
-									(1, 'Padrão'),
+									(1, 'Padrão');
 
 GO
 
 INSERT INTO [dbo].[ValorTaxaEmprestimo]	(Id_TaxaEmprestimo, Id_CreditScore, Aliquota, DataInicial) VALUES 
-										(1, 1, 0.070, 12, '2024-04-01'),
-										(1, 2, 0.065, 12, '2024-04-01'),
-										(1, 3, 0.060, 12, '2024-04-01'),
-										(1, 4, 0.055, 12, '2024-04-01'),
-										(1, 5, 0.050, 12, '2024-04-01'),
-										(1, 6, 0.047, 12, '2024-04-01'),
-										(1, 7, 0.045, 12, '2024-04-01'),
-										(1, 8, 0.040, 12, '2024-04-01');
+										(1, 1, 0.070, '2024-04-01'),
+										(1, 2, 0.065, '2024-04-01'),
+										(1, 3, 0.060, '2024-04-01'),
+										(1, 4, 0.055, '2024-04-01'),
+										(1, 5, 0.050, '2024-04-01'),
+										(1, 6, 0.047, '2024-04-01'),
+										(1, 7, 0.045, '2024-04-01'),
+										(1, 8, 0.040, '2024-04-01');
 
 GO
 
 INSERT INTO [dbo].[Tarifas] (Id, Nome) VALUES
-							(1, 'Pix'),
+							(1, 'PIX'),
 							(2, 'DOC'),
 							(3, 'TED'),
 							(4, 'TAC'),
 							(5, 'TMC');
 GO
 
-INSERT INTO [dbo].[PrecoTarifas]	(Id_Tarifa, Valor, DataInicial) VALUES 
-									(1, 10, '01/04/2024'),
-									(2, 20, '01/04/2024'),
-									(3, 30, '01/04/2024'),
-									(4, 15, '01/04/2024'),
-									(5, 25,'01/04/2024');
+INSERT INTO [dbo].[PrecoTarifas]	(Id, Id_Tarifa, Valor, DataInicial) VALUES 
+									(1, 1, 10, '01/04/2024'),
+									(2, 2, 20, '01/04/2024'),
+									(3, 3, 30, '01/04/2024'),
+									(4, 4, 15, '01/04/2024'),
+									(5, 5, 25,'01/04/2024');
 GO
 
 
