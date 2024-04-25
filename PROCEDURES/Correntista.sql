@@ -64,7 +64,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCorrentista]
 				RETURN 1
 				
 		END
-GO;
+GO
 
 
 CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirCorrentista]
@@ -133,7 +133,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirCorrentista]
 								FROM [dbo].[Contas] WITH(NOLOCK)
 								WHERE Id_Correntista = @Id_Correntista AND Ativo = 1)			
 				BEGIN		
-					--Declaração das variaveis 
+					--DeclaraÃ§Ã£o das variaveis 
 					DECLARE @IdConta INT,
 								  @RET INT
 						--Setando variavel 
