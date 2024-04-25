@@ -5,9 +5,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarSaldoAtual]
 		@Id_Conta INT = NULL
 		AS 
 			/*
-			Documentação
+			Documentaï¿½ï¿½o
 			Arquivo Fonte.....: Contas.sql
-			Objetivo..........: Listar o saldo atual de todas as contas ou uma conta específica
+			Objetivo..........: Listar o saldo atual de todas as contas ou uma conta especï¿½fica
 			Autor.............: Adriel Alexsander 
  			Data..............: 02/04/2024
 			ObjetivoAlt.......: N/A
@@ -19,7 +19,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarSaldoAtual]
 								 EXEC @RET = [dbo].[SP_ListarSaldoAtual
 								 
 								 SELECT @RET AS RETORNO,
-										DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUÇÃO 	
+										DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUï¿½ï¿½O 	
 			*/
 	
 		BEGIN
@@ -35,7 +35,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirConta]
 		@Id_Conta INT = NULL
 		AS
         /*
-		Documentação
+		Documentaï¿½ï¿½o
 		Arquivo Fonte.....: Contas.sql
 		Objetivo..........: Exclui uma conta existente com base no seu Id
 		Autor.............: Adriel Alexsander 
@@ -59,7 +59,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirConta]
 
 									EXEC @RET = [SP_ExcluirConta]1
 									SELECT @RET AS RETORNO,
-										   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUÇÃO 	
+										   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUï¿½ï¿½O 	
 
 									SELECT  Id,
 											Id_Usuario,
@@ -71,8 +71,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirConta]
 							ROLLBACK TRAN
 						--	RETORNO  --
 							00.................: Sucesso
-							01.................: Conta não existe
-							02.................: Conta possui Lançamentos         
+							01.................: Conta nï¿½o existe
+							02.................: Conta possui Lanï¿½amentos         
 	   */
 		BEGIN
 		--Checar se o Id da conta existe dentro do Banco
@@ -80,15 +80,15 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirConta]
 								FROM [dbo].[Contas] C WITH(NOLOCK)
 								WHERE C.Id = @Id_Conta)
 				BEGIN 
-					PRINT 'Conta Não Existe'
+					PRINT 'Conta Nï¿½o Existe'
 					RETURN 1
 				END
-		--Se existe Lançamentos para essa Conta
+		--Se existe Lanï¿½amentos para essa Conta
 		    IF EXISTS (SELECT TOP 1 1
 								FROM [dbo].[Lancamentos] L WITH(NOLOCK)
 								WHERE L.Id_Cta = @Id_Conta)
 				BEGIN
-					PRINT 'Conta possui lançamentos'
+					PRINT 'Conta possui lanï¿½amentos'
 					RETURN 2
 				END
 			ELSE
@@ -106,18 +106,15 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarConta]
 		@Campo VARCHAR(20),
 		@Vlr_Atualizacao DECIMAL(15,2)
 		AS
-/*
-		Documentação
-		Arquivo Fonte.....: Contas.sql
-		Objetivo..........: Atualiza Campos Especificos de uma conta com base no seu Id 
-		Autor.............: Adriel Alexsander 
- 		Data..............: 02/04/2024
-		ObjetivoAlt.......: N/A
-		AutorAlt..........: N/A
-		DataAlt...........: N/A
-		Ex................: BEGIN TRAN
-							DBCC DROPCLEANBUFFERS;
-							DBCC FREEPROCCACHE;
+		/*
+			Documentacao
+			Arquivo Fonte.....: Contas.sql
+			Objetivo..........: Atualiza Campos Especificos de uma conta com base no seu Id 
+			Autor.............: Adriel Alexsander, Isabela Tragante, Thays Carvalho
+ 			Data..............: 02/04/2024
+			Ex................: BEGIN TRAN
+									DBCC DROPCLEANBUFFERS;
+									DBCC FREEPROCCACHE;
 
 								DECLARE @RET INT, 
 								@Dat_init DATETIME = GETDATE()
@@ -129,9 +126,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarConta]
 										Dat_Saldo 
 									FROM [dbo].[Contas]
 
-								EXEC @RET = [dbo].[SP_AtualizarConta] 1, Credito , 200
-								SELECT @RET AS RETORNO,
-									   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUÇÃO 
+									EXEC @RET = [dbo].[SP_AtualizarConta] 1, Credito , 200
+
+									SELECT @RET AS RETORNO,
+											DATEDIFF(millisecond, @Dat_init, GETDATE()) AS TempoExecucao
 
 								SELECT  Id,
 										Id_Usuario,
@@ -144,10 +142,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarConta]
 
 							--	RETORNO --
 								00.................: Sucesso
-								01.................: Conta não existe
+								01.................: Conta nï¿½o existe
 								02.................: Valores nulo nos parametros passados  
-								03.................: Valor do parâmetro @Campo Invalido
-								04.................: Valor do parâmetro @Vlr_Atualizacao Invalido
+								03.................: Valor do parï¿½metro @Campo Invalido
+								04.................: Valor do parï¿½metro @Vlr_Atualizacao Invalido
 */
 		BEGIN
 			--Verificar se a conta existe
@@ -155,30 +153,30 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarConta]
 									FROM [dbo].[Contas] C WITH(NOLOCK)
 									WHERE C.Id = @Id_Conta)
 					BEGIN 
-						PRINT 'Conta Não Existe'
+						PRINT 'Conta Nï¿½o Existe'
 						RETURN 1
 					END	
-			--Verificar se as variáveis passadas não são nulas
+			--Verificar se as variï¿½veis passadas nï¿½o sï¿½o nulas
 			IF(@Id_Conta IS NULL OR @Campo IS NULL OR @Vlr_Atualizacao IS NULL)
 				BEGIN
-					PRINT 'Valores de parâmetro não podem ser nulos'
+					PRINT 'Valores de parï¿½metro nï¿½o podem ser nulos'
 					RETURN 2
 				END
-			IF(@Campo NOT LIKE 'Cr[eé]dito' AND @Campo NOT LIKE 'D[eé]bito')
+			IF(@Campo NOT LIKE 'Cr[eï¿½]dito' AND @Campo NOT LIKE 'D[eï¿½]bito')
 				BEGIN
 					PRINT 'Deve-se inserir em campo Credito ou Debito'
 					RETURN 3
 				END
 			IF (@Vlr_Atualizacao is null or @Vlr_Atualizacao <0)
 				BEGIN 
-					PRINT 'Valor não pode ser nulo ou negativo'
+					PRINT 'Valor nï¿½o pode ser nulo ou negativo'
 					RETURN 4
 				END 
 			ELSE
 				BEGIN		-- atualiza a conta com base no ID 
 					UPDATE [dbo].[Contas] 
-						SET  Vlr_Credito = CASE WHEN @Campo LIKE 'Cr[ée]dito' THEN  @Vlr_Atualizacao ELSE Vlr_Credito END,
-							 Vlr_Debito = CASE WHEN @Campo LIKE 'D[eé]bito' THEN  @Vlr_Atualizacao ELSE Vlr_Debito END
+						SET  Vlr_Credito = CASE WHEN @Campo LIKE 'Cr[ï¿½e]dito' THEN  @Vlr_Atualizacao ELSE Vlr_Credito END,
+							 Vlr_Debito = CASE WHEN @Campo LIKE 'D[eï¿½]bito' THEN  @Vlr_Atualizacao ELSE Vlr_Debito END
 						WHERE Id = @Id_Conta
 						PRINT 'Sucesso'
 						RETURN 0
@@ -187,19 +185,14 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarConta]
 GO
 
 CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovaConta] 
-		@Vlr_SldInicial DECIMAL(15,2),
-		@Vlr_Credito DECIMAl(15,2) = 0,
-		@Vlr_Debito DECIMAL(15,2) = 0
-		AS 
+	@Id_Correntista INT
+	AS 
 		/*
-		Documentação
+		Documentacao
 		Arquivo Fonte.....: Contas.sql
-		Objetivo..........: Cria uma conta tendo como base um usuario existente 
-		Autor.............: Adriel Alexsander 
- 		Data..............: 02/04/2024
-		ObjetivoAlt.......: N/A
-		AutorAlt..........: N/A
-		DataAlt...........: N/A
+		Objetivo..........: Cria uma conta na tabela [dbo].[Contas]
+		Autor.............: Adriel Alexsander, Isabela Tragante, Thays Carvalho
+		Data..............: 02/04/2024
 		Ex................: BEGIN TRAN
 								DBCC DROPCLEANBUFFERS;
 								DBCC FREEPROCCACHE;
@@ -214,35 +207,35 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovaConta]
 										Dat_Saldo 
 									FROM [dbo].[Contas]
 
-								EXEC @RET = [dbo].[SP_InserirNovaConta] 0, 200, 400 
+								EXEC @RET = [dbo].[SP_InserirNovaConta] 1
 
 									SELECT @RET AS RETORNO,
-										   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUÇÃO
-											SELECT  Id,
-											Vlr_SldInicial,
-											Vlr_Credito,
-											Vlr_Debito,
-											Dat_Saldo 
-										FROM [dbo].[Contas]
-						   ROLLBACK TRAN
+										DATEDIFF(millisecond, @Dat_init, GETDATE()) AS TempoExecucao
+											SELECT	Id,
+													Vlr_SldInicial,
+													Vlr_Credito,
+													Vlr_Debito,
+													Dat_Saldo 
+												FROM [dbo].[Contas]
+						ROLLBACK TRAN
 
-							--	RETORNO   --
-									00.................: Sucesso
-									01.................: Parametros com valores negativo						
+		--	RETORNO   --
+		00.................: Erro ao criar conta
+		01.................: Sucesso
 		*/
-		BEGIN
-			IF(@Vlr_Credito < 0 OR @Vlr_Debito < 0 OR @Vlr_SldInicial < 0 )
-				BEGIN
-					RETURN 1
-				END
-			ELSE
-				BEGIN
-					INSERT INTO Contas(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura, Ativo, Lim_ChequeEspecial) 
-					values
-						(@Vlr_SldInicial, @Vlr_Credito, @Vlr_Debito, GETDATE(), GETDATE(), 'S', 0);
-					RETURN 0
-				END
-		END
+	BEGIN
+			
+				
+		INSERT INTO Contas(Id_Correntista, Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura, Ativo, Lim_ChequeEspecial) 
+		VALUES
+			(@Id_Correntista, 0, 0, 0, GETDATE(), GETDATE(), 1, 0);
+
+		IF @@ROWCOUNT <> 0
+			RETURN 1
+		ELSE
+			RETURN 0
+				
+	END
 GO
 
 SELECT * FROM Contas
