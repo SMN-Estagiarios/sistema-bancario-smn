@@ -17,15 +17,28 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 			Ex................: BEGIN TRAN
 									DBCC DROPCLEANBUFFERS;
 									DBCC FREEPROCCACHE;
-
+									
 									DECLARE @Ret INT,
 											@Dat_ini DATETIME = GETDATE()
 
+									UPDATE [dbo].[Contas]
+										SET Lim_ChequeEspecial = 2000
+										WHERE Id = 1
 
 									EXEC @Ret = [dbo].[SP_RealizarEmprestimo] 1, 2000, 2, 'PRE', '2024-04-25'
 
+									SELECT  Id,
+											IdStatus,
+											Id_Cta,
+											Id_Tarifa,
+											Valor,
+											NumeroParcelas,
+											Tipo,
+											DataInicio
+										FROM [dbo].[Emprestimos] WITH (NOLOCK)
+
 									SELECT	@Ret AS Retorno,
-											DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS ResultadoExecucao
+											DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS ResultadoExecucao
 								ROLLBACK TRAN
 
 								-- RETORNO --
@@ -41,8 +54,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 				
 		-- Caso o parâmetro da primeira parcela for nulo, será passada para daqui a 1 mês e a data não poderá ser em um fim de semana
 		SET @DataInicio = ISNULL(@DataInicio, DATEADD(MONTH, 1, @DataAtual))
-		SET @DataInicio = CASE	WHEN @DataInicio = 'Sábado' THEN DATEADD(DAY, 2, @DataInicio)
-								WHEN @DataInicio = 'Domingo' THEN DATEADD(DAY, 1, @DataInicio)
+		SET @DataInicio = CASE	WHEN DATENAME(WEEKDAY, @DataInicio) = 'Sábado' THEN DATEADD(DAY, 2, @DataInicio)
+								WHEN DATENAME(WEEKDAY, @DataInicio) = 'Domingo' THEN DATEADD(DAY, 1, @DataInicio)
 								ELSE @DataInicio
 						  END
 
