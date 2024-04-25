@@ -28,9 +28,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarNovaTransferenciaBancaria]
 										Dat_Saldo
 								FROM [dbo].[Contas]
 
-								SELECT * from Lancamentos
 
-								EXEC @RET = [SP_RealizarNovaTransferenciaBancaria] 1,1, 2,  50, 'Transfe pagamento aluguel' 
+								EXEC @RET =  [SP_RealizarNovaTransferenciaBancaria] 0,1, 2,  50, 'Transfe pagamento aluguel' 
 
 								SELECT @RET AS RETORNO,
 										DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUcaO
@@ -89,8 +88,22 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarNovaTransferenciaBancaria]
 		--Gerar Inserts em transferência
 	    ELSE
 			BEGIN
-				INSERT INTO [dbo].[Transferencias] (Id_Usuario, Id_CtaCre, Id_CtaDeb, Vlr_TRans, Nom_Referencia, Dat_Trans)
-					VALUES( @Id_Usuario, @Id_ContaCre, @Id_ContaDeb, @Vlr_Transferencia, @Nom_referencia, GETDATE())
+				INSERT INTO [dbo].[Transferencias]	(
+														Id_Usuario,
+														Id_Conta_Credito,
+														Id_Conta_Debito,
+														Vlr_Trans,
+														Nom_Referencia,
+														Dat_Trans
+													)
+											VALUES
+													(	
+														@Id_Usuario, 
+														@Id_ContaCre, 
+														@Id_ContaDeb, 
+														@Vlr_Transferencia, 
+														@Nom_referencia, 
+														GETDATE())
 			END
 		RETURN 0
 	END
@@ -123,7 +136,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEstornoTransferencia]
 
 									SELECT * from Lancamentos
 
-								  EXEC @RET = [dbo].[SP_RealizarEstornoTransferencia]1
+								  EXEC @RET = [dbo].[SP_RealizarEstornoTransferencia]6
 
 									SELECT @RET AS RETORNO,
 										   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUcaO
@@ -159,7 +172,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEstornoTransferencia]
 				END
 	END
 GO
-
+        
 CREATE OR ALTER PROCEDURE [dbo].[SP_ListarExtratoTransferencia]
 	@Id_Conta INT = null
 
@@ -186,7 +199,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarExtratoTransferencia]
 			Vlr_Lanc AS Vlr_Transferencia,
 			Nom_Historico AS Descrição
 				FROM [dbo].[Lancamentos] WITH (NOLOCK)
-				WHERE Id_Conta =	ISNULL(@Id_Conta, Id_Conta) AND 
-									Id_Tarifa IS NULL
+				WHERE Id_Conta =	ISNULL(@Id_Conta, Id_Conta) 
 	END
 GO
