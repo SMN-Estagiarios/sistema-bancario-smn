@@ -1,57 +1,127 @@
 USE SistemaBancario
 GO 
-INSERT INTO Contas	(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura, Ativo, Lim_ChequeEspecial) VALUES 
-					(0.00, 0.00, 0.00, '2024-04-01', '2024-03-01', 1, 0.00),
-					(0.00, 0.00, 0.00, '2024-04-01', '2024-04-15', 1, 0.00),
-					(0.00, 0.00, 0.00, '2024-04-01', '2024-04-20', 1, 0.00),
-					(0.00, 0.00, 0.00, '2024-04-01', '2024-04-28', 1, 0.00),
-					(0.00, 0.00, 0.00, '2024-04-01', '2024-04-12', 1, 0.00);
-GO
--- INSERT DE TARIFAS COM VALORES FIXOS
-INSERT INTO Tarifas (Id, Nome) VALUES
-					(1, 'Pix'),
-					(2, 'DOC'),
-					(3, 'TED'),
-					(5, 'TAC'),
-					(6, 'TMC'),
-					(7, 'TSN');
 
--- INSERT DE TARIFAS COM TAXA 
-INSERT INTO PrecoTarifas (Id, IdTarifa, Valor, Taxa, DataInicial) VALUES 
-							(1, 1, 10, NULL, '01/04/2024'),
-							(2, 2, 20, NULL, '01/04/2024'),
-							(3, 3, 30, NULL, '01/04/2024'),
-							(5, 5, 15, NULL, '01/04/2024'),
-							(6, 6,  25, NULL, '01/04/2024'),
-							(7, 7, NULL, 0.00334, '01/04/2024');
+--INSERCAO DO ADMIN
+INSERT INTO [dbo].[Usuarios]	(Nom_Usuario) VALUES
+								('ADM')
 GO
 
+INSERT INTO [dbo].[StatusCartaoCredito] (Id, Nome) VALUES 
+										(1, 'Ativo'),
+										(2, 'Inativo'),
+										(3, 'Bloqueado');
+GO
 
---INSER��O DO ADMIN
-INSERT INTO Usuarios(Nom_Usuario) VALUES
-					('ADM')
+INSERT INTO [dbo].[StatusEmprestimo]	(Id, Nome) VALUES 
+										(1, 'Analise'),
+										(2, 'Aprovado'),
+										(3, 'Negado');
+GO
+
+INSERT INTO [dbo].[TipoTransacao]	(Id, Nome) VALUES 
+									(1, 'Compra'),
+									(2, 'Saque'),
+									(3, 'Pagamento');
+GO
+
+INSERT INTO [dbo].[TaxaCartao]	(Id, Nome) VALUES
+									(1, 'Anuidade'),
+									(2, 'Multa'),
+									(5, 'IOF');
+GO
+
+INSERT INTO [dbo].[ValorTaxaCartao]	(Id_TaxaCartao, Aliquota, DataInicial) VALUES
+									(1, 0.0030, '2024-04-01'),
+									(2, 0.0050, '2024-04-01'),
+									(3, 0.0638, '2024-04-01');
+GO
+
+INSERT INTO [dbo].[StatusFatura]	(Id, Nome) VALUES 
+									(1, 'Aberta'),
+									(2, 'Fechada'),
+									(3, 'Paga');
+GO
+
+INSERT INTO [dbo].[Taxa]	(Id, Nome) VALUES
+							(1, 'TSN'),
+							(2, 'IOF');
+GO
+
+INSERT INTO [dbo].[ValorTaxa]	(Id, Nome, Aliquota, DataInicial) VALUES
+								(0.00334, '01/04/2024'),
+								(0.0038, '01/04/2024');
+GO
+
+INSERT INTO [dbo].[CreditScore]	(Nome, Faixa, Aliquota) VALUES
+								('Não elegível', -2000, 0),
+								('Negativado', -200, 0.2),
+								('Péssimo', 0, 0.4),
+								('Ruim', 600, 0.6),
+								('Mediano', 800, 0.8),
+								('Bom', 1000, 1.2),
+								('Ótimo', 1500, 1.4),
+								('Excelente', 3000, 2.0);
+GO
+
+INSERT INTO [dbo].[Correntista] (Nome, Cpf, DataNasc, Contato, Email, Logradouro, Ativo) VALUES
+								('Mozai', 98765432107, '1992/12/13', 988723360, 'mozai@mail.com', 'Rua da Aurora', 1),
+								('Lutz', 03216549873, '1999/10/24', 987654321, 'lutz@mail.com', 'Avenida Minerva', 1),
+								('Top Slyder', 14725836902, '1984/06/24', 991234568, 'slyder@mail.com', 'Rua da Areia', 1),
+								('ovatsuG', 96385274100, '2001/04/24', 999582634, 'ovatsug@mail.com', 'Rua dos Ferreiros', 1),
+								('Tails', 54623198726, '1988/04/27', 999888777, 'tails@mail.com', 'Rua da Thays', 1);
+GO
+
+INSERT INTO [dbo].[Contas]	(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura, Ativo, Lim_ChequeEspecial, Id_Correntista) VALUES 
+							(0.00, 0.00, 0.00, '2024-04-01', '2024-03-01', 1, 0.00, 1),
+							(0.00, 0.00, 0.00, '2024-04-01', '2024-04-15', 1, 0.00, 2),
+							(0.00, 0.00, 0.00, '2024-04-01', '2024-04-20', 1, 0.00, 3),
+							(0.00, 0.00, 0.00, '2024-04-01', '2024-04-28', 1, 0.00, 4),
+							(0.00, 0.00, 0.00, '2024-04-01', '2024-04-12', 1, 0.00, 5);
+GO
+
+INSERT INTO [dbo].[TaxaEmprestimo]	(Id, Nome) VALUES 
+									(1, 'Padrão'),
+
+GO
+
+INSERT INTO [dbo].[ValorTaxaEmprestimo]	(Id_TaxaEmprestimo, Id_CreditScore, Aliquota, DataInicial) VALUES 
+										(1, 1, 0.070, 12, '2024-04-01'),
+										(1, 2, 0.065, 12, '2024-04-01'),
+										(1, 3, 0.060, 12, '2024-04-01'),
+										(1, 4, 0.055, 12, '2024-04-01'),
+										(1, 5, 0.050, 12, '2024-04-01'),
+										(1, 6, 0.047, 12, '2024-04-01'),
+										(1, 7, 0.045, 12, '2024-04-01'),
+										(1, 8, 0.040, 12, '2024-04-01');
+
+GO
+
+INSERT INTO [dbo].[Tarifas] (Id, Nome) VALUES
+							(1, 'Pix'),
+							(2, 'DOC'),
+							(3, 'TED'),
+							(4, 'TAC'),
+							(5, 'TMC');
+GO
+
+INSERT INTO [dbo].[PrecoTarifas]	(Id_Tarifa, Valor, DataInicial) VALUES 
+									(1, 10, '01/04/2024'),
+									(2, 20, '01/04/2024'),
+									(3, 30, '01/04/2024'),
+									(4, 15, '01/04/2024'),
+									(5, 25,'01/04/2024');
 GO
 
 
-INSERT INTO CreditScore (Nome, Faixa, Aliquota) VALUES
-						('Não elegível', -2000, 0),
-						('Negativado', -200, 0.2),
-						('Péssimo', 0, 0.4),
-						('Ruim', 600, 0.6),
-						('Mediano', 800, 0.8),
-						('Bom', 1000, 1.2),
-						('Ótimo', 1500, 1.4),
-						('Excelente', 3000, 2.0);
-GO
 
-INSERT INTO TipoLancamento 	(Id, Nome) VALUES 
-							(1,'Depósito'),
-							(2,'Saque'),
-							(3,'Transferência'),
-							(4,'Pagamento'),
-							(5,'Recebimento'),
-							(6,'Tarifa'),
-							(7,'Investimento'),
-							(8,'Empréstimo'),
-							(9,'Juros')
+INSERT INTO [dbo].[TipoLancamento]	(Id, Nome) VALUES 
+									(1,'Depósito'),
+									(2,'Saque'),
+									(3,'Transferência'),
+									(4,'Pagamento'),
+									(5,'Recebimento'),
+									(6,'Tarifa'),
+									(7,'Investimento'),
+									(8,'Empréstimo'),
+									(9,'Juros')
 GO

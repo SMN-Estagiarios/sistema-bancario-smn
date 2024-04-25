@@ -4,36 +4,33 @@ GO
 CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 	AS
 	/*
-	Documentacao
-	Arquivo Fonte........:	SPJOB_AplicarTaxaManutencao.sql
-	Objetivo.............:	Aplica a Taxa de Manutencao de Conta a partir da data de abertura da conta nos meses subsequentes
-                                Id_Usuario o valor é 0, pois é usuario do sistema
-                                Id_TipoLancamento o valor é 6, pois refere-se a Tarifa
-			        Id_Tarifa o valor é 6, pois refere-se a Taxa de Manutencao de Conta (TMC)
-	Autor................:	Olivio Freitas, Danyel Targino e Rafael Mauricio
-	Data.................:	11/04/2024
-	ObjetivoAlt..........:	N/A
-	AutorAlt.............:	N/A
-	DataAlt..............:	N/A
-	Ex...................:	BEGIN TRAN
-								DBCC DROPCLEANBUFFERS;
-								DBCC FREEPROCCACHE;
+		Documentacao
+		Arquivo Fonte........:	SPJOB_AplicarTaxaManutencao.sql
+		Objetivo.............:	Aplica a Taxa de Manutencao de Conta a partir da data de abertura da conta nos meses subsequentes
+								Id_Usuario o valor é 0, pois é usuario do sistema
+								Id_TipoLancamento o valor é 6, pois refere-se a Tarifa
+								Id_Tarifa o valor é 6, pois refere-se a Taxa de Manutencao de Conta (TMC)
+		Autor................:	Olivio Freitas, Danyel Targino e Rafael Mauricio
+		Data.................:	11/04/2024
+		Ex...................:	BEGIN TRAN
+									DBCC DROPCLEANBUFFERS;
+									DBCC FREEPROCCACHE;
 
-								DECLARE @RET INT, 
-										@Dat_init DATETIME = GETDATE()
+									DECLARE @RET INT, 
+											@Dat_init DATETIME = GETDATE()
 
-								SELECT * FROM Contas ORDER BY Dat_Abertura DESC
-								SELECT * FROM Lancamentos ORDER BY Dat_Lancamento DESC
+									SELECT * FROM Contas ORDER BY Dat_Abertura DESC
+									SELECT * FROM Lancamentos ORDER BY Dat_Lancamento DESC
 
-								EXEC @RET = [dbo].[SPJOB_AplicarTaxaManutencao];
+									EXEC @RET = [dbo].[SPJOB_AplicarTaxaManutencao];
 
-								SELECT	@RET AS RETORNO,
-										DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS TempoExecucao
+									SELECT	@RET AS RETORNO,
+											DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS TempoExecucao
 
-								SELECT * FROM Lancamentos ORDER BY Dat_Lancamento DESC
-								SELECT * FROM Contas ORDER BY Dat_Abertura DESC
+									SELECT * FROM Lancamentos ORDER BY Dat_Lancamento DESC
+									SELECT * FROM Contas ORDER BY Dat_Abertura DESC
 
-							ROLLBACK TRAN
+								ROLLBACK TRAN
 	*/
 	IF EXISTS (SELECT TOP 1 1
 					FROM [dbo].[Contas]
@@ -44,7 +41,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 					@Data_Abertura DATE,
 					@Data_Cobranca INT,
 					@Valor_TMC INT,
-					@Nome_Tarifa VARCHAR(50)
+					@Nome_Tarifa VARCHAR(50),
+					@IdTarifa TINYINT = 6
 
 
 			-- Capturar a data de abertura da conta
@@ -56,12 +54,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 			END
 
 			-- Capturar Id_Taxa e Valor da Taxa
-			SELECT	@Valor_TMC = PT.Valor,
-					@Nome_Tarifa = T.Nome
-				FROM [dbo].[Tarifas] T WITH(NOLOCK)
-					INNER JOIN [dbo].[PrecoTarifas] PT WITH(NOLOCK)
-							ON PT.IdTarifa = T.Id
-				WHERE T.Id = 6
+			SELECT	@Valor_TMC = Valor,
+					@Nome_Tarifa = Nome
+				FROM [dbo].[FNC_ListarValorAtualTarifa](@IdTarifa)
 
 			-- Comparar Mes/Ano Atual > DataAbertura Lancar @Data_Cobranca
 			IF DATEDIFF(MONTH, @Data_Abertura, @Data_Atual) > 0
@@ -75,7 +70,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 				END
 
 			-- Insert dos LANCAMENTOS
-			INSERT INTO [dbo].[Lancamentos]	(	Id_Cta,
+			INSERT INTO [dbo].[Lancamentos]	(	
+								Id_Conta,
 								Id_Usuario,
 								Id_TipoLancamento,
 								Id_Tarifa,
@@ -85,10 +81,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 								Dat_Lancamento,
 								Estorno
 							)
-				SELECT		Id, 
+				SELECT	Id, 
 						0,
 						6,
-						6,
+						@IdTarifa,
 						'D',
 						@Valor_TMC,
 						@Nome_Tarifa,

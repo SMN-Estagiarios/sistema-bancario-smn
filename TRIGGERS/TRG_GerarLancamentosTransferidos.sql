@@ -58,7 +58,7 @@ FOR INSERT, DELETE, UPDATE
 		IF @Id_Transferencia IS NOT NULL
 			BEGIN	
 				--inser��o do lan�amento para a conta que est� transferindo 
-				INSERT INTO [dbo].[Lancamentos] (Id_Cta, Id_Usuario, Id_TipoLancamento, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno )VALUES
+				INSERT INTO [dbo].[Lancamentos] (Id_Conta, Id_Usuario, Id_TipoLancamento, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno )VALUES
 										(@Id_ContaDeb, @Id_Usuario, @TipoLancamento,'D', @Vlr_Transferencia, CONCAT(@Nom_Referencia,' Código Transferência: ', @Id_Transferencia), @Dat_Transferencia, 0)
 					
 				IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
@@ -66,7 +66,7 @@ FOR INSERT, DELETE, UPDATE
 						RAISERROR('Erro na inclusão do lancamento de Débito', 16,1)
 					END
 				--inser��o do lancamento para a conta que est� recebendo a transferencia
-				INSERT INTO [dbo].[Lancamentos] (Id_Cta, Id_Usuario, Id_TipoLancamento, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno )VALUES
+				INSERT INTO [dbo].[Lancamentos] (Id_Conta, Id_Usuario, Id_TipoLancamento, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno )VALUES
 							(@Id_ContaCre,@Id_Usuario,  @TipoLancamento,'C',@Vlr_Transferencia, CONCAT(@Nom_Referencia,' Código Transferência: ', @Id_Transferencia), @Dat_Transferencia, 0)
 				
 				IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
@@ -89,7 +89,7 @@ FOR INSERT, DELETE, UPDATE
 		IF @Id_Transferencia IS NOT NULL
 				BEGIN
 					--insercao do lancamento ESTORNO para a conta que recebeu a transferencia
-					INSERT INTO [dbo].[Lancamentos] (Id_Cta, Id_Usuario, Id_TipoLancamento, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno )VALUES
+					INSERT INTO [dbo].[Lancamentos] (Id_Conta, Id_Usuario, Id_TipoLancamento, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno )VALUES
 						(@Id_ContaCre, @Id_Usuario, @TipoLancamento , 'D', @Vlr_Transferencia, CONCAT('Estorno enviado: ', @Nom_Referencia, ' Código Transferencia desfeita: ', @Id_Transferencia), @Dat_Transferencia, 1)
 
 					IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
@@ -97,7 +97,7 @@ FOR INSERT, DELETE, UPDATE
 							RAISERROR('Erro na inclusão do lancamento de estorno de Débito', 16,1)
 						END
 						--insercao do lancamento ESTORNO para a conta recebeu a transferencia
-					INSERT INTO [dbo].[Lancamentos] (Id_Cta, Id_Usuario, Id_TipoLancamento, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno )VALUES
+					INSERT INTO [dbo].[Lancamentos] (Id_Conta, Id_Usuario, Id_TipoLancamento, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno )VALUES
 						(@Id_ContaDeb,@Id_Usuario, @TipoLancamento,'C',@Vlr_Transferencia, CONCAT('Estorno recebido: ', @Nom_Referencia , ' Código Transferencia desfeita: ', @Id_Transferencia), @Dat_Transferencia,1)
 
 					 IF @@ERROR <> 0 OR @@ROWCOUNT <> 1

@@ -60,49 +60,49 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarCreditScore]
 						CROSS JOIN [dbo].[Contas] c WITH(NOLOCK)
 				) s
 			LEFT OUTER JOIN (
-								SELECT  x.Id_Cta, --Somar todos os cr ditos e todos os d bitos ap s a data
+								SELECT  x.Id_Conta, --Somar todos os cr ditos e todos os d bitos ap s a data
 										x.DataSaldo,
 										SUM(CASE WHEN x.TipoLancamento = 'C' THEN x.Vlr_Lanc ELSE 0 END) AS Credito,
 										SUM(CASE WHEN x.TipoLancamento = 'D' THEN x.Vlr_Lanc ELSE 0 END) AS Debito
 									FROM (
 											SELECT  td.DataSaldo, --Listar todos os lan amentos feitos ap s a data, por exemplo, DataSaldo 28 ir  ter os lan amentos do dia 30 e 29
 													la.Dat_Lancamento,
-													la.ID_Cta,
+													la.Id_Conta,
 													ISNULL(la.Tipo_Operacao, 'X') as TipoLancamento,
 													la.Vlr_Lanc
 											FROM #TabelaData td
 												LEFT OUTER JOIN [dbo].[Lancamentos] la WITH(NOLOCK)
 													ON DATEDIFF(DAY, td.DataSaldo, la.Dat_Lancamento) > 0
 										) x
-										GROUP BY x.DataSaldo, x.Id_Cta
+										GROUP BY x.DataSaldo, x.Id_Conta
 							) l
-				ON s.ID_Conta = l.Id_Cta
+				ON s.ID_Conta = l.Id_Conta
 					AND s.DataSaldo = l.DataSaldo
 			), MediaSaldoMensal AS
 				(	SELECT 
 						SD.ID_Conta,
 						AVG(SD.ValorSaldoFinalNaData) MediaSaldoMensal
 					FROM SaldoDiario SD
-						INNER JOIN Contas C
+						INNER JOIN [dbo].[Contas] C
 							ON C.Id = SD.ID_Conta
 					WHERE SD.DataSaldo >= C.Dat_Abertura
 						  AND C.Ativo = 1
 					GROUP BY SD.ID_Conta
 				) 
 					UPDATE [dbo].[Contas]
-						SET IdCreditScore = CASE WHEN MSM.MediaSaldoMensal > CS.Faixa 
+						SET Id_CreditScore = CASE WHEN MSM.MediaSaldoMensal > CS.Faixa 
 												 THEN (SELECT MAX(Id) 
 															FROM CreditScore 
 															WHERE MSM.MediaSaldoMensal > Faixa) 
 												ELSE 1
 											END,
 							Lim_ChequeEspecial = ABS(MSM.MediaSaldoMensal * CS.Aliquota)
-						FROM Contas 
+						FROM [dbo].[Contas] 
 							INNER JOIN MediaSaldoMensal MSM
 								ON MSM.ID_Conta = Contas.ID
-							INNER JOIN CreditScore CS WITH (NOLOCK)
+							INNER JOIN [dbo].[CreditScore] CS WITH (NOLOCK)
 								ON CS.Id = (SELECT MAX(Id)
-												FROM CreditScore
+												FROM [dbo].[CreditScore]
 												WHERE MSM.MediaSaldoMensal > Faixa)
 						WHERE Contas.Id = MSM.ID_Conta;
 			

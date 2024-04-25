@@ -73,32 +73,31 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 										Estorno
 									FROM [dbo].[Lancamentos] WITH(NOLOCK)
 
-								TRUNCATE TABLE [dbo].[Lancamentos]
 							ROLLBACK TRAN
 	*/
 
 	BEGIN
 		-- Criar a atribuir o valor da variavel de taxa
-		DECLARE @IdTarifa INT = 7
+		DECLARE @IdTarifa TINYINT = 1
 
 		IF @DataPassada IS NULL OR @Id_Conta IS NULL
 			BEGIN
 				-- Aplicar a taxa de saldo negativo para as mesmas
-				INSERT INTO [dbo].[Lancamentos]	(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
+				INSERT INTO [dbo].[Lancamentos]	(Id_Conta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 					SELECT	s.Id,
 							0,
 							9,
 							@IdTarifa,
 							'D',
-							(pt.Taxa * ABS(s.Saldo)),
+							(vt.Taxa * ABS(s.Saldo)),
 							'Valor REF sobre cobranças de limite cheque especial',
 							GETDATE(),
 							0
 						FROM [dbo].FNC_ListarSaldoNegativo() s
-							INNER JOIN [dbo].[Tarifas] t WITH(NOLOCK)
-								ON t.Id = @IdTarifa
-							INNER JOIN [dbo].[PrecoTarifas] pt WITH(NOLOCK)
-								ON pt.IdTarifa = t.Id
+							INNER JOIN [dbo].[FNC_ListarValorAtualTarifa](@IdTarifa) vt
+								ON vt.IdTarifa = @IdTarifa
+
+
 
 				IF @@ERROR <> 0 OR @@ROWCOUNT <> (SELECT COUNT(Id) FROM [dbo].FNC_ListarSaldoNegativo())
 					BEGIN
@@ -138,23 +137,23 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 								CROSS JOIN [dbo].[Contas] c WITH(NOLOCK)
 							) s
 						LEFT OUTER JOIN (
-											SELECT  x.Id_Cta,
+											SELECT  x.Id_Conta,
 													x.DataSaldo,
 													SUM(CASE WHEN x.TipoLancamento = 'C' THEN x.Vlr_Lanc ELSE 0 END) AS Credito,
 													SUM(CASE WHEN x.TipoLancamento = 'D' THEN x.Vlr_Lanc ELSE 0 END) AS Debito
 												FROM (
 														SELECT  td.DataSaldo,
 																la.Dat_Lancamento,
-																la.ID_Cta,
+																la.Id_Conta,
 																ISNULL(la.Tipo_Operacao, 'X') as TipoLancamento,
 																la.Vlr_Lanc
 															FROM #TabelaData td
 																LEFT OUTER JOIN [dbo].[Lancamentos] la WITH(NOLOCK)
 																	ON DATEDIFF(DAY, td.DataSaldo, la.Dat_Lancamento) > 0
 														) x
-												GROUP BY x.DataSaldo, x.Id_Cta
+												GROUP BY x.DataSaldo, x.Id_Conta
 										) l
-							ON	s.ID_Conta = l.Id_Cta
+							ON	s.ID_Conta = l.Id_Conta
 								AND s.DataSaldo = l.DataSaldo
 					WHERE	s.ID_Conta = @Id_Conta AND 
 							s.DataSaldo = @DataPassada
@@ -162,20 +161,18 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 				IF @Valor < 0
 					BEGIN
 						-- Aplicar a taxa de saldo negativo para as mesmas
-						INSERT INTO [dbo].[Lancamentos]	(Id_Cta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
+						INSERT INTO [dbo].[Lancamentos]	(Id_Conta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
 							SELECT	@Id_Conta,
 									0,
 									9,
 									@IdTarifa,
 									'D',
-									(pt.Taxa * ABS(@Valor)),
+									(Aliquota * ABS(@Valor)),
 									'Valor REF sobre cobranças de limite cheque especial de uma data anterior',
 									GETDATE(),
 									0
-								FROM [dbo].[Tarifas] t WITH(NOLOCK)
-									INNER JOIN [dbo].[PrecoTarifas] pt WITH(NOLOCK)
-									ON pt.IdTarifa = t.Id
-								WHERE t.Id = @IdTarifa
+								FROM [dbo].[Taxa]  WITH(NOLOCK)
+								WHERE Id = @IdTarifa
 
 						IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
 							BEGIN
