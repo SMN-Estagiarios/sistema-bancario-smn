@@ -22,18 +22,26 @@ CREATE TABLE StatusEmprestimo(
 );
 
 CREATE TABLE TipoTransacao(
-	Id TINYINT ,
+	Id TINYINT,
 	Nome VARCHAR(50) NOT NULL,
 	CONSTRAINT PK_IdTipoTransacao PRIMARY KEY(Id)
 );
 
 CREATE TABLE TaxaCartao(
-	Id INT IDENTITY,
+	Id TINYINT,
 	Nome VARCHAR(50) NOT NULL,
-	Aliquota DECIMAL(6,5) NOT NULL,
-	DataInicial DATE NOT NULL
 	CONSTRAINT PK_IdTaxaCartao PRIMARY KEY(Id)
 );
+
+CREATE TABLE ValorTaxaCartao (
+	Id INT IDENTITY,
+	Id_TaxaCartao TINYINT NOT NULL,
+	Aliquota DECIMAL(6,5) NOT NULL,
+	DataInicial DATE NOT NULL
+	CONSTRAINT PK_IdValorTaxaCartao PRIMARY KEY(Id),
+	CONSTRAINT FK_ValorTaxaCartao_TaxaCartao FOREIGN KEY (Id_TaxaCartao) REFERENCES TaxaCartao(Id)
+);
+
 
 CREATE TABLE StatusFatura(
 	Id TINYINT,
@@ -41,12 +49,20 @@ CREATE TABLE StatusFatura(
 	CONSTRAINT PK_IdStatusFatura PRIMARY KEY(Id)
 );
 
+
 CREATE TABLE Taxa(
 	Id TINYINT,
-	Nome VARCHAR(50) NOT NULL,
-	Aliquota DECIMAL(4,2)NOT NULL,
-	DataInicial DATE NOT NULL,
+	Nome VARCHAR(50) NOT NULL
 	CONSTRAINT PK_IdTaxas PRIMARY KEY(Id)
+);
+
+CREATE TABLE ValorTaxa (
+	Id INT IDENTITY,
+	Id_Taxa TINYINT NOT NULL,
+	Aliquota DECIMAL(6,5)NOT NULL,
+	DataInicial DATE NOT NULL,
+	CONSTRAINT PK_IdValorTaxa PRIMARY KEY(Id),
+	CONSTRAINT FK_ValorTaxa_Taxa FOREIGN KEY (Id_Taxa) REFERENCES Taxa(Id)
 );
 
 CREATE TABLE CreditScore (
@@ -90,12 +106,19 @@ CREATE TABLE Contas (
 );
 
 CREATE TABLE TaxaEmprestimo (
-	Id INT IDENTITY, 
-	Id_CreditScore TINYINT NOT NULL, 
-	Aliquota DECIMAL(6,5) NOT NULL, 
-	NumeroParcelas SMALLINT NOT NULL,
+	Id TINYINT, 
 	DataInicial DATE NOT NULL
-	CONSTRAINT PK_IdTaxaEmprestimo PRIMARY KEY (Id),
+	CONSTRAINT PK_IdTaxaEmprestimo PRIMARY KEY (Id)
+);
+
+CREATE TABLE ValorTaxaEmprestimo (
+	Id INT IDENTITY,
+	Id_TaxaEmprestimo TINYINT NOT NULL,
+	Id_CreditScore TINYINT NOT NULL,
+	Aliquota DECIMAL(6,5)NOT NULL,
+	DataInicial DATE NOT NULL,
+	CONSTRAINT PK_IdValorTaxaEmprestimo PRIMARY KEY(Id),
+	CONSTRAINT FK_ValorTaxaEmprestimo_TaxaEmprestimo FOREIGN KEY (Id_TaxaEmprestimo) REFERENCES TaxaEmprestimo(Id),
 	CONSTRAINT FK_IdCreditScore_TaxaEmp FOREIGN KEY (Id_CreditScore) REFERENCES CreditScore (Id)
 );
 
@@ -103,7 +126,7 @@ CREATE TABLE Emprestimo (
 	Id INT IDENTITY, 
 	Id_Conta INT NOT NULL,
 	Id_StatusEmprestimo TINYINT NOT NULL,
-	Id_TaxaEmprestimo INT NOT NULL, 
+	Id_ValorTaxaEmprestimo INT NOT NULL, 
 	Id_Taxa TINYINT NOT NULL,
 	ValorSolicitado DECIMAL(15,2) NOT NULL,
 	ValorParcela DECIMAL(15,2) NOT NULL,
@@ -113,9 +136,7 @@ CREATE TABLE Emprestimo (
 	CONSTRAINT PK_IdEmprestimo PRIMARY KEY (Id),
 	CONSTRAINT FK_Id_Conta_Emprestimo FOREIGN KEY (Id_Conta) REFERENCES Contas (Id),
 	CONSTRAINT FK_Id_StatusEmprestimo_Emprestimo FOREIGN KEY (Id_StatusEmprestimo) REFERENCES StatusEmprestimo (Id),
-	CONSTRAINT FK_Id_TaxaEmprestimo_Emprestimo FOREIGN KEY (Id_TaxaEmprestimo) REFERENCES TaxaEmprestimo (Id),
-	CONSTRAINT FK_Id_Taxa_Emprestimo FOREIGN KEY (Id_Taxa) REFERENCES Taxa(Id)
-
+	CONSTRAINT FK_Id_TaxaEmprestimo_Emprestimo FOREIGN KEY (Id_ValorTaxaEmprestimo) REFERENCES ValorTaxaEmprestimo (Id),
 );
 
 CREATE TABLE SaldoDiario(
@@ -162,7 +183,7 @@ CREATE TABLE TransacaoCartaoCredito(
 	Id INT IDENTITY,
 	Id_CartaoCredito INT NOT NULL,
 	Id_Fatura INT NOT NULL,
-	Id_TaxaCartao INT NOT NULL,
+	Id_ValorTaxaCartao INT NOT NULL,
 	Id_TipoTransacao TINYINT NOT NULL,
 	Nom_Historico VARCHAR(500) NOT NULL,
 	Dat_Trans DATETIME NOT NULL,
@@ -171,7 +192,7 @@ CREATE TABLE TransacaoCartaoCredito(
 	CONSTRAINT PK_Id_TransacaoCartaoCredito PRIMARY KEY (Id),
 	CONSTRAINT FK_Id_CartaoCredito_TransacaoCartaoCredito FOREIGN KEY (Id_CartaoCredito) REFERENCES CartaoCredito(Id),
 	CONSTRAINT FK_Id_Fatura_TransacaoCartaoCredito FOREIGN KEY (Id_Fatura) REFERENCES Fatura(Id),
-	CONSTRAINT FK_Id_TaxaCartao_TransacaoCartaoCredito FOREIGN KEY (Id_TaxaCartao) REFERENCES TaxaCartao(Id),
+	CONSTRAINT FK_Id_ValorTaxaCartao_TransacaoCartaoCredito FOREIGN KEY (Id_ValorTaxaCartao) REFERENCES ValorTaxaCartao(Id),
 	CONSTRAINT FK_Id_TipoTransacao_TransacaoCartaoCredito FOREIGN KEY (Id_TipoTransacao) REFERENCES TipoTransacao(Id)
 );
 
@@ -213,22 +234,22 @@ CREATE TABLE Lancamentos (
 );
 
 CREATE TABLE LancamentosPrecoTarifas (
-	Id_Lancamentos INT,
+	Id_Lancamentos INT UNIQUE,
 	Id_PrecoTarifas INT,
 	CONSTRAINT FK_IdLancamentosPT FOREIGN KEY(Id_Lancamentos) REFERENCES Lancamentos(Id),
-	CONSTRAINT FK_IdPrecoTarifasLancamentosPT FOREIGN KEY(Id_PrecoTarifas) REFERENCES Tarifas(Id)
+	CONSTRAINT FK_IdPrecoTarifasLancamentosPT FOREIGN KEY(Id_PrecoTarifas) REFERENCES PrecoTarifas(Id)
 );
 
 CREATE TABLE LancamentosValorTaxa (
-	Id_Lancamentos INT,
-	Id_ValorTaxa TINYINT,
+	Id_Lancamentos INT UNIQUE,
+	Id_ValorTaxa INT,
 	CONSTRAINT FK_IdLancamentosValorTaxa FOREIGN KEY(Id_Lancamentos) REFERENCES Lancamentos(Id),
-	CONSTRAINT FK_IdValorTaxaLancamentosVT FOREIGN KEY(Id_ValorTaxa) REFERENCES Taxas(Id)
+	CONSTRAINT FK_IdValorTaxaLancamentosVT FOREIGN KEY(Id_ValorTaxa) REFERENCES ValorTaxa(Id)
 );
 
 CREATE TABLE LancamentosTransacao (
-	Id_Lancamentos INT,
-	Id_TransacaoCartaoCredito TINYINT,
+	Id_Lancamentos INT UNIQUE,
+	Id_TransacaoCartaoCredito INT,
 	CONSTRAINT FK_IdLancamentosTransacao FOREIGN KEY(Id_Lancamentos) REFERENCES Lancamentos(Id),
 	CONSTRAINT FK_IdTransacaoCartaoCreditoLancamentos FOREIGN KEY(Id_TransacaoCartaoCredito) REFERENCES TransacaoCartaoCredito(Id)
 );
