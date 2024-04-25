@@ -47,10 +47,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirConta]
 											Vlr_SldInicial,
 											Vlr_Credito,
 											Vlr_Debito,
-											Dat_Saldo 
+											Dat_Saldo,
+											Ativo
 										FROM [dbo].[Contas]
 
-									EXEC @RET = [SP_ExcluirConta] 1
+									EXEC @RET = [SP_ExcluirConta] 7
 									SELECT @RET AS RETORNO,
 										   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUCAO 	
 
@@ -58,7 +59,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirConta]
 											Vlr_SldInicial,
 											Vlr_Credito,
 											Vlr_Debito,
-											Dat_Saldo 
+											Dat_Saldo,
+											Ativo
 										FROM [dbo].[Contas]
 							ROLLBACK TRAN
 
@@ -76,18 +78,16 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirConta]
 					RETURN 1
 				END
 		--Se existe Lancamentos para essa Conta
-		    IF EXISTS (SELECT TOP 1 1
-								FROM [dbo].[Lancamentos] L WITH(NOLOCK)
-								WHERE L.Id_Conta = @Id_Conta)
+		    IF [dbo].[FNC_CalcularSaldoAtual](@Id_Conta, null, null, null)  <> 0
 				BEGIN
 					RETURN 2
 				END
 			ELSE
 				BEGIN
-				--Excluir do registro de conta passado por paramentro
-					DELETE FROM [dbo].[Contas] 
-						   WHERE Id = @Id_Conta
-						   RETURN 0
+				--Excluir do registro de conta passado por paramentro					
+					UPDATE [dbo].[Contas]
+						SET Ativo = 0
+						WHERE Id = @Id_Conta
           		END   
 		END
 GO
@@ -183,7 +183,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtualizarConta]
 		END
 GO
 
-CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovaConta] 
+CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovaConta] 		
+		@IdCorrentista INT
 		AS 
 			/*
 				Documentacao
@@ -198,22 +199,30 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovaConta]
 										DECLARE @RET INT, 
 										@Dat_init DATETIME = GETDATE()
 
-											SELECT  Id,
-												Vlr_SldInicial,
-												Vlr_Credito,
-												Vlr_Debito,
-												Dat_Saldo 
-											FROM [dbo].[Contas]
+											SELECT	Id,
+														Vlr_SldInicial,
+														Vlr_Credito,
+														Vlr_Debito,
+														Dat_Saldo,
+														Dat_Abertura,
+														Ativo,
+														Lim_ChequeEspecial,
+														Id_Correntista
+												FROM [dbo].[Contas]
 
-										EXEC @RET = [dbo].[SP_InserirNovaConta]
+										EXEC @RET = [dbo].[SP_InserirNovaConta] 6
 
 											SELECT @RET AS RETORNO,
 												DATEDIFF(millisecond, @Dat_init, GETDATE()) AS TempoExecucao
 													SELECT	Id,
-															Vlr_SldInicial,
-															Vlr_Credito,
-															Vlr_Debito,
-															Dat_Saldo 
+																Vlr_SldInicial,
+																Vlr_Credito,
+																Vlr_Debito,
+																Dat_Saldo,
+																Dat_Abertura,
+																Ativo,
+																Lim_ChequeEspecial,
+																Id_Correntista
 														FROM [dbo].[Contas]
 								ROLLBACK TRAN
 
@@ -222,17 +231,12 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovaConta]
 				01.................: Sucesso
 																
 			*/
-		BEGIN
-			
-				
-			INSERT INTO Contas(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura, Ativo, Lim_ChequeEspecial) 
-			VALUES
-				(0, 0, 0, GETDATE(), GETDATE(), 1, 0);
-
-			IF @@ROWCOUNT <> 0
-				RETURN 1
-			ELSE
-				RETURN 0
-				
+		BEGIN									
+					INSERT INTO [dbo].[Contas](Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura, Ativo, Lim_ChequeEspecial,Id_Correntista) VALUES
+												  (0, 0, 0,GETDATE(),GETDATE(), 1, 0,@IdCorrentista);		
+					IF @@ROWCOUNT <> 0
+						RETURN 1
+					ELSE
+						RETURN 0							
 		END
 GO
