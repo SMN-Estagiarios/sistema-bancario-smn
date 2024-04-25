@@ -1,7 +1,4 @@
-USE SistemaBancario
-GO
-
-CREATE OR ALTER FUNCTION [dbo].[FNC_ListarPossiveisQuantidadesParcelasEmprestimo]()
+CREATE OR ALTER FUNCTION [dbo].[FNC_ListarParcelasEmprestimo]()
 	RETURNS @Tabela TABLE(
 							QuantidadeParcela TINYINT
 						 )
@@ -15,12 +12,13 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_ListarPossiveisQuantidadesParcelasEmprestimo
 		Ex....................: DBCC DROPCLEANBUFFERS
 								DECLARE @Dat_ini DATETIME = GETDATE()
 
-								SELECT QuantidadeParcela
-									FROM [dbo].[FNC_ListarPossiveisQuantidadesParcelasEmprestimo]()
+								SELECT QuantidadeParcela 
+									FROM [dbo].[FNC_ListarParcelasEmprestimo]()
 
 								SELECT DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS Tempo
-	*/
+	*/ 
 	BEGIN
+	
 		--Declarar variáveis
 		DECLARE @Mes TINYINT = 1
 		--Criar e popular tabela com a quantidade de parcelas
@@ -29,9 +27,10 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_ListarPossiveisQuantidadesParcelasEmprestimo
 				IF @Mes <= 12 OR @Mes = 24 OR @Mes = 36 OR @Mes = 48 OR @Mes = 60 OR @Mes = 72
 					BEGIN
 						INSERT INTO @Tabela VALUES(@Mes)
-						SET @Mes += 1
 					END
+				SET @Mes = @Mes + 1
 			END
+		
 		RETURN
 	END
 GO

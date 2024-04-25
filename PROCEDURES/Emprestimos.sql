@@ -74,7 +74,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 			END 
 		-- Verificar se a quantidade de parcelas está dentro do permitido
 		IF NOT EXISTS (SELECT TOP 1 1
-							FROM [dbo].[FNC_ListarPossiveisQuantidadesParcelasEmprestimo]()
+							FROM [dbo].[FNC_ListarParcelasEmprestimo]()
 							WHERE QuantidadeParcela = @NumeroParcelas
 					  )
 			BEGIN
@@ -86,7 +86,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 											Id_Tarifa,
 											Valor,
 											NumeroParcelas,
-											Tipo,
+											Tipo, 
 											DataInicio
 										)
 										VALUES
@@ -218,7 +218,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarSimulacaoEmprestimo]
 		--Listar a simulação de empréstimo em que o valor da parcela seja maior que 100
 		SELECT	QuantidadeParcela AS TotalParcelas,
 				FORMAT(@ValorEmprestimo * @TaxaTotal / (1 - POWER(1 + @TaxaTotal, - QuantidadeParcela)), 'C') AS PrecoParcela
-			FROM [dbo].[FNC_ListarPossiveisQuantidadesParcelasEmprestimo]()
+			FROM [dbo].[FNC_ListarParcelasEmprestimo]()
 			WHERE @ValorEmprestimo * @TaxaTotal / (1 - POWER(1 + @TaxaTotal, - QuantidadeParcela)) > 100
 	END
 GO
