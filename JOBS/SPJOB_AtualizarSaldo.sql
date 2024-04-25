@@ -38,11 +38,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarSaldo]
 		DECLARE @DataAtualizacao DATE = GETDATE()
 			 
 		--Atualizacao das contas para quando a data do saldo for inferior a data de atualizacao 
-		UPDATE[dbo].[Contas] 
+		UPDATE [dbo].[Contas] 
 			SET Vlr_SldInicial = [dbo].[FNC_CalcularSaldoAtual](NULL, Vlr_SldInicial, Vlr_Credito, Vlr_Debito), 
 				Vlr_Credito = 0,
 				Vlr_Debito = 0,
 				Dat_Saldo = @DataAtualizacao
 			WHERE Dat_Saldo < @DataAtualizacao
-		END
+	END
 GO
