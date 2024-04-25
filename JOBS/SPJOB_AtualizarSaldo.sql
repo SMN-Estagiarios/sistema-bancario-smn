@@ -6,7 +6,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarSaldo]
 	/*
 		Documentacao
 		Arquivo Fonte.....: SPJOB_AtualizarSaldo.sql
-		Objetivo..........: Job que atualiza diariamente o saldo de todas as contas
+		Objetivo..........: Job que atualiza diariamente o saldo de todas as contas e faz a população da tabela [dbo].[SaldoDiario] com base no dia anterior 
 		Autor.............: Adriel Alexander 
 		Data..............: 08/04/2024
 		EX................:	BEGIN TRAN
@@ -35,14 +35,53 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarSaldo]
 	*/
 	BEGIN 
 		--Declaracao de variavel 
-		DECLARE @DataAtualizacao DATE = GETDATE()
-			 
-		--Atualizacao das contas para quando a data do saldo for inferior a data de atualizacao 
-		UPDATE [dbo].[Contas] 
-			SET Vlr_SldInicial = [dbo].[FNC_CalcularSaldoAtual](NULL, Vlr_SldInicial, Vlr_Credito, Vlr_Debito), 
-				Vlr_Credito = 0,
-				Vlr_Debito = 0,
-				Dat_Saldo = @DataAtualizacao
-			WHERE Dat_Saldo < @DataAtualizacao
+				DECLARE @ProcedureError VARCHAR(120) = ERROR_PROCEDURE();
+				--Declaracao de variavel 
+				DECLARE @DataAtualizacao DATE = GETDATE(), 
+						@DataSaldo DATE = DATEADD(DAY,-1,GETDATE()),
+						@MensagemError VARCHAR(4000) = 'Error no [SP_JOBAtualizaSaldo] ' + @ProcedureError +': '+ ERROR_MESSAGE(),
+						@EstadoError INT = ERROR_STATE(), 
+						@SeveridadeError INT = ERROR_SEVERITY();
+		
+				BEGIN TRANSACTION 
+		
+				BEGIN TRY
+					INSERT INTO SaldoDiario (Id_Conta, Vlr_Debito, Vlr_Credito, Vlr_SldInicial, Vlr_SldFinal, Dat_Saldo)
+						SELECT C.Id, 
+							   C.Vlr_Debito,
+							   C.Vlr_Credito,
+							   C.Vlr_SldInicial,
+							   [dbo].[FNC_CalcularSaldoAtual](C.Id, Vlr_SldInicial, Vlr_Credito, Vlr_Debito), 
+							   @DataSaldo
+							FROM [dbo].[Contas] C
+			
+				END TRY
+					BEGIN CATCH
+						-- Se ocorrer algum erro, faz o rollback da transação
+						ROLLBACK TRANSACTION; 
+						-- Retornando mensagem de erro com raiserror
+						RAISERROR(@MensagemError,@SeveridadeError, @EstadoError)
+					END CATCH;
+	
+		
+				BEGIN TRY	 
+				--Atualizacao das contas para quando a data do saldo for inferior a data de atualizacao 
+				UPDATE[dbo].[Contas] 
+					SET Vlr_SldInicial = [dbo].[FNC_CalcularSaldoAtual](NULL, Vlr_SldInicial, Vlr_Credito, Vlr_Debito), 
+						Vlr_Credito = 0,
+						Vlr_Debito = 0,
+						Dat_Saldo = @DataAtualizacao
+					WHERE Dat_Saldo < @DataAtualizacao
+		
+				END TRY
+					BEGIN CATCH
+						-- Se ocorrer algum erro, faz o rollback da transação
+						ROLLBACK TRANSACTION;
+						-- Retornando mensagem de erro com raiserror
+						RAISERROR(@MensagemError,@SeveridadeError, @EstadoError)
+					END CATCH;	
+
+				COMMIT TRANSACTION
+
 	END
 GO
