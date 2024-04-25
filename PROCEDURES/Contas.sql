@@ -200,32 +200,35 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovaConta]
 										@Dat_init DATETIME = GETDATE()
 
 											SELECT	Id,
-														Vlr_SldInicial,
-														Vlr_Credito,
-														Vlr_Debito,
-														Dat_Saldo,
-														Dat_Abertura,
-														Ativo,
-														Lim_ChequeEspecial,
-														Id_Correntista
+													Id_CreditScore,
+													Id_Correntista,
+													Id_Usuario,
+													Vlr_SldInicial,
+													Vlr_Credito,
+													Vlr_Debito,
+													Dat_Saldo,
+													Dat_Abertura,
+													Ativo,
+													Lim_ChequeEspecial
 												FROM [dbo].[Contas]
 
-										EXEC @RET = [dbo].[SP_InserirNovaConta] 6
+										EXEC @RET = [dbo].[SP_InserirNovaConta] 5
 
 											SELECT @RET AS RETORNO,
 												DATEDIFF(millisecond, @Dat_init, GETDATE()) AS TempoExecucao
 													SELECT	Id,
-																Vlr_SldInicial,
-																Vlr_Credito,
-																Vlr_Debito,
-																Dat_Saldo,
-																Dat_Abertura,
-																Ativo,
-																Lim_ChequeEspecial,
-																Id_Correntista
+															Id_CreditScore,
+															Id_Correntista,
+															Id_Usuario,
+															Vlr_SldInicial,
+															Vlr_Credito,
+															Vlr_Debito,
+															Dat_Saldo,
+															Dat_Abertura,
+															Ativo,
+															Lim_ChequeEspecial
 														FROM [dbo].[Contas]
 								ROLLBACK TRAN
-
 				--	RETORNO   --
 				00.................: Erro ao criar conta
 				01.................: Sucesso
