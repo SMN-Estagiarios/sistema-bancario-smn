@@ -1,9 +1,9 @@
-CREATE OR ALTER FUNCTION [dbo].[FNC_ListarValorAtualTarifa](@IdTarifa INT)
-	RETURNS @Tabela TABLE(IdPrecoTarifas INT, IdTarifa INT, Nome VARCHAR(50), Valor DECIMAL(4,2), DataValidade DATE)
+CREATE OR ALTER FUNCTION [dbo].[FNC_ListarValorAtualTaxa](@IdTaxa INT)
+	RETURNS @Tabela TABLE(IdValorTaxa INT, IdTaxa TINYINT, Nome VARCHAR(50), Valor DECIMAL(6,5), DataValidade DATE)
 AS
 		/*
             Documentação
-            Arquivo Fonte.....: FNC_ListaValorAtualTarifa.sql
+            Arquivo Fonte.....: FNC_ListarValorAtualTaxa.sql
             Objetivo..........: Listar a taxa ou valor vigente na data de consulta para uma tarifa
             Autor.............: Gustavo Targino, Danyel Targino e Thays Carvalho
             Data..............: 23/04/2024
@@ -13,8 +13,8 @@ AS
 
                                     DECLARE @Dat_ini DATETIME = GETDATE();
 
-                                   SELECT * FROM [dbo].[FNC_ListarValorAtualTarifa](4)
-
+                                   SELECT * FROM [dbo].[FNC_ListarValorAtualTaxa](2)
+								   
                                     SELECT 
                                             DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
                                 ROLLBACK TRAN
@@ -25,16 +25,19 @@ AS
 		DECLARE @DataAtual DATE = GETDATE()
 
 		INSERT INTO @Tabela
-            SELECT TOP 1 P.Id,
-						 T.Id,
-						 T.Nome,
-						 P.Valor,
-						 P.DataInicial
-				FROM [dbo].[Tarifas] T WITH(NOLOCK)
-					INNER JOIN [dbo].[PrecoTarifas] P WITH(NOLOCK)
-						ON T.Id = P.Id_Tarifa
-				WHERE P.DataInicial <= @DataAtual 
-				AND P.Id_Tarifa = @IdTarifa
-				ORDER BY P.DataInicial DESC
+            SELECT TOP 1 vt.Id,
+						 t.Id,
+						 t.Nome,
+						 vt.Aliquota,
+						 vt.DataInicial
+				FROM [dbo].[Taxa] T WITH(NOLOCK)
+					INNER JOIN [dbo].[ValorTaxa] vt WITH(NOLOCK)
+						ON T.Id = vt.Id_Taxa
+				WHERE vt.DataInicial <= @DataAtual 
+				AND vt.Id_Taxa = @IdTaxa
+				ORDER BY vt.DataInicial DESC
 		RETURN
 	END
+
+
+	
