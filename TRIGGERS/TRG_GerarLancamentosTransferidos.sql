@@ -23,7 +23,7 @@ FOR INSERT, DELETE, UPDATE
 									SELECT * 
 										FROM [dbo].[Lancamentos] WITH(NOLOCK)
 
-									INSERT INTO Transferencias VALUES( 1, 1, 2, 50, 'EXEMPLO', GETDATE())
+									INSERT INTO Transferencias VALUES( 0, 1, 2, 50, 'EXEMPLO', GETDATE())
 									
 									SELECT DATEDIFF(MILLISECOND,@DATA_INI,GETDATE()) AS Execução
 									

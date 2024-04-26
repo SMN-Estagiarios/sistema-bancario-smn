@@ -52,15 +52,15 @@ INSERT INTO [dbo].[ValorTaxa]	(Id_Taxa, Aliquota, DataInicial) VALUES
 								(2, 0.0038, '01/04/2024');
 GO
 
-INSERT INTO [dbo].[CreditScore]	(Nome, Faixa, Aliquota) VALUES
-								('Não elegível', -2000, 0),
-								('Negativado', -200, 0.2),
-								('Péssimo', 0, 0.4),
-								('Ruim', 600, 0.6),
-								('Mediano', 800, 0.8),
-								('Bom', 1000, 1.2),
-								('Ótimo', 1500, 1.4),
-								('Excelente', 3000, 2.0);
+INSERT INTO [dbo].[CreditScore]	(Id, Nome, Faixa, Aliquota) VALUES
+								(1, 'Não elegível', -2000, 0),
+								(2, 'Negativado', -200, 0.2),
+								(3, 'Péssimo', 0, 0.4),
+								(4, 'Ruim', 600, 0.6),
+								(5, 'Mediano', 800, 0.8),
+								(6, 'Bom', 1000, 1.2),
+								(7, 'Ótimo', 1500, 1.4),
+								(8, 'Excelente', 3000, 2.0);
 GO
 
 INSERT INTO [dbo].[Correntista] (Nome, Cpf, DataNasc, Contato, Email, Logradouro, Ativo) VALUES
