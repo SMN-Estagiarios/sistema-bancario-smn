@@ -96,6 +96,12 @@ ALTER TABLE Lancamentos
 	DROP CONSTRAINT FK_Id_TipoLancamento_Lancamentos
 GO
 
+	-- Executando drop de constraint de FK na tabela Parcela
+ALTER TABLE Parcela
+	DROP CONSTRAINT FK_Id_Emprestimo_Parcela;
+ALTER TABLE Parcela
+	DROP CONSTRAINT FK_Id_Lancamento_Parcela;
+
 	-- Executando o drop de constraint de FK na tabela LancamentosPrecoTarifas
 ALTER TABLE LancamentosPrecoTarifas
 	DROP CONSTRAINT FK_Id_Lancamentos_LancamentosPrecoTarifas
@@ -188,8 +194,6 @@ GO
 
 	--DROPANDO TODAS AS TABELAS
 
-DROP TABLE [dbo].[Usuarios]
-GO
 DROP TABLE [dbo].[StatusCartaoCredito]
 GO
 DROP TABLE [dbo].[StatusEmprestimo]
@@ -210,8 +214,6 @@ DROP TABLE [dbo].[CreditScore]
 GO
 DROP TABLE [dbo].[Correntista]
 GO
-DROP TABLE [dbo].[Contas]
-GO
 DROP TABLE [dbo].[TaxaEmprestimo]
 GO
 DROP TABLE [dbo].[ValorTaxaEmprestimo]
@@ -225,6 +227,8 @@ GO
 DROP TABLE [dbo].[Fatura]
 GO
 DROP TABLE [dbo].[TransacaoCartaoCredito]
+GO
+DROP TABLE [dbo].[TransferenciasLancamentos]
 GO
 DROP TABLE [dbo].[Tarifas]
 GO
@@ -241,4 +245,10 @@ GO
 DROP TABLE [dbo].[LancamentosTransacao]
 GO
 DROP TABLE [dbo].[Transferencias]
+GO
+DROP TABLE [dbo].[Contas]
+GO
+DROP TABLE [dbo].[Parcela]
+GO
+DROP TABLE [dbo].[Usuarios]
 GO
