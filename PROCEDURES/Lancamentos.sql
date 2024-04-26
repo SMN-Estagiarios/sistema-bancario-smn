@@ -27,7 +27,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 								@RET INT
 						SELECT TOP 10 * FROM Lancamentos
 	
-						EXEC @RET = [dbo].[SP_CriarLancamentos]	1, 1, 1,1, 'C', 100, 'Deposito', null, 0
+						EXEC @RET = [dbo].[SP_CriarLancamentos]	1, 0, 1, 'C', 100, 'Deposito', null, 0
 						SELECT TOP 10 * FROM Lancamentos
 	
 						SELECT @RET AS RETORNO
