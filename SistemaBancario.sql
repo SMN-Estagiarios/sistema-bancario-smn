@@ -234,6 +234,16 @@ CREATE TABLE Lancamentos (
 	CONSTRAINT CHK_Tipo_Operacao_C_D CHECK(Tipo_Operacao = 'C' OR Tipo_Operacao = 'D')
 );
 
+CREATE TABLE Parcela (
+	Id_Emprestimo INT NOT NULL,
+	Id_Lancamento INT NOT NULL UNIQUE,
+	Valor DECIMAL(15,2) NOT NULL,
+	Data_Cadastro DATE NOT NULL
+
+	CONSTRAINT FK_Id_Emprestimo_Parcela FOREIGN KEY (Id_Emprestimo) REFERENCES Emprestimo(Id),
+	CONSTRAINT FK_Id_Lancamento_Parcela FOREIGN KEY (Id_Lancamento) REFERENCES Lancamentos(Id)
+);
+
 CREATE TABLE LancamentosPrecoTarifas (
 	Id_Lancamentos INT UNIQUE,
 	Id_PrecoTarifas INT,
@@ -265,13 +275,12 @@ CREATE TABLE Transferencias (
 	Dat_Trans DATETIME NOT NULL,
 	CONSTRAINT FK_Id_Conta_Credito_Transferencias FOREIGN KEY (Id_Conta_Credito) REFERENCES Contas(Id),
 	CONSTRAINT FK_Id_Conta_Debito_Transferencias FOREIGN KEY (Id_Conta_Debito) REFERENCES Contas(Id),
-	CONSTRAINT FK_Id_Usuario_Transferencias FOREIGN KEY (Id_Usuario ) REFERENCES Usuarios(Id),
-	CONSTRAINT FK_Id_Usuario_Transferencias FOREIGN KEY (Id_Usuario ) REFERENCES Usuarios(Id)
+	CONSTRAINT FK_Id_Usuario_Transferencias FOREIGN KEY (Id_Usuario) REFERENCES Usuarios(Id),
 );
 
 CREATE TABLE TransferenciasLancamentos (
 	IdTransferencia INT NOT NULL,
 	IdLancamento INT UNIQUE NOT NULL,
 	CONSTRAINT FK_IdTransferencia_TransferenciaLancamentos FOREIGN KEY (IdTransferencia) REFERENCES Transferencias(Id),
-	CONSTRAINT FK_IdLancamento_TransferenciaLancamentos FOREIGN KEY (Id_Usuario ) REFERENCES Usuarios(Id)
+	CONSTRAINT FK_IdLancamento_TransferenciaLancamentos FOREIGN KEY (IdLancamento) REFERENCES Usuarios(Id)
 );
