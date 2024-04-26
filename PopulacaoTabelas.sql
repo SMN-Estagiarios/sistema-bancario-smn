@@ -123,5 +123,6 @@ INSERT INTO [dbo].[TipoLancamento]	(Id, Nome) VALUES
 									(6,'Tarifa'),
 									(7,'Investimento'),
 									(8,'Empréstimo'),
-									(9,'Juros')
+									(9,'Juros'),
+									(10,'Juros cheque especial');
 GO
