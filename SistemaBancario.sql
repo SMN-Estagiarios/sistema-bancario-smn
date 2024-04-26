@@ -265,5 +265,13 @@ CREATE TABLE Transferencias (
 	Dat_Trans DATETIME NOT NULL,
 	CONSTRAINT FK_Id_Conta_Credito_Transferencias FOREIGN KEY (Id_Conta_Credito) REFERENCES Contas(Id),
 	CONSTRAINT FK_Id_Conta_Debito_Transferencias FOREIGN KEY (Id_Conta_Debito) REFERENCES Contas(Id),
+	CONSTRAINT FK_Id_Usuario_Transferencias FOREIGN KEY (Id_Usuario ) REFERENCES Usuarios(Id),
 	CONSTRAINT FK_Id_Usuario_Transferencias FOREIGN KEY (Id_Usuario ) REFERENCES Usuarios(Id)
+);
+
+CREATE TABLE TransferenciasLancamentos (
+	IdTransferencia INT NOT NULL,
+	IdLancamento INT UNIQUE NOT NULL,
+	CONSTRAINT FK_IdTransferencia_TransferenciaLancamentos FOREIGN KEY (IdTransferencia) REFERENCES Transferencias(Id),
+	CONSTRAINT FK_IdLancamento_TransferenciaLancamentos FOREIGN KEY (Id_Usuario ) REFERENCES Usuarios(Id)
 );
