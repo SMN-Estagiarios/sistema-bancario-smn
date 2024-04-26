@@ -4,13 +4,14 @@ GO
 CREATE OR ALTER TRIGGER [dbo].[TRG_AtualizarSaldo]
 	ON [dbo].[Lancamentos]
 	AFTER INSERT
-AS
+	AS
 	/*
 		DOCUMENTAÇÃO
 		Arquivo Fonte........:	TRG_AtualizarSaldo.sql
 		Objetivo.............:	Atualizar Saldo da tabela [dbo].[Contas]
 		Autor................:	Adriel Alexander
 		Data.................:	05/04/2024
+		Autores Alteracao....:  Adriel Alexander, Thalles Damiani, Pedro Avelino
 		Ex...................: BEGIN TRAN
 									DBCC DROPCLEANBUFFERS;
 									DBCC FREEPROCCACHE;
@@ -52,34 +53,62 @@ AS
 								ROLLBACK TRAN
 	*/
 	BEGIN
-		DECLARE @Tipo_Lancamento CHAR(1),
-				@Data_Lanc DATETIME,
-				@Vlr_Lancamento DECIMAL(15,2);
+			DECLARE @Tipo_Lancamento CHAR(1),
+					@Data_Lanc DATETIME,
+					@Vlr_Lancamento DECIMAL(15,2);
 			 
-		--ATRIBUINDO VALORES AS VARIÁVEIS 
-		SELECT	@Tipo_Lancamento = Tipo_Operacao,
-				@Data_Lanc = Dat_Lancamento, 
-				@Vlr_Lancamento = Vlr_Lanc
-			FROM INSERTED
+			--ATRIBUINDO VALORES AS VARIÁVEIS 
+			SELECT	@Tipo_Lancamento = Tipo_Operacao,
+					@Data_Lanc = Dat_Lancamento, 
+					@Vlr_Lancamento = Vlr_Lanc
+				FROM INSERTED
 
-		UPDATE [dbo].[Contas] 
-			SET Vlr_SldInicial = (CASE	WHEN @Data_Lanc < Dat_Saldo 
-										THEN Vlr_SldInicial + 
-															(CASE WHEN @Tipo_Lancamento = 'C' 
-																THEN @Vlr_Lancamento
-																ELSE @Vlr_Lancamento* (-1)
-															END)
-										ELSE Vlr_SldInicial 
+			UPDATE [dbo].[Contas] 
+				SET Vlr_SldInicial = (CASE	WHEN @Data_Lanc < Dat_Saldo 
+											THEN Vlr_SldInicial + 
+																(CASE WHEN @Tipo_Lancamento = 'C' 
+																	THEN @Vlr_Lancamento
+																	ELSE @Vlr_Lancamento* (-1)
+																 END)
+											ELSE Vlr_SldInicial 
+									  END),
+
+					Vlr_Credito = (CASE WHEN @Data_Lanc < Dat_Saldo  OR @Tipo_Lancamento = 'D' 
+										THEN Vlr_Credito
+										ELSE (Vlr_Credito + @Vlr_Lancamento) 
 									END),
 
-				Vlr_Credito = (CASE WHEN @Data_Lanc < Dat_Saldo  OR @Tipo_Lancamento = 'D' 
-									THEN Vlr_Credito
-										ELSE (Vlr_Credito + @Vlr_Lancamento) 
-								END),
 
-
-				Vlr_Debito = (CASE	WHEN @Data_Lanc < Dat_Saldo  OR @Tipo_Lancamento = 'C' 
-									THEN Vlr_Debito
-										ELSE(Vlr_Debito + @Vlr_Lancamento)END)
-			WHERE Id IN (SELECT Id_Conta FROM INSERTED)
+					Vlr_Debito = (CASE	WHEN @Data_Lanc < Dat_Saldo  OR @Tipo_Lancamento = 'C' 
+										THEN Vlr_Debito
+										ELSE(Vlr_Debito + @Vlr_Lancamento)
+								   END)
+				WHERE Id IN (SELECT Id_Conta FROM INSERTED)
+		
+			-- Atualiza Saldo diario para lancamentos retroativos
+			UPDATE [dbo].[SaldoDiario]
+				SET
+					Vlr_Credito = (CASE WHEN @Tipo_Lancamento = 'C' AND DATEDIFF(DAY, @Data_Lanc, Dat_Saldo) = 0 
+										THEN Vlr_Credito + @Vlr_Lancamento 
+										ELSE Vlr_Credito 
+								    END),
+					Vlr_Debito = (CASE WHEN @Tipo_Lancamento = 'D' AND DATEDIFF(DAY, @Data_Lanc, Dat_Saldo) = 0 
+									   THEN Vlr_Debito + @Vlr_Lancamento
+											ELSE Vlr_Debito 
+								   END),
+					Vlr_SldInicial = (CASE WHEN DATEDIFF(DAY, @Data_Lanc, Dat_Saldo) > 0
+										   THEN Vlr_SldInicial + (CASE WHEN @Tipo_Lancamento = 'C' 
+																	   THEN @Vlr_Lancamento
+																		ELSE @Vlr_Lancamento * (-1) 
+																  END)
+										   ELSE Vlr_SldInicial
+									END),
+					Vlr_SldFinal =(CASE WHEN DATEDIFF(DAY, @Data_Lanc, Dat_Saldo) >= 0
+										THEN Vlr_SldFinal + (CASE WHEN @Tipo_Lancamento = 'C' 
+																  THEN @Vlr_Lancamento
+																  ELSE @Vlr_Lancamento * (-1) 
+															  END)
+									    ELSE Vlr_SldFinal
+								   END)
+					WHERE Id_Conta IN (SELECT Id_Conta FROM INSERTED)
 	END
