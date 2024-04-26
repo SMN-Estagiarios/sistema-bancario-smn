@@ -136,11 +136,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarEmprestimo]	@IdConta INT = NULL,
 
 								DECLARE @Dat_ini DATETIME = GETDATE()
 
-								INSERT INTO [dbo].[StatusEmprestimos] (Id, Nome) VALUES (1, 'Em processamento')
-
-								INSERT INTO [dbo].[Emprestimos] (	IdStatus,
-																	Id_Cta,
-																	Id_Tarifa,
+								INSERT INTO [dbo].[Emprestimo]	(	
+																	Id_Conta,
+																	Id_StatusEmprestimo,
+																	Id_ValorTaxaEmprestimo,
+																	Id_Taxa,
 																	ValorSolicitado,
 																	ValorParcela,
 																	NumeroParcelas,
@@ -152,41 +152,30 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarEmprestimo]	@IdConta INT = NULL,
 																1,
 																1,
 																1,
+																2,
 																1000,
 																100,
 																10,
 																'PRE',
 																'2024-04-23'
-																)
-
-								INSERT INTO [dbo].[Emprestimos] (	IdStatus,
-																	Id_Cta,
-																	Id_Tarifa,
-																	ValorSolicitado,
-																	ValorParcela,
-																	NumeroParcelas,
-																	Tipo,
-																	DataInicio
-																)
-															VALUES
+																),
 																(
 																1,
-																2,
 																1,
-																1500,
-																100,
-																15,
+																1,
+																2,
+																2000,
+																400,
+																5,
 																'PRE',
-																'2024-04-25'
+																'2024-04-23'
 																)
 
 							
 
 								EXEC [dbo].[SP_ListarEmprestimo] 1
 
-								SELECT DATEDIFF(millisecond, @Dat_init, GETDATE()) AS ResultadoExecucao
-
-								TRUNCATE TABLE [dbo].[Emprestimos]
+								SELECT DATEDIFF(millisecond, @Dat_ini, GETDATE()) AS ResultadoExecucao
 							ROLLBACK TRAN
 
 								-- RETORNO --
@@ -195,17 +184,17 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarEmprestimo]	@IdConta INT = NULL,
 	*/
 	BEGIN
 			BEGIN
-				SELECT	Id,
-						IdStatus,
-						Id_Cta,
-						Id_Tarifa,
+				SELECT	Id_Conta,
+						Id_StatusEmprestimo,
+						Id_ValorTaxaEmprestimo,
+						Id_Taxa,
 						ValorSolicitado,
 						ValorParcela,
 						NumeroParcelas,
 						Tipo,
 						DataInicio
-					FROM [dbo].[Emprestimos] WITH(NOLOCK)
-					WHERE	Id_Cta = ISNULL(@IdConta, Id_Cta) AND
+					FROM [dbo].[Emprestimo] WITH(NOLOCK)
+					WHERE	Id_Conta = ISNULL(@IdConta, Id_Conta) AND
 							DATEDIFF(DAY, DataInicio, ISNULL(@DataInicio, DataInicio)) = 0
 			END
 	END

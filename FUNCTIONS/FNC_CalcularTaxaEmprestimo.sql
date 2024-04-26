@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER FUNCTION [dbo].[FNC_CalcularTaxaEmprestimo]	(
 																@Id_Cta INT	
 															)
