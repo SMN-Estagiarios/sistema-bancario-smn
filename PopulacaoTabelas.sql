@@ -48,11 +48,11 @@ INSERT INTO [dbo].[Taxa]	(Id, Nome) VALUES
 GO
 
 INSERT INTO [dbo].[ValorTaxa]	(Id_Taxa, Aliquota, DataInicial) VALUES
-								(1, 0.00200, '01/03/2024'),
-								(2, 0.0038, '01/04/2024'),
-								(1, 0.00400, '15/03/2024'),
-								(1, 0.00600, '01/04/2024'),
-								(1, 0.00800, '15/04/2024');
+								(1, 0.00200, '2024-03-01'),
+								(2, 0.00380, '2024-04-01'),
+								(1, 0.00400, '2024-03-15'),
+								(1, 0.00600, '2024-04-01'),
+								(1, 0.00800, '2024-04-15');
 
 GO
 
@@ -128,6 +128,8 @@ INSERT INTO [dbo].[TipoLancamento]	(Id, Nome) VALUES
 									(7,'Investimento'),
 									(8,'Empréstimo'),
 									(9,'Juros'),
+									(10,'Juros cheque especial'),
+									(11,'Saque de cartao de credito')
 									(10,'Juros cheque especial'),
 									(11,'Saque de cartao de credito')
 GO
