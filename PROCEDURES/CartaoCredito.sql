@@ -1,6 +1,7 @@
 CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 	@IdCorrentista INT,
-	@IdConta INT
+	@IdConta INT,
+	@DiaVencimento TINYINT
 	AS
 	/*
 	Documentacao
@@ -15,11 +16,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 							DECLARE @RET INT, 
 							@Dat_init DATETIME = GETDATE()
 
-							SELECT * FROM Correntista;
 							SELECT * FROM Contas;
 							SELECT * FROM CartaoCredito;
 							
-							EXEC [dbo].[SP_InserirNovoCartaoCredito] 2, 2
+							EXEC [dbo].[SP_InserirNovoCartaoCredito] 2, 2, 11
 
 							SELECT * FROM CartaoCredito;
 							SELECT * FROM Contas;
@@ -35,7 +35,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 				@NumeroCVC SMALLINT,
 				@DataAtual DATE,
 				@DataValidade DATE,
-				@DiaVencimento TINYINT,
 				@IdCreditScore TINYINT,
 				@LimiteCartao DECIMAL(15,2),
 				@Aliquota DECIMAL(3,2),
@@ -73,6 +72,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 							ON C.Id_CreditScore = CS.Id
 					WHERE C.Id_Correntista = @IdCorrentista
 
+				-- Verifica se o CreditScore está baixo ou nullo
 				IF @IdCreditScore IN (1,2,3, NULL)
 					-- Restrição para criação do cartão baseado no credit score.
 					BEGIN
@@ -114,12 +114,14 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 		SET @DataAtual = GETDATE()
 		SET	@DataValidade = DATEADD(YEAR, 4, @DataAtual)
 
-		-- Setar o DiaVencimento
-		SET @DiaVencimento = DAY(DATEADD(DAY, 30, @DataAtual))
-
-		-- Criar novo cartão
-		INSERT INTO CartaoCredito (Id_Conta, Id_StatusCartaoCredito, NomeImpresso, Numero, Cvc, Limite, DataEmissao, DataValidade, Aproximacao, DiaVencimento)
-							VALUES(@IdConta, 2, @NomeCorrentista, @NumeroCartao, @NumeroCVC, @LimiteCartao, @DataAtual, @DataValidade, 0, @DiaVencimento)
+		IF @DiaVencimento IN (6, 11, 16, 21, 26)
+			BEGIN
+				-- Criar novo cartão
+				INSERT INTO CartaoCredito (Id_Conta, Id_StatusCartaoCredito, NomeImpresso, Numero, Cvc, Limite, DataEmissao, DataValidade, Aproximacao, DiaVencimento)
+									VALUES(@IdConta, 2, @NomeCorrentista, @NumeroCartao, @NumeroCVC, @LimiteCartao, @DataAtual, @DataValidade, 0, @DiaVencimento)
+			END
+		ELSE
+			RAISERROR('Escolha entre os dias 6, 11, 16, 21 ou 26', 16, 1)
 	END
 GO
 
@@ -159,11 +161,29 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtivaCartaoCredito]
 							DATEDIFF(millisecond, @Dat_init, GETDATE()) AS TempoExecucao
 
 						ROLLBACK TRAN
+			--    RETORNO --
+            00.................: Sucesso
+            01.................: Cartao nao existe
+            02.................: Erro ao atualizar status
 	*/
 	BEGIN
-		UPDATE [dbo].[CartaoCredito]
-			SET Id_StatusCartaoCredito = 1
-			WHERE Id = @IdCartao
+		IF NOT EXISTS (SELECT TOP 1 1 
+							FROM [dbo].[CartaoCredito] cc WITH(NOLOCK)
+							WHERE cc.Id = @IdCartao)
+			BEGIN
+				RETURN 1
+			END
+		ELSE
+		BEGIN
+			UPDATE [dbo].[CartaoCredito]
+				SET Id_StatusCartaoCredito = 1
+				WHERE Id = @IdCartao
+
+			IF @@ROWCOUNT = 1 
+				RETURN 0
+			ELSE 
+				RETURN 1
+		END
 	END
 GO
 
@@ -202,5 +222,59 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtivaAproximacaoCartao]
 		UPDATE [dbo].[CartaoCredito]
 			SET Aproximacao = 1
 			WHERE Id = @IdCartao
+	END
+GO
+
+
+
+CREATE OR ALTER PROCEDURE [dbo].[SP_BloquearCartao]
+	@IdCartaoCredito INT
+	AS 
+		/*
+		Documentacao
+		Arquivo Fonte.....: CartaoCredito.sql
+		Objetivo..........: Alterar o Status do Cartão para 3(bloqueado)
+		Autor.............: Isabella, Olivio e Orcino
+			Data..............: 26/04/2024
+		Ex................: BEGIN TRAN
+								DBCC DROPCLEANBUFFERS;
+								DBCC FREEPROCCACHE;
+
+								SELECT * FROM [dbo].[CartaoCredito]
+
+								DECLARE @RET INT, @Inicio DATETIME = GETDATE()
+
+								EXEC @RET = [dbo].[SP_BloquearCartao] 2
+
+								SELECT * FROM [dbo].[CartaoCredito]
+
+								SELECT DATEDIFF(MILLISECOND, @Inicio, GETDATE()) AS Tempo, 
+									@RET AS Retorno
+
+							ROLLBACK TRAN
+
+			--    RETORNO --
+		00.................: Sucesso
+		01.................: Cartao nao existe
+		02.................: Erro ao atualizar status
+		*/
+	BEGIN
+		IF NOT EXISTS (SELECT TOP 1 1 
+							FROM [dbo].[CartaoCredito] cc WITH(NOLOCK)
+							WHERE cc.Id = @IdCartaoCredito)
+			BEGIN
+				RETURN 1
+			END
+		ELSE 
+		BEGIN
+			UPDATE [dbo].[CartaoCredito]
+				SET Id_StatusCartaoCredito = 3
+				WHERE Id = @IdCartaoCredito
+
+			IF @@ROWCOUNT = 1 
+				RETURN 0
+			ELSE 
+				RETURN 1
+		END
 	END
 GO
