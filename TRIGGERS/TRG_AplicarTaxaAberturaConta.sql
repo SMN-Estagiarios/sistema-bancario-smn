@@ -9,10 +9,10 @@ FOR INSERT
 		DOCUMENTACAO
 		Arquivo Fonte........:	TRG_AplicarTaxaAberturaConta.sql
 		Objetivo.............:	Insere lancamento referente a tarifa de abertura de conta.
-								Id_Usuario = 0 Usuário do sistema
+								Id_Usuario = 0 Usuï¿½rio do sistema
 								Id_Tarifa = 5 que se refere a taxa de abertura de conta
-								Tipo_Operacao = 'D', pois será um débito na conta 
-								Estorno = 0, pois não será um estorno.
+								Tipo_Operacao = 'D', pois serï¿½ um dï¿½bito na conta 
+								Estorno = 0, pois nï¿½o serï¿½ um estorno.
 								Id_TipoLancamento = 6, referente a um Tarifa
 		Autor................:	Danyel Targino
 		Data.................:	23/04/2024
@@ -20,7 +20,7 @@ FOR INSERT
 									DBCC DROPCLEANBUFFERS;
 									DBCC FREEPROCCACHE;
 
-									DECLARE @Dat_init DATETIME = GETDATE()
+										DECLARE @Dat_init DATETIME = GETDATE()
 
 									SELECT * FROM Contas ORDER BY Id DESC
 									SELECT * FROM Lancamentos ORDER BY Id DESC
@@ -30,7 +30,7 @@ FOR INSERT
 										VALUES
 											(1, 0, 0, 0, GETDATE(), GETDATE(), 1, 0)
 
-									SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS TempoExecucao
+										SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS TempoExecucao
 
 									SELECT * FROM Contas ORDER BY Id DESC
 									SELECT * FROM Lancamentos ORDER BY Id DESC
@@ -38,7 +38,7 @@ FOR INSERT
 									SELECT * FROM PrecoTarifas
 									SELECT * FROM LancamentosPrecoTarifas
 
-								ROLLBACK TRAN
+									ROLLBACK TRAN
 	*/
 	BEGIN
 		-- Declaro as variaveis que preciso
