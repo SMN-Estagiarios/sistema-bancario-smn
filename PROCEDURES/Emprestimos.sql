@@ -20,22 +20,23 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 									
 									DECLARE @Ret INT,
 											@Dat_ini DATETIME = GETDATE()
-
+											
 									UPDATE [dbo].[Contas]
-										SET Lim_ChequeEspecial = 2000
+										SET Lim_ChequeEspecial = 2000,
+											Id_CreditScore = 1
 										WHERE Id = 1
 
-									EXEC @Ret = [dbo].[SP_RealizarEmprestimo] 1, 2000, 2, 'PRE', '2024-04-25'
-
-									SELECT  Id,
-											IdStatus,
-											Id_Cta,
-											Id_Tarifa,
-											Valor,
+									EXEC @Ret = [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'PRE', NULL
+									SELECT  Id_Conta,
+											Id_StatusEmprestimo,
+											Id_ValorTaxaEmprestimo,
+											Id_Taxa,
+											ValorSolicitado,
+											ValorParcela,
 											NumeroParcelas,
 											Tipo,
 											DataInicio
-										FROM [dbo].[Emprestimos] WITH (NOLOCK)
+										FROM [dbo].[Emprestimo] WITH (NOLOCK)
 
 									SELECT	@Ret AS Retorno,
 											DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS ResultadoExecucao
@@ -44,13 +45,14 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 								-- RETORNO --
 							
 								00.................: Sucesso ao realizar um emprestimo
-								01.................: Erro, data informada excedeu o limite estipulado de até 3 meses
-								02.................: Erro, o valor é maior que o limite disponivel para emprestimo
-								03.................: Erro, a quantidade de parcelas não está dentro do permitido
 	*/
 	BEGIN
+		--Declarar variáveis
 		DECLARE @DataAtual DATE = GETDATE(),
-				@Id_Tarifa INT;
+				@Id_Tarifa INT,
+				@IdTaxaEmprestimo DECIMAL(5,4),
+				@TaxaTotal DECIMAL(5,4),
+				@PrecoParcela DECIMAL(6,2)
 				
 		-- Caso o parâmetro da primeira parcela for nulo, será passada para daqui a 1 mês e a data não poderá ser em um fim de semana
 		SET @DataInicio = ISNULL(@DataInicio, DATEADD(MONTH, 1, @DataAtual))
@@ -62,7 +64,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 		-- Analisar se a data de início for maior que três meses ou anterior a data atual
 		IF @DataInicio > DATEADD(MONTH, 3, @DataAtual) OR @DataInicio < @DataAtual
 			BEGIN
-				RETURN 1
+				RAISERROR('A data do primeiro vencimento não está dentro do permitido', 16, 1)
 			END
 		-- Verificar se o valor solicitado está dentro do limite de três vezes o cheque especial
 		IF @ValorSolicitado > 3 * (SELECT Lim_ChequeEspecial 
@@ -70,7 +72,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 										WHERE Id = @Id_Cta
 								  )
 			BEGIN
-				RETURN 2
+				RAISERROR('O valor solicitado não está dentro do limite permitido', 16, 1)
 			END 
 		-- Verificar se a quantidade de parcelas está dentro do permitido
 		IF NOT EXISTS (SELECT TOP 1 1
@@ -78,23 +80,39 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 							WHERE QuantidadeParcela = @NumeroParcelas
 					  )
 			BEGIN
-				RETURN 3
+				RAISERROR('O número de parcelas não está dentro do limite permitido', 16, 1)
 			END
+
+		--Atribuir valor à TaxaEmprestimo
+		SELECT @IdTaxaEmprestimo = vte.Id
+			FROM [dbo].[Contas] c
+				INNER JOIN [ValorTaxaEmprestimo] vte
+					ON c.Id_CreditScore = vte.Id_CreditScore
+			WHERE c.Id = @Id_Cta
+		--Calcular TaxaTotal
+		SELECT @TaxaTotal = [dbo].[FNC_CalcularTaxaEmprestimo](@Id_Cta)
+		--Atribuir valor ao PrecoParcela
+		SET @PrecoParcela = @ValorSolicitado * @TaxaTotal / (1 - POWER(1 + @TaxaTotal, - @NumeroParcelas))
 		-- Criar o emprestimo
-		INSERT INTO [dbo].[Emprestimos] (	IdStatus,
-											Id_Cta,
-											Id_Tarifa,
-											Valor,
+		INSERT INTO [dbo].[Emprestimo] (
+											Id_Conta,
+											Id_StatusEmprestimo,
+											Id_ValorTaxaEmprestimo,
+											Id_Taxa,
+											ValorSolicitado,
+											ValorParcela,
 											NumeroParcelas,
-											Tipo, 
+											Tipo,
 											DataInicio
 										)
 										VALUES
 										(
-											1,
 											@Id_Cta,
-											@Id_Tarifa,
+											2,
+											@IdTaxaEmprestimo,
+											2,
 											@ValorSolicitado,
+											@PrecoParcela,
 											@NumeroParcelas,
 											@Tipo,
 											@DataInicio
@@ -194,7 +212,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarEmprestimo]	@IdConta INT = NULL,
 GO
 
 CREATE OR ALTER PROCEDURE [dbo].[SP_ListarSimulacaoEmprestimo] 
-	@ValorEmprestimo DECIMAL(15,2)
+	@Id_Cta INT,
+	@ValorSolicitado DECIMAL(15,2)
 	AS
 	/*
 		Documentação
@@ -203,22 +222,32 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarSimulacaoEmprestimo]
 								das parcelas mensais e a quantidade das mesmas
 		Autor.................: João Victor Maia, Odlavir Florentino, Rafael Maurício
 		Data..................: 23/04/2024
-		Ex....................: DBCC FREEPROCCACHE
-								DECLARE @Ret INT,
-										@Dat_ini DATETIME = GETDATE()
+		Ex....................: BEGIN TRAN
+									DBCC FREEPROCCACHE
+									DECLARE @Ret INT,
+											@Dat_ini DATETIME = GETDATE()
 
-								EXEC @Ret = [dbo].[SP_ListarSimulacaoEmprestimo] 1000
+									UPDATE [dbo].[Contas]
+										SET Id_CreditScore = 1
+										WHERE Id = 1
 
-								SELECT	@Ret AS Retorno,
-										DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
+									EXEC @Ret = [dbo].[SP_ListarSimulacaoEmprestimo] 1, 1000
+								
+									SELECT	@Ret AS Retorno,
+											DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
+								ROLLBACK TRAN
 	*/
 	BEGIN
-		--Declarar variável da taxa sendo 7% de juros ao mês + IOF
-		DECLARE @TaxaTotal DECIMAL(5,4) = 0.07 + 0.0038
+		--Declarar variáveis
+		DECLARE @TaxaTotal DECIMAL(5,4)
+		
+		--Pegar TaxaTotal da Conta
+		SELECT @TaxaTotal = [dbo].[FNC_CalcularTaxaEmprestimo](@Id_Cta)
+
 		--Listar a simulação de empréstimo em que o valor da parcela seja maior que 100
 		SELECT	QuantidadeParcela AS TotalParcelas,
-				FORMAT(@ValorEmprestimo * @TaxaTotal / (1 - POWER(1 + @TaxaTotal, - QuantidadeParcela)), 'C') AS PrecoParcela
+				FORMAT(@ValorSolicitado * @TaxaTotal / (1 - POWER(1 + @TaxaTotal, - QuantidadeParcela)), 'C') AS PrecoParcela
 			FROM [dbo].[FNC_ListarParcelasEmprestimo]()
-			WHERE @ValorEmprestimo * @TaxaTotal / (1 - POWER(1 + @TaxaTotal, - QuantidadeParcela)) > 100
+			WHERE @ValorSolicitado * @TaxaTotal / (1 - POWER(1 + @TaxaTotal, - QuantidadeParcela)) > 100
 	END
 GO
