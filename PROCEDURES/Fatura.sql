@@ -8,15 +8,24 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_GerarFatura]
 			Autor.............: Isabella, Olivio e Orcino
  			Data..............: 26/04/2024
 			Ex................:
-									BEGIN TRAN
+								BEGIN TRAN
+									DBCC DROPCLEANBUFFERS;
+									DBCC FREEPROCCACHE;
+
+									DECLARE @RET INT, 
+									@Dat_init DATETIME = GETDATE()
+
 									SELECT * FROM Fatura
-									EXEC [dbo].[SP_GerarFatura] 2
+									EXEC @RET = [dbo].[SP_GerarFatura] 1
 									SELECT * FROM Fatura
-									ROLLBACK TRAN
+
+									SELECT @RET AS RETORNO,
+									DATEDIFF(millisecond, @Dat_init, GETDATE()) AS TempoExecucao
+								ROLLBACK TRAN
 
 			*/
 	BEGIN
-
+	--Verificação se não tem cartao de credito vinculado a conta.
 	IF NOT EXISTS (SELECT TOP 1 1
 								FROM [dbo].[CartaoCredito]cc WITH(NOLOCK)
 									INNER JOIN [dbo].[Contas]c WITH(NOLOCK)
@@ -25,7 +34,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_GerarFatura]
 		BEGIN 
 			RETURN 1
 		END
-
+	--Verificação se tem fatura vinculado aquela conta e se ela esta aberta.
 	IF EXISTS (SELECT TOP 1 1
 					FROM [dbo].[Fatura]f WITH(NOLOCK)
 						INNER JOIN [dbo].[Contas]c WITH(NOLOCK)
@@ -39,17 +48,14 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_GerarFatura]
 
 	ELSE
 		
-
-	DECLARE		@DataEmissao DATETIME = GETDATE()-5,
-						@DiaVencimento INT,
-						@DataVencimento DATETIME;
-
-	DECLARE @DataValidacao INT = DAY(@DataEmissao)
-
-	SET @DiaVencimento = (SELECT DiaVencimento 
+	--Cria e seta
+	DECLARE	@DataEmissao DATETIME = GETDATE()-5,
+			@DataVencimento DATETIME,
+			@DiaVencimento INT = (SELECT DiaVencimento 
 												FROM [dbo].[CartaoCredito]
-												WHERE Id_Conta = @IdConta)
-		
+												WHERE Id_Conta = @IdConta);
+
+	DECLARE @DataValidacao INT = DAY(@DataEmissao)		
 
 	IF @DataValidacao+5 >= @DiaVencimento
 		BEGIN			
@@ -61,9 +67,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_GerarFatura]
 			SET @DataVencimento = DATEFROMPARTS(YEAR(@DataEmissao),MONTH(@DataEmissao), @DiaVencimento);
 	  END
 		
-	
+	DECLARE @Barcode BIGINT = FLOOR(1000000000000000000 + RAND() * 8999999999999999999)
 	INSERT INTO [dbo].[Fatura]	(Id_StatusFatura, Id_Conta, CodigoBarra, DataEmissao, DataVencimento) VALUES
-												(1, @IdConta, 1243213213, @DataEmissao, @DataVencimento)												
+												(1, @IdConta, @Barcode, @DataEmissao, @DataVencimento)												
 
 	END
 GO
