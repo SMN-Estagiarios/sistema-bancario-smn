@@ -39,7 +39,8 @@ GO
 INSERT INTO [dbo].[StatusFatura]	(Id, Nome) VALUES 
 									(1, 'Aberta'),
 									(2, 'Fechada'),
-									(3, 'Paga');
+									(3, 'Paga'),
+									(4, 'Em atraso');
 GO
 
 INSERT INTO [dbo].[Taxa]	(Id, Nome) VALUES
