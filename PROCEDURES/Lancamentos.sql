@@ -2,12 +2,9 @@ USE SistemaBancario
 GO
 
 CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
-		@Id_Conta INT,
+		@Id_Cta INT,
 		@Id_Usuario INT,
-		@Id_TipoLancamento INT,
-		@Id_Tarifa INT,
-		@Id_Taxa INT,
-		@Id_TransacaoCartaoCredito INT,
+		@Id_TipoLancamento INT,		
 		@Tipo_Operacao CHAR(1),
 		@Vlr_Lanc DECIMAL(15,2),
 		@Nom_Historico VARCHAR(500),
@@ -30,7 +27,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 								@RET INT
 						SELECT TOP 10 * FROM Lancamentos
 	
-						EXEC @RET = [dbo].[SP_CriarLancamentos]	5,0,1,1,1,null,'C',100, 'Deposito', null, 0
+						EXEC @RET = [dbo].[SP_CriarLancamentos]	1, 0, 1, 'C', 100, 'Deposito', null, 0
 						SELECT TOP 10 * FROM Lancamentos
 	
 						SELECT @RET AS RETORNO
@@ -70,13 +67,13 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 					DECLARE @DataAtual DATETIME
 					SET @DataAtual = GETDATE()
 	
-					INSERT INTO [dbo].[Lancamentos] (Id_Conta,Id_Usuario,Id_TipoLancamento,Id_Tarifa,Id_Taxa,Id_TransacaoCartaoCredito,Tipo_Operacao,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
-																		(@Id_Conta, @Id_Usuario,@Id_TipoLancamento,@Id_Tarifa,@Id_Taxa,@Id_TransacaoCartaoCredito,@Tipo_Operacao,@Vlr_Lanc,	@Nom_Historico,@DataAtual, @Estorno)
+					INSERT INTO [dbo].[Lancamentos] (Id_Conta,Id_Usuario,Id_TipoLancamento,Tipo_Operacao,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
+									(@Id_Cta, @Id_Usuario,@Id_TipoLancamento,@Tipo_Operacao,@Vlr_Lanc,@Nom_Historico,@DataAtual, @Estorno)
 				END
 	
 			ELSE
-				INSERT INTO [dbo].[Lancamentos]  (Id_Conta,Id_Usuario,Id_TipoLancamento,Id_Tarifa,Id_Taxa,Id_TransacaoCartaoCredito,Tipo_Operacao,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
-																	(@Id_Conta, @Id_Usuario,@Id_TipoLancamento,@Id_Tarifa,@Id_Taxa,@Id_TransacaoCartaoCredito,@Tipo_Operacao,@Vlr_Lanc,	@Nom_Historico,@DataAtual, @Estorno)
+				INSERT INTO [dbo].[Lancamentos]  (Id_Conta,Id_Usuario,Id_TipoLancamento,Tipo_Operacao,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
+								 (@Id_Cta, @Id_Usuario,@Id_TipoLancamento,@Tipo_Operacao,@Vlr_Lanc,	@Nom_Historico,@DataAtual, @Estorno)
 				
 				IF @@ROWCOUNT <> 0
 					RETURN 0 

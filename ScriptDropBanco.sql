@@ -2,20 +2,33 @@ USE SistemaBancario
 GO
 	-- DROPANDO CONSTRAINT DE FK 
 
-	-- Executando o drop de constraint de FK na tabela contas
-ALTER TABLE Contas
-	DROP CONSTRAINT FK_IdCreditScore_Contas
-GO
-ALTER TABLE Contas
-	DROP CONSTRAINT FK_IdCorrentista_Contas
-GO
-ALTER TABLE Contas
-	DROP CONSTRAINT FK_IdUsuario_Contas
+	-- Executando o drop de constraint de FK na tabela ValorTaxaCartao
+ALTER TABLE ValorTaxaCartao
+	DROP CONSTRAINT FK_Id_TaxaCartao_TaxaCartao
 GO
 
-	-- Executando o drop de constraint de FK na tabela TaxaEmprestimo
-ALTER TABLE TaxaEmprestimo
-	DROP CONSTRAINT FK_IdCreditScore_TaxaEmp
+	-- Executando o drop de constraint de FK na tabela ValorTaxa
+ALTER TABLE ValorTaxa
+	DROP CONSTRAINT FK_Id_Taxa_ValorTaxa
+GO
+
+	-- Executando o drop de constraint de FK na tabela contas
+ALTER TABLE Contas
+	DROP CONSTRAINT FK_Id_CreditScore_Contas
+GO
+ALTER TABLE Contas
+	DROP CONSTRAINT FK_Id_Correntista_Contas
+GO
+ALTER TABLE Contas
+	DROP CONSTRAINT FK_Id_Usuario_Contas
+GO
+
+	-- Executando o drop de constraint de FK na tabela ValorTaxaEmprestimo
+ALTER TABLE ValorTaxaEmprestimo
+	DROP CONSTRAINT FK_Id_TaxaEmprestimo_ValorTaxaEmprestimo
+GO
+ALTER TABLE ValorTaxaEmprestimo
+	DROP CONSTRAINT FK_Id_CreditScore_ValorTaxaEmprestimo
 GO
 
 	-- Executando o drop de constraint de FK na tabela Emprestimo
@@ -34,7 +47,7 @@ GO
 
 	-- Executando o drop de constraint de FK na tabela SaldoDiario
 ALTER TABLE SaldoDiario
-	DROP CONSTRAINT FK_IdCta_SaldoDiario
+	DROP CONSTRAINT FK_Id_Conta_SaldoDiario
 GO
 
 	-- Executando o drop de constraint de FK na tabela CartaoCredito
@@ -61,10 +74,15 @@ ALTER TABLE TransacaoCartaoCredito
 	DROP CONSTRAINT FK_Id_Fatura_TransacaoCartaoCredito
 GO
 ALTER TABLE TransacaoCartaoCredito
-	DROP CONSTRAINT FK_Id_TaxaCartao_TransacaoCartaoCredito
+	DROP CONSTRAINT FK_Id_ValorTaxaCartao_TransacaoCartaoCredito
 GO
 ALTER TABLE TransacaoCartaoCredito
 	DROP CONSTRAINT FK_Id_TipoTransacao_TransacaoCartaoCredito
+GO
+
+	-- Executando o drop de constraint de FK na tabela PrecoTarifas
+ALTER TABLE PrecoTarifas
+	DROP CONSTRAINT FK_Id_Tarifa_PrecoTarifas
 GO
 
 	-- Executando o drop de constraint de FK na tabela Lancamentos
@@ -77,22 +95,43 @@ GO
 ALTER TABLE Lancamentos
 	DROP CONSTRAINT FK_Id_TipoLancamento_Lancamentos
 GO
-ALTER TABLE Lancamentos
-	DROP CONSTRAINT FK_Id_Tarifa_Lancamentos
+
+	-- Executando drop de constraint de FK na tabela Parcela
+ALTER TABLE Parcela
+	DROP CONSTRAINT FK_Id_Emprestimo_Parcela;
+ALTER TABLE Parcela
+	DROP CONSTRAINT FK_Id_Lancamento_Parcela;
+
+	-- Executando o drop de constraint de FK na tabela LancamentosPrecoTarifas
+ALTER TABLE LancamentosPrecoTarifas
+	DROP CONSTRAINT FK_Id_Lancamentos_LancamentosPrecoTarifas
 GO
-ALTER TABLE Lancamentos
-	DROP CONSTRAINT FK_Id_Taxa_Lancamentos
+ALTER TABLE LancamentosPrecoTarifas
+	DROP CONSTRAINT FK_Id_PrecoTarifas_LancamentosPrecoTarifas
 GO
-ALTER TABLE Lancamentos
-	DROP CONSTRAINT FK_Id_TransacaoCartaoCredito_Lancamentos
+
+	-- Executando o drop de constraint de FK na tabela LancamentosValorTaxa
+ALTER TABLE LancamentosValorTaxa
+	DROP CONSTRAINT FK_Id_Lancamentos_LancamentosValorTaxa
+GO
+ALTER TABLE LancamentosValorTaxa
+	DROP CONSTRAINT FK_Id_ValorTaxa_LancamentosValorTaxa
+GO
+
+	-- Executando o drop de constraint de FK na tabela LancamentosTransacao
+ALTER TABLE LancamentosTransacao
+	DROP CONSTRAINT FK_Id_Lancamentos_LancamentosTransacao
+GO
+ALTER TABLE LancamentosTransacao
+	DROP CONSTRAINT FK_Id_TransacaoCartaoCredito_LancamentosTransacao
 GO
 
 	-- Executando o drop de constraint de FK na tabela Transferencias
 ALTER TABLE Transferencias
-	DROP CONSTRAINT FK_Id_CtaCre_Transferencias
+	DROP CONSTRAINT FK_Id_Conta_Credito_Transferencias
 GO
 ALTER TABLE Transferencias
-	DROP CONSTRAINT FK_Id_CtaDeb_Transferencias
+	DROP CONSTRAINT FK_Id_Conta_Debito_Transferencias
 GO
 ALTER TABLE Transferencias
 	DROP CONSTRAINT FK_Id_Usuario_Transferencias
@@ -155,8 +194,6 @@ GO
 
 	--DROPANDO TODAS AS TABELAS
 
-DROP TABLE [dbo].[Usuarios]
-GO
 DROP TABLE [dbo].[StatusCartaoCredito]
 GO
 DROP TABLE [dbo].[StatusEmprestimo]
@@ -165,17 +202,21 @@ DROP TABLE [dbo].[TipoTransacao]
 GO
 DROP TABLE [dbo].[TaxaCartao]
 GO
+DROP TABLE [dbo].[ValorTaxaCartao]
+GO
 DROP TABLE [dbo].[StatusFatura]
 GO
 DROP TABLE [dbo].[Taxa]
+GO
+DROP TABLE [dbo].[ValorTaxa]
 GO
 DROP TABLE [dbo].[CreditScore]
 GO
 DROP TABLE [dbo].[Correntista]
 GO
-DROP TABLE [dbo].[Contas]
-GO
 DROP TABLE [dbo].[TaxaEmprestimo]
+GO
+DROP TABLE [dbo].[ValorTaxaEmprestimo]
 GO
 DROP TABLE [dbo].[Emprestimo]
 GO
@@ -187,6 +228,8 @@ DROP TABLE [dbo].[Fatura]
 GO
 DROP TABLE [dbo].[TransacaoCartaoCredito]
 GO
+DROP TABLE [dbo].[TransferenciasLancamentos]
+GO
 DROP TABLE [dbo].[Tarifas]
 GO
 DROP TABLE [dbo].[PrecoTarifas]
@@ -195,5 +238,17 @@ DROP TABLE [dbo].[TipoLancamento]
 GO
 DROP TABLE [dbo].[Lancamentos]
 GO
+DROP TABLE [dbo].[LancamentosPrecoTarifas]
+GO
+DROP TABLE [dbo].[LancamentosValorTaxa]
+GO
+DROP TABLE [dbo].[LancamentosTransacao]
+GO
 DROP TABLE [dbo].[Transferencias]
+GO
+DROP TABLE [dbo].[Contas]
+GO
+DROP TABLE [dbo].[Parcela]
+GO
+DROP TABLE [dbo].[Usuarios]
 GO

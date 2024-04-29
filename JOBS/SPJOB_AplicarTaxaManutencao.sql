@@ -6,10 +6,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 	/*
 		Documentacao
 		Arquivo Fonte........:	SPJOB_AplicarTaxaManutencao.sql
-		Objetivo.............:	Aplica a Taxa de Manutencao de Conta a partir da data de abertura da conta nos meses subsequentes
+		Objetivo.............:	Aplica a Tarifa de Manutencao de Conta a partir da data de abertura da conta nos meses subsequentes
 								Id_Usuario o valor é 0, pois é usuario do sistema
 								Id_TipoLancamento o valor é 6, pois refere-se a Tarifa
-								Id_Tarifa o valor é 6, pois refere-se a Taxa de Manutencao de Conta (TMC)
+								Id_Tarifa o valor é 6, pois refere-se a Tarifa de Manutencao de Conta (TMC)
 		Autor................:	Olivio Freitas, Danyel Targino e Rafael Mauricio
 		Data.................:	11/04/2024
 		Ex...................:	BEGIN TRAN
@@ -22,13 +22,22 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 									SELECT * FROM Contas ORDER BY Dat_Abertura DESC
 									SELECT * FROM Lancamentos ORDER BY Dat_Lancamento DESC
 
+									INSERT INTO Contas
+											(Id_Correntista, Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura , Ativo, Lim_ChequeEspecial)
+										VALUES
+											(1, 0, 0, 0, GETDATE(), DATEFROMPARTS(YEAR(@Dat_init), MONTH(DATEADD(MONTH, -1, @Dat_init)), DAY(@Dat_init)), 1, 0)
+
 									EXEC @RET = [dbo].[SPJOB_AplicarTaxaManutencao];
 
 									SELECT	@RET AS RETORNO,
 											DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS TempoExecucao
-
+										
 									SELECT * FROM Lancamentos ORDER BY Dat_Lancamento DESC
 									SELECT * FROM Contas ORDER BY Dat_Abertura DESC
+									SELECT * FROM Tarifas
+									SELECT * FROM PrecoTarifas
+									SELECT * FROM LancamentosPrecoTarifas
+
 
 								ROLLBACK TRAN
 	*/
@@ -40,10 +49,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 			DECLARE @Data_Atual DATE = GETDATE(),
 					@Data_Abertura DATE,
 					@Data_Cobranca INT,
-					@Valor_TMC INT,
+					@Valor_TMC DECIMAL(4,2),
 					@Nome_Tarifa VARCHAR(50),
-					@IdTarifa TINYINT = 6
-
+					@IdTarifa TINYINT = 5 -- Tarifa de manutenção de conta
 
 			-- Capturar a data de abertura da conta
 			BEGIN
@@ -74,7 +82,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 								Id_Conta,
 								Id_Usuario,
 								Id_TipoLancamento,
-								Id_Tarifa,
 								Tipo_Operacao,
 								Vlr_Lanc,
 								Nom_Historico,
@@ -83,8 +90,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 							)
 				SELECT	Id, 
 						0,
-						6,
-						@IdTarifa,
+						6, -- Tarifa
 						'D',
 						@Valor_TMC,
 						@Nome_Tarifa,
@@ -92,5 +98,45 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 						0
 					FROM [dbo].[Contas] WITH (NOLOCK)
 					WHERE DAY(Dat_Abertura) = @Data_Cobranca
+
+
+			-- Checagem de erro
+			DECLARE @MSG VARCHAR(100),
+					@ERRO INT
+				SET @ERRO = @@ERROR
+			
+					IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
+						BEGIN
+							SET @MSG = 'ERRO' + CAST(@ERRO AS VARCHAR(3)) + ', na aplicacao de Tarifa de Manutenção de Conta'
+								RAISERROR(@MSG, 16, 1)
+						END
+
+
+			DECLARE @IdLancamentoInserido INT = SCOPE_IDENTITY(),
+					@IdPrecoTarifas INT;
+	
+			SELECT @IdPrecoTarifas = IdPrecoTarifas
+				FROM [dbo].[FNC_ListarValorAtualTarifa](@IdTarifa);
+
+			INSERT INTO [dbo].[LancamentosPrecoTarifas] (
+															Id_Lancamentos,
+															Id_PrecoTarifas
+														)
+												VALUES	(
+															@IdLancamentoInserido,
+															@IdPrecoTarifas
+														)
+
+		
+			SET @ERRO = @@ERROR
+			
+				IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
+					BEGIN
+						SET @MSG = 'ERRO' + CAST(@ERRO AS VARCHAR(3)) + ', na aplicacao de Tarifa de Manutenção de Conta'
+							RAISERROR(@MSG, 16, 1)
+					END
+
+
+
 		END
 GO

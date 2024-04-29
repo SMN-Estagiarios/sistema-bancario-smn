@@ -47,8 +47,8 @@ FOR INSERT, DELETE, UPDATE
 
 	   	-- atribui��o de valores para casos de Insert
 		SELECT  @Id_Transferencia = Id,
-				@Id_ContaCre = Id_CtaCre,
-				@Id_ContaDeb = Id_CtaDeb, 
+				@Id_ContaCre = Id_Conta_Credito,
+				@Id_ContaDeb = Id_Conta_Debito, 
 				@Id_Usuario = Id_Usuario,
 				@Vlr_Transferencia = Vlr_Trans,
 				@Nom_Referencia = Nom_Referencia,
@@ -78,8 +78,8 @@ FOR INSERT, DELETE, UPDATE
 
 		SELECT	@Id_Transferencia = Id,
 				@Id_Usuario = Id_Usuario,
-				@Id_ContaCre = Id_CtaCre,
-				@Id_ContaDeb = Id_CtaDeb, 
+				@Id_ContaCre = Id_Conta_Credito,
+				@Id_ContaDeb = Id_Conta_Debito, 
 				@Dat_Transferencia = Dat_Trans,
 				@Vlr_Transferencia = Vlr_Trans,
 				@Nom_Referencia = Nom_Referencia

@@ -9,178 +9,108 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 		DOCUMENTAÇÃO
 		Arquivo fonte.....: SPJOB_LancarTaxaSaldoNegativo.sql
 		Objetivo..........: Verificar diariamente quais as contas que estão negativas e lançar uma taxa de saldo nelas.
-							Para o insert atribuimos diretamente o valor de Id_Usuario = 1 que é o equivalente ao ADMIN,
-							Id_TipoLancamento = 9 que é o de juros, Id_Tarifa = 7 que é o de taxa saldo negativo e Estorno = 0,
+							Para o insert atribuimos diretamente o valor de Id_Usuario = 0 que é o equivalente ao ADMIN,
+							Id_TipoLancamento = 9 que é o de juros, Id_Taxa = 1 que é o de taxa saldo negativo e Estorno = 0,
 							que evidencia que não é um estorno.
 		Autor.............: Orcino Neto, Odlavir Florentino e Pedro Avelino
 		Data..............: 18/04/2024
 		Ex................: BEGIN TRAN
-								SELECT	Id_Cta,
-										Id_Usuario,
-										Id_TipoLancamento,
-										Id_Tarifa,
-										Tipo_Operacao,
-										Vlr_Lanc,
-										Nom_Historico,
-										Dat_Lancamento,
-										Estorno
-									FROM [dbo].[Lancamentos] WITH(NOLOCK)
+								BEGIN TRAN
+									SELECT	Id,
+											Id_Conta,
+											Id_Usuario,
+											Id_TipoLancamento,
+											Tipo_Operacao,
+											Vlr_Lanc,
+											Nom_Historico,
+											Dat_Lancamento,
+											Estorno
+										FROM [dbo].[Lancamentos] WITH(NOLOCK)
+
+									DECLARE @Data_ini DATETIME = GETDATE(),
+											@MesAnterior DATE;
+
+									SET @MesAnterior = DATEADD(MONTH, -1, @Data_Ini);
+
+									INSERT INTO [dbo].[SaldoDiario] (Id_Conta, Vlr_SldInicial, Vlr_SldFinal, Vlr_Credito, Vlr_Debito, Dat_Saldo) VALUES
+																	(2, 0, 100, 0, 0, DATEFROMPARTS(YEAR(@MesAnterior), MONTH(@MesAnterior), 5)),
+																	(1, 0, -100, 0, 0, DATEFROMPARTS(YEAR(@MesAnterior), MONTH(@MesAnterior), 10)),
+																	(1, 0, -500, 0, 0, DATEFROMPARTS(YEAR(@MesAnterior), MONTH(@MesAnterior), 11)),
+																	(2, 0, -1000, 0, 0, DATEFROMPARTS(YEAR(@MesAnterior), MONTH(@MesAnterior), 17));
 			
-								UPDATE Contas
-									SET Vlr_SldInicial = -1500,
-										Vlr_Credito = 150,
-										Vlr_Debito = 500
-									-- WHERE Id = 1
-
-								SELECT	Id,
-										Vlr_SldInicial,
-										Vlr_Credito,
-										Vlr_Debito,
-										Dat_Saldo,
-										Dat_Abertura,
-										Dat_Encerramento,
-										Ativo 
-									FROM [dbo].[Contas]  WITH(NOLOCK)
+									SELECT	Id_Conta,
+											Saldo,
+											Aliquota,
+											Juros,
+											DataSaldo
+										FROM [dbo].[FNC_ListarSaldosEJurosDoMes]();
                                 
-                                DBCC DROPCLEANBUFFERS
-								DBCC FREEPROCCACHE
-								DBCC FREESYSTEMCACHE ('ALL')
+									DBCC DROPCLEANBUFFERS
+									DBCC FREEPROCCACHE
+									DBCC FREESYSTEMCACHE ('ALL')
 
-                                DECLARE @Data_ini DATETIME = GETDATE()
+									EXEC [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 
-								EXEC [dbo].[SPJOB_LancarTaxaSaldoNegativo]
+									SELECT DATEDIFF(MILLISECOND, @Data_ini, GETDATE()) AS TempoExecucao
 
-								SELECT	Id,
-										Vlr_SldInicial,
-										Vlr_Credito,
-										Vlr_Debito,
-										Dat_Saldo,
-										Dat_Abertura,
-										Dat_Encerramento,
-										Ativo 
-									FROM [dbo].[Contas]  WITH(NOLOCK)
-
-								SELECT DATEDIFF(MILLISECOND, @Data_ini, GETDATE()) AS TempoExecucao
-
-								SELECT	Id_Cta,
-										Id_Usuario,
-										Id_TipoLancamento,
-										Id_Tarifa,
-										Tipo_Operacao,
-										Vlr_Lanc,
-										Nom_Historico,
-										Dat_Lancamento,
-										Estorno
-									FROM [dbo].[Lancamentos] WITH(NOLOCK)
-
+									SELECT	Id,
+											Id_Conta,
+											Id_Usuario,
+											Id_TipoLancamento,
+											Tipo_Operacao,
+											Vlr_Lanc,
+											Nom_Historico,
+											Dat_Lancamento,
+											Estorno
+										FROM [dbo].[Lancamentos] WITH(NOLOCK)
 							ROLLBACK TRAN
 	*/
 
 	BEGIN
-		-- Criar a atribuir o valor da variavel de taxa
-		DECLARE @IdTarifa TINYINT = 1
 
-		IF @DataPassada IS NULL OR @Id_Conta IS NULL
+		DECLARE @DataAtual DATE = GETDATE();
+
+		IF OBJECT_ID('tempdb..#Tabela') IS NOT NULL
 			BEGIN
-				-- Aplicar a taxa de saldo negativo para as mesmas
-				INSERT INTO [dbo].[Lancamentos]	(Id_Conta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
-					SELECT	s.Id,
-							0,
-							9,
-							@IdTarifa,
-							'D',
-							(vt.Taxa * ABS(s.Saldo)),
-							'Valor REF sobre cobranças de limite cheque especial',
-							GETDATE(),
-							0
-						FROM [dbo].FNC_ListarSaldoNegativo() s
-							INNER JOIN [dbo].[FNC_ListarValorAtualTarifa](@IdTarifa) vt
-								ON vt.IdTarifa = @IdTarifa
-
-
-
-				IF @@ERROR <> 0 OR @@ROWCOUNT <> (SELECT COUNT(Id) FROM [dbo].FNC_ListarSaldoNegativo())
-					BEGIN
-						RAISERROR('Erro ao lancar a taxa de saldo negativo para uma data anterior.', 16, 1)
-					END
+				DROP TABLE #Tabela;
 			END
+			
+		CREATE TABLE #Tabela	(
+									Id_Conta INT NOT NULL,
+									Juros DECIMAL(15,2) NOT NULL
+								)
 
-		ELSE
-			BEGIN
-				DECLARE @DataInicio DATE = DATEADD(MONTH, -1, GETDATE()),
-                @DataFim DATE,
-				@Valor DECIMAL(15,2)
+		INSERT INTO #Tabela	(Id_Conta, Juros)
+			SELECT	x.Id_Conta,
+					SUM(x.Juros)
+				FROM (SELECT	Id_Conta,
+								Saldo,
+								Aliquota,
+								Juros,
+								DataSaldo
+						FROM [dbo].[FNC_ListarSaldosEJurosDoMes]()) x
+				GROUP BY x.Id_Conta
 
-				SET @DataInicio = DATEFROMPARTS(YEAR(DATEADD(MONTH, -1, GETDATE())), MONTH(DATEADD(MONTH, -1, GETDATE())), 01)
-				SET @DataFim = EOMONTH(GETDATE())
+		IF @@ERROR <> 0 OR @@ROWCOUNT = 0
+		BEGIN
+			RAISERROR('Não existe nehuma conta com o saldo negativo no mes', 16, 1)
+		END
 
+		-- Aplicar a taxa de saldo negativo para as mesmas
+		INSERT INTO [dbo].[Lancamentos]	(Id_Conta, Id_Usuario, Id_TipoLancamento, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
+			SELECT	Id_Conta,
+					0,
+					10,
+					'D',
+					Juros,
+					'Valor REF sobre cobranças de limite cheque especial',
+					@DataAtual,
+					0
+				FROM #Tabela;
 
-				CREATE TABLE #TabelaData(
-											DataSaldo DATE
-										)
-
-				--Populando tabela de dias
-				WHILE @DataInicio <= @DataFim
-					BEGIN
-						INSERT INTO #TabelaData	(DataSaldo) VALUES 
-												(@DataInicio)
-						SET @DataInicio = DATEADD(DAY, 1, @DataInicio)
-					END;
-
-				-- Atribuindo a variavel @Valor o resultado do saldo do dia para a data solicitada.
-				SELECT @Valor = (s.ValorSaldoAtual - ISNULL(l.Credito, 0) + ISNULL(l.Debito, 0))
-					FROM (
-							SELECT  c.id AS ID_Conta,
-									td.DataSaldo,
-									(c.Vlr_SldInicial + c.Vlr_Credito - c.Vlr_Debito) AS ValorSaldoAtual
-								FROM #TabelaData td
-								CROSS JOIN [dbo].[Contas] c WITH(NOLOCK)
-							) s
-						LEFT OUTER JOIN (
-											SELECT  x.Id_Conta,
-													x.DataSaldo,
-													SUM(CASE WHEN x.TipoLancamento = 'C' THEN x.Vlr_Lanc ELSE 0 END) AS Credito,
-													SUM(CASE WHEN x.TipoLancamento = 'D' THEN x.Vlr_Lanc ELSE 0 END) AS Debito
-												FROM (
-														SELECT  td.DataSaldo,
-																la.Dat_Lancamento,
-																la.Id_Conta,
-																ISNULL(la.Tipo_Operacao, 'X') as TipoLancamento,
-																la.Vlr_Lanc
-															FROM #TabelaData td
-																LEFT OUTER JOIN [dbo].[Lancamentos] la WITH(NOLOCK)
-																	ON DATEDIFF(DAY, td.DataSaldo, la.Dat_Lancamento) > 0
-														) x
-												GROUP BY x.DataSaldo, x.Id_Conta
-										) l
-							ON	s.ID_Conta = l.Id_Conta
-								AND s.DataSaldo = l.DataSaldo
-					WHERE	s.ID_Conta = @Id_Conta AND 
-							s.DataSaldo = @DataPassada
-
-				IF @Valor < 0
-					BEGIN
-						-- Aplicar a taxa de saldo negativo para as mesmas
-						INSERT INTO [dbo].[Lancamentos]	(Id_Conta, Id_Usuario, Id_TipoLancamento, Id_Tarifa, Tipo_Operacao, Vlr_Lanc, Nom_Historico, Dat_Lancamento, Estorno)
-							SELECT	@Id_Conta,
-									1,
-									9,
-									@IdTarifa,
-									'D',
-									(Aliquota * ABS(@Valor)),
-									'Valor REF sobre cobranças de limite cheque especial de uma data anterior',
-									GETDATE(),
-									0
-								FROM [dbo].[Taxa]  WITH(NOLOCK)
-								WHERE Id = @IdTarifa
-
-						IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
-							BEGIN
-								RAISERROR('Erro ao lancar a taxa de saldo negativo para uma data anterior.', 16, 1)
-							END
-					END
-
-			END
-		
+		IF @@ERROR <> 0 OR @@ROWCOUNT = 0
+		BEGIN
+			RAISERROR('Erro ao lancar a taxa de saldo negativo', 16, 1)
+		END
 	END
 GO

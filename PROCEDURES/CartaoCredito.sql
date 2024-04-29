@@ -18,11 +18,13 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 
 							SELECT * FROM Contas;
 							SELECT * FROM CartaoCredito;
+							SELECT * FROM Fatura;
 							
-							EXEC [dbo].[SP_InserirNovoCartaoCredito] 2, 2, 11
+							EXEC @RET = [dbo].[SP_InserirNovoCartaoCredito] 2, 2, 11
 
 							SELECT * FROM CartaoCredito;
 							SELECT * FROM Contas;
+							SELECT * FROM Fatura;
 
 							SELECT @RET AS RETORNO,
 							DATEDIFF(millisecond, @Dat_init, GETDATE()) AS TempoExecucao
@@ -73,7 +75,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 					WHERE C.Id_Correntista = @IdCorrentista
 
 				-- Verifica se o CreditScore está baixo ou nullo
-				IF @IdCreditScore IN (1,2,3, NULL)
+				If @IdCreditScore <= 3 OR @IdCreditScore IS NULL
 					-- Restrição para criação do cartão baseado no credit score.
 					BEGIN
 						SET @LimiteCartao = 100
@@ -108,7 +110,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 			END
 
 		-- Gerar numero CVC
-		SET @NumeroCVC =  FLOOR(1000 + RAND() * 8999)
+		SET @NumeroCVC =  FLOOR(100 + RAND() * 999)
 
 		-- Gerar DataAtual e DataValidade
 		SET @DataAtual = GETDATE()
@@ -118,7 +120,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 			BEGIN
 				-- Criar novo cartão
 				INSERT INTO CartaoCredito (Id_Conta, Id_StatusCartaoCredito, NomeImpresso, Numero, Cvc, Limite, DataEmissao, DataValidade, Aproximacao, DiaVencimento)
-									VALUES(@IdConta, 2, @NomeCorrentista, @NumeroCartao, @NumeroCVC, @LimiteCartao, @DataAtual, @DataValidade, 0, @DiaVencimento)
+									VALUES(@IdConta, 1, @NomeCorrentista, @NumeroCartao, @NumeroCVC, @LimiteCartao, @DataAtual, @DataValidade, 0, @DiaVencimento)
+				EXEC [dbo].[SP_GerarFatura] @Idconta
+			RETURN 0						
 			END
 		ELSE
 			RAISERROR('Escolha entre os dias 6, 11, 16, 21 ou 26', 16, 1)
