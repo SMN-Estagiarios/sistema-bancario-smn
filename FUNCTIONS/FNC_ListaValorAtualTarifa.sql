@@ -31,9 +31,9 @@ AS
 						 P.DataInicial
 				FROM [dbo].[Tarifas] T WITH(NOLOCK)
 					INNER JOIN [dbo].[PrecoTarifas] P WITH(NOLOCK)
-						ON T.Id = P.IdTarifa
+						ON T.Id = P.Id_Tarifa
 				WHERE P.DataInicial <= @DataAtual 
-				AND P.IdTarifa = @IdTarifa
+				AND P.Id_Tarifa = @IdTarifa
 				ORDER BY P.DataInicial DESC
 		RETURN
 

@@ -50,7 +50,7 @@ FOR INSERT
 				
 		-- Atribuir valores as variaveis
 		SELECT @Vlr_Tarifa = VT.Valor,
-			   @IdPrecoTarifas = VT.IdPrecoTarifas
+			   @IdPrecoTarifas = VT.IdTarifa
 			FROM [dbo].[FNC_ListarValorAtualTarifa](@IdTarifa) VT
 				
 		SELECT	@Id_Conta = Id

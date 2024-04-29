@@ -115,7 +115,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 			DECLARE @IdLancamentoInserido INT = SCOPE_IDENTITY(),
 					@IdPrecoTarifas INT;
 	
-			SELECT @IdPrecoTarifas = IdPrecoTarifas
+			SELECT @IdPrecoTarifas = IdTarifa
 				FROM [dbo].[FNC_ListarValorAtualTarifa](@IdTarifa);
 
 			INSERT INTO [dbo].[LancamentosPrecoTarifas] (
