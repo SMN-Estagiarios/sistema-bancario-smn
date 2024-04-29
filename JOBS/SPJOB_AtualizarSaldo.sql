@@ -6,7 +6,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarSaldo]
 	/*
 		Documentacao
 		Arquivo Fonte.....: SPJOB_AtualizarSaldo.sql
-		Objetivo..........: Job que atualiza diariamente o saldo de todas as contas e faz a população da tabela [dbo].[SaldoDiario] com base no dia anterior 
+		Objetivo..........: Job que atualiza diariamente o saldo de todas as contas e faz a populaï¿½ï¿½o da tabela [dbo].[SaldoDiario] com base no dia anterior 
 		Autor.............: Adriel Alexander 
 		Data..............: 08/04/2024
 		EX................:	BEGIN TRAN
@@ -34,11 +34,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarSaldo]
 							ROLLBACK TRAN
 	*/
 	BEGIN 
-		--Declaracao de variavel 
+				--Declaracao de variavel 
 				DECLARE @ProcedureError VARCHAR(120) = ERROR_PROCEDURE();
 				--Declaracao de variavel 
 				DECLARE @DataAtualizacao DATE = GETDATE(), 
-						@DataSaldo DATE = DATEADD(DAY,-1,GETDATE()),
+						@DataSaldoDiario DATE = DATEADD(DAY,-1,GETDATE()),
 						@MensagemError VARCHAR(4000) = 'Error no [SP_JOBAtualizaSaldo] ' + @ProcedureError +': '+ ERROR_MESSAGE(),
 						@EstadoError INT = ERROR_STATE(), 
 						@SeveridadeError INT = ERROR_SEVERITY();
@@ -52,12 +52,12 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarSaldo]
 							   C.Vlr_Credito,
 							   C.Vlr_SldInicial,
 							   [dbo].[FNC_CalcularSaldoAtual](C.Id, Vlr_SldInicial, Vlr_Credito, Vlr_Debito), 
-							   @DataSaldo
+							   @DataSaldoDiario
 							FROM [dbo].[Contas] C
 			
 				END TRY
 					BEGIN CATCH
-						-- Se ocorrer algum erro, faz o rollback da transação
+						-- Se ocorrer algum erro, faz o rollback da transaï¿½ï¿½o
 						ROLLBACK TRANSACTION; 
 						-- Retornando mensagem de erro com raiserror
 						RAISERROR(@MensagemError,@SeveridadeError, @EstadoError)
@@ -75,7 +75,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarSaldo]
 		
 				END TRY
 					BEGIN CATCH
-						-- Se ocorrer algum erro, faz o rollback da transação
+						-- Se ocorrer algum erro, faz o rollback da transaï¿½ï¿½o
 						ROLLBACK TRANSACTION;
 						-- Retornando mensagem de erro com raiserror
 						RAISERROR(@MensagemError,@SeveridadeError, @EstadoError)
