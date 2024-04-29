@@ -16,7 +16,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_GerarFatura]
 									@Dat_init DATETIME = GETDATE()
 
 									SELECT * FROM Fatura
-									EXEC @RET = [dbo].[SP_GerarFatura] 1
+									EXEC @RET = [dbo].[SP_GerarFatura] 2
 									SELECT * FROM Fatura
 
 									SELECT @RET AS RETORNO,
@@ -47,16 +47,16 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_GerarFatura]
 		END
 
 	ELSE
-		
-	--Cria e seta
-	DECLARE	@DataEmissao DATETIME = GETDATE()-5,
-			@DataVencimento DATETIME,
-			@DiaVencimento INT = (SELECT DiaVencimento 
-												FROM [dbo].[CartaoCredito]
-												WHERE Id_Conta = @IdConta);
+	
+	--Setando as variaveis para o calculo da geração de fatura mediante abertura e fechamento de fatura.
+	DECLARE	@DataEmissao DATETIME = GETDATE(),
+					@DataVencimento DATETIME,
+					@DiaVencimento INT = (SELECT DiaVencimento 
+														FROM [dbo].[CartaoCredito]
+														WHERE Id_Conta = @IdConta);
 
 	DECLARE @DataValidacao INT = DAY(@DataEmissao)		
-
+	--Validação se o dia da geração da fatura seja maior ou igual ao dia do vencimento do cartao de credito.
 	IF @DataValidacao+5 >= @DiaVencimento
 		BEGIN			
 			SET @DataVencimento = DATEFROMPARTS(YEAR(DATEADD(MONTH,1,@DataEmissao)),  MONTH(DATEADD(MONTH,1,@DataEmissao)), @DiaVencimento)
@@ -66,8 +66,15 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_GerarFatura]
 		BEGIN
 			SET @DataVencimento = DATEFROMPARTS(YEAR(@DataEmissao),MONTH(@DataEmissao), @DiaVencimento);
 	  END
-		
+	--Verifica se o codigo de barras ja existe.	
 	DECLARE @Barcode BIGINT = FLOOR(1000000000000000000 + RAND() * 8999999999999999999)
+		WHILE @Barcode = (SELECT CodigoBarra
+											FROM [dbo].[Fatura] WITH(NOLOCK)
+											WHERE CodigoBarra = @Barcode)
+				BEGIN
+					SET @Barcode = FLOOR(1000000000000000000 + RAND() * 8999999999999999999)
+				END
+
 	INSERT INTO [dbo].[Fatura]	(Id_StatusFatura, Id_Conta, CodigoBarra, DataEmissao, DataVencimento) VALUES
 												(1, @IdConta, @Barcode, @DataEmissao, @DataVencimento)												
 
