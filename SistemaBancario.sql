@@ -159,6 +159,7 @@ CREATE TABLE CartaoCredito(
 	Numero BIGINT NOT NULL UNIQUE,
 	Cvc SMALLINT NOT NULL,
 	Limite DECIMAL(15,2) NOT NULL,
+	LimiteComprometido DECIMAL(15,2) NOT NULL,
 	DataEmissao DATE NOT NULL,
 	DataValidade DATE NOT NULL,
 	Aproximacao BIT NOT NULL,
