@@ -22,10 +22,14 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_GerarFatura]
 									SELECT @RET AS RETORNO,
 									DATEDIFF(millisecond, @Dat_init, GETDATE()) AS TempoExecucao
 								ROLLBACK TRAN
-
+			--	RETORNO	--
+			00.................: Sucesso
+			01.................: Cartão não existe
+			02.................: Já existe uma fatura aberta
+			03.................: Erro ao criar a fatura
 			*/
 	BEGIN
-	--Verifica��o se n�o tem cartao de credito vinculado a conta.
+	--Verificação se não tem cartao de credito vinculado a conta.
 	IF NOT EXISTS (SELECT TOP 1 1
 								FROM [dbo].[CartaoCredito]cc WITH(NOLOCK)
 									INNER JOIN [dbo].[Contas]c WITH(NOLOCK)
@@ -34,7 +38,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_GerarFatura]
 		BEGIN 
 			RETURN 1
 		END
-	--Verifica��o se tem fatura vinculado aquela conta e se ela esta aberta.
+	--Verificação se tem fatura vinculado aquela conta e se ela esta aberta.
 	IF EXISTS (SELECT TOP 1 1
 					FROM [dbo].[Fatura]f WITH(NOLOCK)
 						INNER JOIN [dbo].[Contas]c WITH(NOLOCK)
@@ -78,5 +82,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_GerarFatura]
 	INSERT INTO [dbo].[Fatura]	(Id_StatusFatura, Id_Conta, CodigoBarra, DataEmissao, DataVencimento) VALUES
 												(1, @IdConta, @Barcode, @DataEmissao, @DataVencimento)												
 
+	INSERT INTO [dbo].[Fatura]	(Id_StatusFatura, Id_Conta, CodigoBarra, DataEmissao, DataVencimento, Vlr_Fatura) VALUES
+												(1, @IdConta, @Barcode, @DataEmissao, @DataVencimento, 0)												
+	IF @@ROWCOUNT = 1 
+				RETURN 0
+			ELSE 
+				RETURN 3
 	END
 GO

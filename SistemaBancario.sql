@@ -176,6 +176,7 @@ CREATE TABLE Fatura(
 	CodigoBarra BIGINT NOT NULL,
 	DataEmissao DATE NOT NULL,
 	DataVencimento DATE NOT NULL,
+	Vlr_Fatura DECIMAL(15, 2) NOT NULL, 
 	CONSTRAINT PK_IdFatura PRIMARY KEY(Id),
 	CONSTRAINT FK_Id_StatusFatura_Fatura FOREIGN KEY (Id_StatusFatura) REFERENCES StatusFatura(Id),
 	CONSTRAINT FK_Id_Conta_Fatura FOREIGN KEY(Id_Conta) REFERENCES Contas(Id)
