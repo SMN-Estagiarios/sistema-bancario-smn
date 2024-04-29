@@ -1,6 +1,3 @@
-USE SistemaBancario
-GO
-
 CREATE OR ALTER PROCEDURE [dbo].[SPJOB_CriarLancamentoEmprestimo]
 	AS
 	/*
@@ -23,7 +20,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_CriarLancamentoEmprestimo]
 
 										SELECT * FROM Lancamentos
 									ROLLBACK TRAN
-	*/
+	*/ 
 	BEGIN
 		--Declarar variáveis
 		DECLARE @DataAtual DATE = GETDATE()

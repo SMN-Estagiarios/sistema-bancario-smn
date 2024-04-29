@@ -234,14 +234,24 @@ CREATE TABLE Lancamentos (
 	CONSTRAINT CHK_Tipo_Operacao_C_D CHECK(Tipo_Operacao = 'C' OR Tipo_Operacao = 'D')
 );
 
-CREATE TABLE Parcela (
-	Id_Emprestimo INT NOT NULL,
-	Id_Lancamento INT NOT NULL UNIQUE,
-	Valor DECIMAL(15,2) NOT NULL,
-	Data_Cadastro DATE NOT NULL
+CREATE TABLE StatusParcela(
+	Id TINYINT,
+	Nome VARCHAR(20) UNIQUE NOT NULL,
+	CONSTRAINT PK_StatusParcela PRIMARY KEY (Id)
+);
 
+CREATE TABLE Parcela (
+	Id INT IDENTITY,
+	Id_Emprestimo INT NOT NULL,
+	Id_Lancamento INT,
+	Id_Status TINYINT NOT NULL,
+	Valor DECIMAL(15,2) NOT NULL,
+	ValorJurosAtraso DECIMAL(6,2) NOT NULL DEFAULT(0.0),
+	Data_Cadastro DATE NOT NULL
+	CONSTRAINT PK_Parcela PRIMARY KEY (Id),
 	CONSTRAINT FK_Id_Emprestimo_Parcela FOREIGN KEY (Id_Emprestimo) REFERENCES Emprestimo(Id),
-	CONSTRAINT FK_Id_Lancamento_Parcela FOREIGN KEY (Id_Lancamento) REFERENCES Lancamentos(Id)
+	CONSTRAINT FK_Id_Lancamento_Parcela FOREIGN KEY (Id_Lancamento) REFERENCES Lancamentos(Id),
+	CONSTRAINT FK_Id_StatusParcela_Parcela FOREIGN KEY (Id_Status) REFERENCES StatusParcela(Id)
 );
 
 CREATE TABLE LancamentosPrecoTarifas (
