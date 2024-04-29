@@ -11,10 +11,15 @@ AS
                                     DBCC DROPCLEANBUFFERS;
                                     DBCC FREEPROCCACHE;
 
-                                    DECLARE @Dat_ini DATETIME = GETDATE();
+                                    DECLARE @Dat_ini DATETIME = GETDATE()
 
-                                   SELECT * FROM [dbo].[FNC_ListarValorAtualTaxa](2)
+									SELECT * FROM [dbo].[FNC_ListarValorAtualTaxa](2)
+
+								   INSERT INTO ValorTaxa (Id_Taxa, Aliquota, DataInicial) VALUES
+														 (2, 0.00500, GETDATE()-1)
 								   
+								    SELECT * FROM [dbo].[FNC_ListarValorAtualTaxa](2)
+
                                     SELECT 
                                             DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
                                 ROLLBACK TRAN
@@ -34,7 +39,7 @@ AS
 					INNER JOIN [dbo].[ValorTaxa] vt WITH(NOLOCK)
 						ON T.Id = vt.Id_Taxa
 				WHERE vt.DataInicial <= @DataAtual 
-				AND vt.Id_Taxa = @IdTaxa
+				AND T.Id = @IdTaxa
 				ORDER BY vt.DataInicial DESC
 		RETURN
 	END

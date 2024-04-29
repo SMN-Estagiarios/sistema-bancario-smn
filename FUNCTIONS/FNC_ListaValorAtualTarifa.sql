@@ -15,6 +15,14 @@ AS
 
                                    SELECT * FROM [dbo].[FNC_ListarValorAtualTarifa](4)
 
+									INSERT INTO PrecoTarifas(Id, Id_Tarifa, Valor, DataInicial) 
+													 VALUES (6, 4, 4, GETDATE()-1);
+
+									INSERT INTO PrecoTarifas(Id, Id_Tarifa, Valor, DataInicial) 
+													 VALUES (7, 4, 10, GETDATE()+1);
+
+									SELECT * FROM [dbo].[FNC_ListarValorAtualTarifa](4)
+
                                     SELECT 
                                             DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
                                 ROLLBACK TRAN
@@ -34,7 +42,9 @@ AS
 					INNER JOIN [dbo].[PrecoTarifas] P WITH(NOLOCK)
 						ON T.Id = P.Id_Tarifa
 				WHERE P.DataInicial <= @DataAtual 
-				AND P.Id_Tarifa = @IdTarifa
+				AND T.Id = @IdTarifa
 				ORDER BY P.DataInicial DESC
 		RETURN
 	END
+
+	

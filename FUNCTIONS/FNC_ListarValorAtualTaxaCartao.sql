@@ -15,6 +15,11 @@ AS
 									
                                    SELECT * FROM [dbo].[FNC_ListarValorAtualTaxaCartao](1)
 								   
+								   INSERT INTO ValorTaxaCartao (Id_TaxaCartao, Aliquota, DataInicial) VALUES
+															   (1, 0.00500, GETDATE()-1)
+
+									 SELECT * FROM [dbo].[FNC_ListarValorAtualTaxaCartao](1)
+
                                     SELECT 
                                             DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
                                 ROLLBACK TRAN

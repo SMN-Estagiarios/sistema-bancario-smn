@@ -80,7 +80,8 @@ INSERT INTO [dbo].[Contas]	(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, 
 GO
 
 INSERT INTO [dbo].[TaxaEmprestimo]	(Id, Nome) VALUES 
-									(1, 'Padrão');
+									(1, 'Padrão'),
+									(2, 'Atraso');
 
 GO
 
@@ -92,7 +93,15 @@ INSERT INTO [dbo].[ValorTaxaEmprestimo]	(Id_TaxaEmprestimo, Id_CreditScore, Aliq
 										(1, 5, 0.050, '2024-04-01'),
 										(1, 6, 0.047, '2024-04-01'),
 										(1, 7, 0.045, '2024-04-01'),
-										(1, 8, 0.040, '2024-04-01');
+										(1, 8, 0.040, '2024-04-01'),
+										(2, 1, 0.03500, '2024-04-01'),
+										(2, 2, 0.03200, '2024-04-01'),
+										(2, 3, 0.03000, '2024-04-01'),
+										(2, 4, 0.02500, '2024-04-01'),
+										(2, 5, 0.02000, '2024-04-01'),
+										(2, 6, 0.01500, '2024-04-01'),
+										(2, 7, 0.01000, '2024-04-01'),
+										(2, 8, 0.00500, '2024-04-01');
 
 GO
 
@@ -104,12 +113,12 @@ INSERT INTO [dbo].[Tarifas] (Id, Nome) VALUES
 							(5, 'TMC');
 GO
 
-INSERT INTO [dbo].[PrecoTarifas]	(Id, Id_Tarifa, Valor, DataInicial) VALUES 
-									(1, 1, 10, '01/04/2024'),
-									(2, 2, 20, '01/04/2024'),
-									(3, 3, 30, '01/04/2024'),
-									(4, 4, 15, '01/04/2024'),
-									(5, 5, 25,'01/04/2024');
+INSERT INTO [dbo].[PrecoTarifas]	(Id_Tarifa, Valor, DataInicial) VALUES 
+									(1, 10, '01/04/2024'),
+									(2, 20, '01/04/2024'),
+									(3, 30, '01/04/2024'),
+									(4, 15, '01/04/2024'),
+									(5, 25,'01/04/2024');
 GO
 
 
