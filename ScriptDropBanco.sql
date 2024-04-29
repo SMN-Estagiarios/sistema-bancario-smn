@@ -169,6 +169,14 @@ DROP PROC [dbo].[SP_ListarCreditSCore]
 GO
 DROP PROC [dbo].[SP_ListarTarifas]
 GO
+DROP PROC [dbo].[SP_AtivaAproximacaoCartao]
+GO
+DROP PROC [dbo].[SP_AtivaCartaoCredito]
+GO
+DROP PROC [dbo].[SP_BloquearCartao]
+GO
+DROP PROC [dbo].[SP_InserirNovoCartaoCredito]
+GO
 
 
 	-- DROPANDO TODAS OS JOBS 
@@ -189,7 +197,7 @@ DROP FUNCTION [dbo].[FNC_CalcularSaldoDisponivel]
 GO
 DROP FUNCTION [dbo].[FNC_ListarSaldoNegativo]
 GO
-DROP FUNCTION [dbo].[FNC_ListaValorAtualTarifa]
+DROP FUNCTION [dbo].[FNC_ListarValorAtualTarifa]
 GO
 
 	--DROPANDO TODAS AS TABELAS
