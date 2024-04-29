@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER FUNCTION [dbo].[FNC_ListarValorAtualTaxaEmprestimo]	(
 																		@IdTaxaEmprestimo INT,
 																		@IdCreditScore INT

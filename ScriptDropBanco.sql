@@ -146,6 +146,8 @@ DROP TRIGGER [TRG_AtualizarSaldo]
 GO
 DROP TRIGGER [TRG_GerarLancamentosTransferidos]
 GO
+DROP TRIGGER [TRG_CriarPreLancamentoParcela]
+GO
 
 
 	-- DROPANDO TODAS AS PROCEDURES
@@ -180,6 +182,8 @@ DROP PROC [dbo].[SPJOB_AtualizarSaldo]
 GO
 DROP PROC [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 GO
+DROP PROC [dbo].[SPJOB_LancarParcela]
+GO
 
 	-- DROPANDO TODAS AS FUNCTIONS
 
@@ -190,6 +194,8 @@ GO
 DROP FUNCTION [dbo].[FNC_ListarSaldoNegativo]
 GO
 DROP FUNCTION [dbo].[FNC_ListaValorAtualTarifa]
+GO
+DROP FUNCTION [dbo].[FNC_BuscarTaxaJurosAtraso]
 GO
 
 	--DROPANDO TODAS AS TABELAS

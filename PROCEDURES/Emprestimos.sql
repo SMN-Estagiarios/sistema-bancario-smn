@@ -55,7 +55,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 				@PrecoParcela DECIMAL(6,2)
 				
 		-- Caso o parâmetro da primeira parcela for nulo, será passada para daqui a 1 mês e a data não poderá ser em um fim de semana
-		SET @DataInicio = ISNULL(@DataInicio, DATEADD(MONTH, 1, @DataAtual))
+		SET @DataInicio = ISNULL(@DataInicio, @DataAtual)
 		SET @DataInicio = CASE	WHEN DATENAME(WEEKDAY, @DataInicio) = 'Sábado' THEN DATEADD(DAY, 2, @DataInicio)
 								WHEN DATENAME(WEEKDAY, @DataInicio) = 'Domingo' THEN DATEADD(DAY, 1, @DataInicio)
 								ELSE @DataInicio
@@ -88,7 +88,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 			FROM [dbo].[Contas] c
 				INNER JOIN [ValorTaxaEmprestimo] vte
 					ON c.Id_CreditScore = vte.Id_CreditScore
-			WHERE c.Id = @Id_Cta
+			WHERE	c.Id = @Id_Cta AND
+					vte.Id_TaxaEmprestimo = 1
 		--Calcular TaxaTotal
 		SELECT @TaxaTotal = [dbo].[FNC_CalcularTaxaEmprestimo](@Id_Cta)
 		--Atribuir valor ao PrecoParcela
