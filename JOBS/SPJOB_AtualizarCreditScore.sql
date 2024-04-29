@@ -48,7 +48,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarCreditScore]
 									SD.Dat_Saldo
 								FROM SaldoDiario SD
 		), MediaSaldoMensal AS (
-			SELECT avg(CDC.Vlr_SldFinal) MediaSaldoMensal,
+			SELECT AVG(CDC.Vlr_SldFinal) MediaSaldoMensal,
 					CDC.Id_Conta	
 				   FROM Cte_SaldoDiario CDC
 				   WHERE Dat_Saldo BETWEEN @DataInicio AND @DataFim
