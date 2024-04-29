@@ -202,7 +202,8 @@ GO
 
 CREATE OR ALTER PROCEDURE [dbo].[SP_ListarSimulacaoEmprestimo] 
 	@Id_Cta INT,
-	@ValorSolicitado DECIMAL(15,2)
+	@ValorSolicitado DECIMAL(15,2),
+	@Parcela TINYINT = NULL
 	AS
 	/*
 		Documentação
@@ -237,6 +238,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarSimulacaoEmprestimo]
 		SELECT	QuantidadeParcela AS TotalParcelas,
 				FORMAT(@ValorSolicitado * @TaxaTotal / (1 - POWER(1 + @TaxaTotal, - QuantidadeParcela)), 'C') AS PrecoParcela
 			FROM [dbo].[FNC_ListarParcelasEmprestimo]()
-			WHERE @ValorSolicitado * @TaxaTotal / (1 - POWER(1 + @TaxaTotal, - QuantidadeParcela)) > 100
+			WHERE	@ValorSolicitado * @TaxaTotal / (1 - POWER(1 + @TaxaTotal, - QuantidadeParcela)) > 100
+					AND QuantidadeParcela = ISNULL(@Parcela, QuantidadeParcela)
 	END
 GO
