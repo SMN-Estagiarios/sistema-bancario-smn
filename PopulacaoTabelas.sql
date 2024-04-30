@@ -77,12 +77,15 @@ INSERT INTO [dbo].[Correntista] (Nome, Cpf, DataNasc, Contato, Email, Logradouro
 GO
 
 INSERT INTO [dbo].[Contas]	(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura, Ativo, Lim_ChequeEspecial, Id_Correntista) VALUES 
-							(0.00, 0.00, 0.00, '2024-04-01', '2024-03-01', 1, 0.00, 1),
+							(1000.00, 0.00, 0.00, '2024-04-01', '2024-03-01', 1, 0.00, 1),
 							(0.00, 0.00, 0.00, '2024-04-01', '2024-04-15', 1, 0.00, 2),
 							(0.00, 0.00, 0.00, '2024-04-01', '2024-04-20', 1, 0.00, 3),
 							(0.00, 0.00, 0.00, '2024-04-01', '2024-04-28', 1, 0.00, 4),
 							(0.00, 0.00, 0.00, '2024-04-01', '2024-04-12', 1, 0.00, 5);
 GO
+
+INSERT INTO [dbo].[CartaoCredito]	(Id_Conta, Id_StatusCartaoCredito, NomeImpresso, Numero, Cvc, Limite, LimiteComprometido, DataEmissao, DataValidade, Aproximacao, DiaVencimento) VALUES
+									(1, 1, 'Mozai', 6587893256410236, 133, 5000, 0, GETDATE(), DATEADD(YEAR, 4, GETDATE()), 1, 6);
 
 INSERT INTO [dbo].[TaxaEmprestimo]	(Id, Nome) VALUES 
 									(1, 'Padrão');
