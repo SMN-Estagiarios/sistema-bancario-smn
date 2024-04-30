@@ -121,7 +121,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 				-- Criar novo cartão
 				INSERT INTO CartaoCredito (Id_Conta, Id_StatusCartaoCredito, NomeImpresso, Numero, Cvc, Limite, DataEmissao, DataValidade, Aproximacao, DiaVencimento)
 									VALUES(@IdConta, 1, @NomeCorrentista, @NumeroCartao, @NumeroCVC, @LimiteCartao, @DataAtual, @DataValidade, 0, @DiaVencimento)
-				EXEC [dbo].[SP_GerarFatura] @Idconta
+
 			RETURN 0						
 			END
 		ELSE
