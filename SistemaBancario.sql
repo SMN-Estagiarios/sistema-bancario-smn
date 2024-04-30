@@ -42,14 +42,6 @@ CREATE TABLE ValorTaxaCartao (
 	CONSTRAINT FK_Id_TaxaCartao_TaxaCartao FOREIGN KEY (Id_TaxaCartao) REFERENCES TaxaCartao(Id)
 );
 
-
-CREATE TABLE StatusFatura(
-	Id TINYINT,
-	Nome VARCHAR(50) NOT NULL,
-	CONSTRAINT PK_IdStatusFatura PRIMARY KEY(Id)
-);
-
-
 CREATE TABLE Taxa(
 	Id TINYINT,
 	Nome VARCHAR(50) NOT NULL
@@ -171,15 +163,16 @@ CREATE TABLE CartaoCredito(
 
 CREATE TABLE Fatura(
 	Id INT IDENTITY,
-	Id_StatusFatura TINYINT NOT NULL,
 	Id_Conta INT NOT NULL,
+	Id_Lancamento INT NOT NULL,
 	CodigoBarra BIGINT NOT NULL,
 	DataEmissao DATE NOT NULL,
 	DataVencimento DATE NOT NULL,
 	Vlr_Fatura DECIMAL(15, 2) NOT NULL, 
 	CONSTRAINT PK_IdFatura PRIMARY KEY(Id),
 	CONSTRAINT FK_Id_StatusFatura_Fatura FOREIGN KEY (Id_StatusFatura) REFERENCES StatusFatura(Id),
-	CONSTRAINT FK_Id_Conta_Fatura FOREIGN KEY(Id_Conta) REFERENCES Contas(Id)
+	CONSTRAINT FK_Id_Conta_Fatura FOREIGN KEY(Id_Conta) REFERENCES Contas(Id),
+	CONSTRAINT FK_Id_Lancamento_Fatura FOREIGN KEY(Id_Lancamento) REFERENCES Lancamentos(Id)
 );
 
 CREATE TABLE TransacaoCartaoCredito(
