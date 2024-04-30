@@ -100,6 +100,30 @@ INSERT INTO [dbo].[ValorTaxaEmprestimo]	(Id_TaxaEmprestimo, Id_CreditScore, Aliq
 
 GO
 
+INSERT INTO [dbo].[Indice]	(Id, Nome) VALUES
+							(1, 'IGP-M'),
+							(2, 'IPCA');
+
+INSERT INTO [dbo].[PeriodoIndice]	(Id, Nome) VALUES
+									(1, 'Mensal'),
+									(2, 'Bimestral'),
+									(3, 'Trimestral'),
+									(4, 'Semestral'),
+									(5, 'Anual');
+
+INSERT INTO [dbo].[ValorIndice]	(Id_Indice, Id_PeriodoIndice, Aliquota, DataInicio) VALUES 
+										(1, 1, 0.0080, '2024-04-01'),
+										(1, 2, 0.0075, '2024-04-01'),
+										(1, 3, 0.0070, '2024-04-01'),
+										(1, 4, 0.0065, '2024-04-01'),
+										(1, 5, 0.0005, '2024-04-01'),
+										(2, 1, 0.0060, '2024-04-01'),
+										(2, 2, 0.0055, '2024-04-01'),
+										(2, 3, 0.0050, '2024-04-01'),
+										(2, 4, 0.0045, '2024-04-01'),
+										(2, 5, 0.0040, '2024-04-01');
+
+
 INSERT INTO [dbo].[Tarifas] (Id, Nome) VALUES
 							(1, 'PIX'),
 							(2, 'DOC'),
