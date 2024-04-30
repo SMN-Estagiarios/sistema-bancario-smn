@@ -6,7 +6,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 	@ValorSolicitado DECIMAL(15,2),
 	@NumeroParcelas INT,
 	@Tipo CHAR(3),
-	@DataInicio DATE = NULL
+	@DataInicio DATE = NULL,
+	@TipoIndice INT = NULL,
+	@PeriodoAtualizacao INT = NULL
 	AS
 	/* 
 			Documentação
@@ -26,20 +28,20 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 											Id_CreditScore = 1
 										WHERE Id = 1
 
-									EXEC @Ret = [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'PRE', NULL
-									SELECT  Id_Conta,
+									EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'PRE'
+									EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'POS', NULL, 1, 1
+									SELECT  Id,
+											Id_Conta,
 											Id_StatusEmprestimo,
 											Id_ValorTaxaEmprestimo,
-											Id_Taxa,
+											Id_ValorIndice,
 											ValorSolicitado,
-											ValorParcela,
 											NumeroParcelas,
 											Tipo,
 											DataInicio
 										FROM [dbo].[Emprestimo] WITH (NOLOCK)
 
-									SELECT	@Ret AS Retorno,
-											DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS ResultadoExecucao
+									SELECT	DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS ResultadoExecucao
 								ROLLBACK TRAN
 
 								-- RETORNO --
@@ -50,9 +52,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 		--Declarar variáveis
 		DECLARE @DataAtual DATE = GETDATE(),
 				@Id_Tarifa INT,
-				@IdTaxaEmprestimo DECIMAL(5,4),
+				@IdTaxaEmprestimo DECIMAL(5,4) = NULL,
 				@TaxaTotal DECIMAL(5,4),
-				@PrecoParcela DECIMAL(6,2)
+				@IdValorIndice INT = NULL;
 				
 		-- Caso o parâmetro da primeira parcela for nulo, será passada para daqui a 1 mês e a data não poderá ser em um fim de semana
 		SET @DataInicio = ISNULL(@DataInicio, @DataAtual)
@@ -83,41 +85,49 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 				RAISERROR('O número de parcelas não está dentro do limite permitido', 16, 1)
 			END
 
-		--Atribuir valor à TaxaEmprestimo
-		SELECT @IdTaxaEmprestimo = vte.Id
-			FROM [dbo].[Contas] c
-				INNER JOIN [ValorTaxaEmprestimo] vte
-					ON c.Id_CreditScore = vte.Id_CreditScore
-			WHERE	c.Id = @Id_Cta AND
-					vte.Id_TaxaEmprestimo = 1
-		--Calcular TaxaTotal
-		SELECT @TaxaTotal = [dbo].[FNC_CalcularTaxaEmprestimo](@Id_Cta)
-		--Atribuir valor ao PrecoParcela
-		SET @PrecoParcela = @ValorSolicitado * @TaxaTotal / (1 - POWER(1 + @TaxaTotal, - @NumeroParcelas))
-		-- Criar o emprestimo
-		INSERT INTO [dbo].[Emprestimo] (
+		IF @Tipo = 'PRE'
+			BEGIN
+				--Atribuir valor à TaxaEmprestimo
+				SELECT @IdTaxaEmprestimo = vte.Id
+					FROM [dbo].[Contas] c WITH(NOLOCK)
+						INNER JOIN [ValorTaxaEmprestimo] vte WITH(NOLOCK)
+							ON c.Id_CreditScore = vte.Id_CreditScore
+					WHERE	c.Id = @Id_Cta AND
+							vte.Id_TaxaEmprestimo = 1;
+			END
+		ELSE
+			BEGIN
+				-- Buscando o Valor Indice de acordo com o passado na procedure
+				SELECT	@IdValorIndice = VI.Id
+					FROM [dbo].[ValorIndice] VI WITH(NOLOCK) 
+						INNER JOIN [dbo].[Indice] I WITH(NOLOCK)
+							ON VI.Id_Indice = I.Id
+						INNER JOIN [dbo].[PeriodoIndice] P WITH(NOLOCK)
+							ON VI.Id_PeriodoIndice = P.Id
+					WHERE	P.Id = @PeriodoAtualizacao AND
+							I.Id = @TipoIndice;
+			END
+
+		-- Criando o emprestimo
+		INSERT INTO [dbo].[Emprestimo]	(
 											Id_Conta,
 											Id_StatusEmprestimo,
 											Id_ValorTaxaEmprestimo,
-											Id_Taxa,
+											Id_ValorIndice,
 											ValorSolicitado,
-											ValorParcela,
 											NumeroParcelas,
 											Tipo,
 											DataInicio
-										)
-										VALUES
-										(
-											@Id_Cta,
-											2,
-											@IdTaxaEmprestimo,
-											2,
-											@ValorSolicitado,
-											@PrecoParcela,
-											@NumeroParcelas,
-											@Tipo,
-											@DataInicio
-										)
+										) VALUES (
+													@Id_Cta,
+													2,
+													@IdTaxaEmprestimo,
+													@IdValorIndice,
+													@ValorSolicitado,
+													@NumeroParcelas,
+													@Tipo,
+													@DataInicio
+													)
 		RETURN 0
 	END
 GO
@@ -137,44 +147,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarEmprestimo]	@IdConta INT = NULL,
 
 								DECLARE @Dat_ini DATETIME = GETDATE()
 
-								INSERT INTO [dbo].[Emprestimo]	(	
-																	Id_Conta,
-																	Id_StatusEmprestimo,
-																	Id_ValorTaxaEmprestimo,
-																	Id_Taxa,
-																	ValorSolicitado,
-																	ValorParcela,
-																	NumeroParcelas,
-																	Tipo,
-																	DataInicio
-																)
-															VALUES
-																(
-																1,
-																1,
-																1,
-																2,
-																1000,
-																100,
-																10,
-																'PRE',
-																'2024-04-23'
-																),
-																(
-																1,
-																1,
-																1,
-																2,
-																2000,
-																400,
-																5,
-																'PRE',
-																'2024-04-23'
-																)
-
-							
+								EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'PRE', NULL
+								--EXEC [dbo].[SP_RealizarEmprestimo] 2, 1000, 2, 'POS', NULL, 1, 1
 
 								EXEC [dbo].[SP_ListarEmprestimo] 1
+								EXEC [dbo].[SP_ListarEmprestimo] 
 
 								SELECT DATEDIFF(millisecond, @Dat_ini, GETDATE()) AS ResultadoExecucao
 							ROLLBACK TRAN
@@ -185,12 +162,12 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarEmprestimo]	@IdConta INT = NULL,
 	*/
 	BEGIN
 			BEGIN
-				SELECT	Id_Conta,
+				SELECT	Id,
+						Id_Conta,
 						Id_StatusEmprestimo,
 						Id_ValorTaxaEmprestimo,
-						Id_Taxa,
+						Id_ValorIndice,
 						ValorSolicitado,
-						ValorParcela,
 						NumeroParcelas,
 						Tipo,
 						DataInicio

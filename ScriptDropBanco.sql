@@ -108,8 +108,10 @@ GO
 	-- Executando drop de constraint de FK na tabela Parcela
 ALTER TABLE Parcela
 	DROP CONSTRAINT FK_Id_Emprestimo_Parcela;
+GO
 ALTER TABLE Parcela
 	DROP CONSTRAINT FK_Id_Lancamento_Parcela;
+GO
 
 	-- Executando o drop de constraint de FK na tabela LancamentosPrecoTarifas
 ALTER TABLE LancamentosPrecoTarifas

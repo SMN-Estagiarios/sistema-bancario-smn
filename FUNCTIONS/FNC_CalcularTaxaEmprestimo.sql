@@ -22,23 +22,17 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_CalcularTaxaEmprestimo]	(
 	*/
 	BEGIN
 		--Declarar variáveis
-		DECLARE @IOF DECIMAL(5,4),
-				@TaxaEmprestimo DECIMAL(5,4),
-				@TaxaTotal DECIMAL(5,4),
+		DECLARE @TaxaEmprestimo DECIMAL(5,4),
 				@DataAtual DATE = GETDATE()
-		--Atribuir valor ao IOF
-		SELECT @IOF = Aliquota
-			FROM [dbo].[ValorTaxa] WITH(NOLOCK)
-			WHERE Id = 2
+		
 		--Atribuir valor a TaxaEmprestimo
 		SELECT @TaxaEmprestimo = vte.Aliquota
-			FROM [dbo].[Contas] c
-				INNER JOIN [ValorTaxaEmprestimo] vte
+			FROM [dbo].[Contas] c WITH(NOLOCK)
+				INNER JOIN [ValorTaxaEmprestimo] vte WITH(NOLOCK)
 					ON c.Id_CreditScore = vte.Id_CreditScore
 			WHERE	c.Id = @Id_Cta
 					AND vte.DataInicial <= @DataAtual
-		--Calcular a taxa total
-		SET @TaxaTotal = @IOF + @TaxaEmprestimo
-		RETURN @TaxaTotal
+		--Retornar a taxa total
+		RETURN @TaxaEmprestimo
 	END
 GO

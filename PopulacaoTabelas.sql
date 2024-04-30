@@ -36,12 +36,6 @@ INSERT INTO [dbo].[ValorTaxaCartao]	(Id_TaxaCartao, Aliquota, DataInicial) VALUE
 									(3, 0.0638, '2024-04-01');
 GO
 
-INSERT INTO [dbo].[StatusFatura]	(Id, Nome) VALUES 
-									(1, 'Aberta'),
-									(2, 'Fechada'),
-									(3, 'Paga');
-GO
-
 INSERT INTO [dbo].[Taxa]	(Id, Nome) VALUES
 							(1, 'TSN'),
 							(2, 'IOF');
@@ -84,7 +78,8 @@ INSERT INTO [dbo].[Contas]	(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, 
 GO
 
 INSERT INTO [dbo].[TaxaEmprestimo]	(Id, Nome) VALUES 
-									(1, 'Padrão');
+									(1, 'Padrão'),
+									(2, 'Atraso');
 
 GO
 
@@ -96,12 +91,19 @@ INSERT INTO [dbo].[ValorTaxaEmprestimo]	(Id_TaxaEmprestimo, Id_CreditScore, Aliq
 										(1, 5, 0.050, '2024-04-01'),
 										(1, 6, 0.047, '2024-04-01'),
 										(1, 7, 0.045, '2024-04-01'),
-										(1, 8, 0.040, '2024-04-01');
-
+										(1, 8, 0.040, '2024-04-01'),
+										(2, 1, 0.040, '2024-04-01'),
+										(2, 2, 0.035, '2024-04-01'),
+										(2, 3, 0.030, '2024-04-01'),
+										(2, 4, 0.025, '2024-04-01'),
+										(2, 5, 0.020, '2024-04-01'),
+										(2, 6, 0.015, '2024-04-01'),
+										(2, 7, 0.010, '2024-04-01'),
+										(2, 8, 0.005, '2024-04-01');
 GO
 
 INSERT INTO [dbo].[Indice]	(Id, Nome) VALUES
-							(1, 'IGP-M'),
+							(1, 'IGPM'),
 							(2, 'IPCA');
 
 INSERT INTO [dbo].[PeriodoIndice]	(Id, Nome) VALUES

@@ -15,17 +15,16 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 								SELECT	Id,
 										Id_Emprestimo,
 										Id_Lancamento,
-										Id_Status,
 										Valor,
 										ValorJurosAtraso,
 										Data_Cadastro FROM 
 									[dbo].[Parcela] WITH(NOLOCK)
 
-								EXEC [dbo].[SP_RealizarEmprestimo] 1, 500, 2, 'PRE', NULL
+								EXEC [dbo].[SP_RealizarEmprestimo] 1, 500, 2, 'PRE'
 
-								--UPDATE [dbo].[Contas]
-									--SET Lim_ChequeEspecial = 100
-									--WHERE Id = 1
+								UPDATE [dbo].[Contas]
+									SET Lim_ChequeEspecial = 100
+									WHERE Id = 1
 
 								SELECT * FROM Contas
 								
@@ -34,7 +33,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 								SELECT	Id,
 										Id_Emprestimo,
 										Id_Lancamento,
-										Id_Status,
 										Valor,
 										ValorJurosAtraso,
 										Data_Cadastro FROM 
@@ -44,7 +42,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 	*/
 	BEGIN
 		--DECLARE @DataAtual DATE = GETDATE(),
-		DECLARE @DataAtual DATE = '2024-05-30',
+		DECLARE @DataAtual DATE = GETDATE(),
 				@TaxaAtrasadoAtual DECIMAL(6,5);
 
 		IF OBJECT_ID('tempdb..#Tabela') IS NOT NULL
@@ -68,7 +66,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 								Id_Conta,
 								Id_Emprestimo,
 								Id_Lancamento,
-								Id_Status,
 								Valor,
 								ValorJurosAtraso,
 								Data_Cadastro,
@@ -78,7 +75,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 					E.Id_Conta,
 					P.Id_Emprestimo,
 					P.Id_Lancamento,
-					P.Id_Status,
 					P.Valor,
 					P.ValorJurosAtraso,
 					P.Data_Cadastro,
@@ -87,7 +83,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 					INNER JOIN [dbo].[Emprestimo] E WITH(NOLOCK)
 						ON P.Id_Emprestimo = E.Id
 				WHERE	Data_Cadastro <= @DataAtual AND
-						Id_Status IN (1,2);
+						Id_Lancamento IS NULL
 
 		IF EXISTS(SELECT TOP 1 1
 					FROM #Tabela
@@ -113,12 +109,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 							0							
 						FROM #Tabela
 						WHERE Valor <= SaldoDisponivel
-
-				UPDATE [dbo].[Parcela]
-					SET Id_Status = 3
-				WHERE Id IN (SELECT Id
-								FROM #Tabela
-								WHERE Valor <= SaldoDisponivel)
 			END
 
 			
@@ -128,11 +118,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 							WHERE Valor > SaldoDisponivel)
 			BEGIN
 				UPDATE [dbo].[Parcela]
-					SET Id_Status = 2,
-						ValorJurosAtraso = ValorJurosAtraso + ([dbo].[FNC_BuscarTaxaJurosAtraso](Id_Emprestimo) * Valor)
-				WHERE Id IN (SELECT Id
-								FROM #Tabela
-								WHERE	Valor > SaldoDisponivel AND
-										Id_Status IN (1, 2))
+					SET ValorJurosAtraso = ValorJurosAtraso + ([dbo].[FNC_BuscarTaxaJurosAtraso](Id_Emprestimo) * Valor)
+				WHERE	Data_Cadastro < @DataAtual AND
+						Id_Lancamento IS NULL
 			END
 	END

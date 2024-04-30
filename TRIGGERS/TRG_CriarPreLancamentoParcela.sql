@@ -15,9 +15,7 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 									Id_Conta,
 									Id_StatusEmprestimo,
 									Id_ValorTaxaEmprestimo,
-									Id_Taxa,
 									ValorSolicitado,
-									ValorParcela,
 									NumeroParcelas,
 									Tipo,
 									DataInicio
@@ -26,7 +24,6 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 							SELECT	Id,
 									Id_Emprestimo,
 									Id_Lancamento,
-									Id_Status,
 									Valor,
 									ValorJurosAtraso,
 									Data_Cadastro
@@ -38,9 +35,7 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 									Id_Conta,
 									Id_StatusEmprestimo,
 									Id_ValorTaxaEmprestimo,
-									Id_Taxa,
 									ValorSolicitado,
-									ValorParcela,
 									NumeroParcelas,
 									Tipo,
 									DataInicio
@@ -49,7 +44,6 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 							SELECT	Id,
 									Id_Emprestimo,
 									Id_Lancamento,
-									Id_Status,
 									Valor,
 									ValorJurosAtraso,
 									Data_Cadastro
@@ -87,14 +81,12 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 
 				INSERT INTO [DBO].[Parcela] (   Id_Emprestimo,
 												Id_Lancamento,
-												Id_Status,
 												Valor,
 												ValorJurosAtraso,
 												Data_Cadastro
 											) VALUES (
 														@Id,
 														NULL,
-														1,
 														@ValorParcela,
 														0.00,
 														@DataInicio
