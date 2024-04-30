@@ -24,7 +24,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_GerarTransacaoCartaoCredito]
 															@RET INT
 											SELECT * FROM TransacaoCartaoCredito
 											SELECT * FROM CartaoCredito
-											EXEC @RET = [dbo].[SP_GerarTransacaoCartaoCredito] 1,1,1,'Compra Realizada na Miranda', 100,0
+											EXEC @RET = [dbo].[SP_GerarTransacaoCartaoCredito] 7,1,1,'Compra Realizada na Miranda', 250,0
 											SELECT * FROM TransacaoCartaoCredito
 											SELECT * FROM CartaoCredito
 											SELECT @RET AS RETORNO

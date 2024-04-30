@@ -79,9 +79,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_GerarFatura]
 					SET @Barcode = FLOOR(1000000000000000000 + RAND() * 8999999999999999999)
 				END
 
-	INSERT INTO [dbo].[Fatura]	(Id_StatusFatura, Id_Conta, CodigoBarra, DataEmissao, DataVencimento) VALUES
-												(1, @IdConta, @Barcode, @DataEmissao, @DataVencimento)												
-
 	INSERT INTO [dbo].[Fatura]	(Id_StatusFatura, Id_Conta, CodigoBarra, DataEmissao, DataVencimento, Vlr_Fatura) VALUES
 												(1, @IdConta, @Barcode, @DataEmissao, @DataVencimento, 0)												
 	IF @@ROWCOUNT = 1 

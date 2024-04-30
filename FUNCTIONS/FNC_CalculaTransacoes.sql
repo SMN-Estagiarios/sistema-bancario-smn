@@ -1,5 +1,5 @@
 CREATE OR ALTER FUNCTION [dbo].[FNC_CalculaTransacoes](
-    @Id_Fatura INT
+    @Id_CartaoCredito INT
 )
 
 	RETURNS DECIMAL(15, 2)
@@ -19,7 +19,7 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_CalculaTransacoes](
 											DECLARE	@RET INT,
 															@Dat_ini DATETIME = GETDATE();											
 
-											SELECT @RET = [dbo].[FNC_CalculaTransacoes](1);
+											SELECT @RET = [dbo].[FNC_CalculaTransacoes](7);
 
 											SELECT @RET AS RETORNO
 
@@ -29,13 +29,11 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_CalculaTransacoes](
 		*/
 	BEGIN
 		DECLARE @Resultado DECIMAL(15,2)
-			IF (@Id_Fatura IS NOT NULL)
+			IF (@Id_CartaoCredito IS NOT NULL)
 				BEGIN
 					SELECT @Resultado = ISNULL(SUM(Valor_Trans), 0)
-						FROM [dbo].[TransacaoCartaoCredito]cc WITH(NOLOCK)
-							INNER JOIN [dbo].[Fatura] f WITH(NOLOCK)
-								ON cc.Id_Fatura = f.Id
-					WHERE @Id_Fatura = cc.Id_Fatura AND f.Id_StatusFatura = 2 
+						FROM [dbo].[TransacaoCartaoCredito]tc WITH(NOLOCK)
+						WHERE tc.Id_Fatura IS NULL	AND @Id_CartaoCredito = Id_CartaoCredito						
 				END
 			RETURN @Resultado
 	END
