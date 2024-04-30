@@ -163,15 +163,14 @@ CREATE TABLE CartaoCredito(
 
 CREATE TABLE Fatura(
 	Id INT IDENTITY,
-	Id_Conta INT NOT NULL,
+	Id_CartaoCredito INT NOT NULL,
 	Id_Lancamento INT,
 	CodigoBarra BIGINT NOT NULL,
 	DataEmissao DATE NOT NULL,
 	DataVencimento DATE NOT NULL,
 	Vlr_Fatura DECIMAL(15, 2) NOT NULL, 
 	CONSTRAINT PK_IdFatura PRIMARY KEY(Id),
-	CONSTRAINT FK_Id_StatusFatura_Fatura FOREIGN KEY (Id_StatusFatura) REFERENCES StatusFatura(Id),
-	CONSTRAINT FK_Id_Conta_Fatura FOREIGN KEY(Id_Conta) REFERENCES Contas(Id),
+	CONSTRAINT FK_Id_CartaoCredito_Fatura FOREIGN KEY(Id_CartaoCredito) REFERENCES CartaoCredito(Id),
 	CONSTRAINT FK_Id_Lancamento_Fatura FOREIGN KEY(Id_Lancamento) REFERENCES Lancamentos(Id)
 );
 
