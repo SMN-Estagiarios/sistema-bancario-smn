@@ -31,6 +31,15 @@ ALTER TABLE ValorTaxaEmprestimo
 	DROP CONSTRAINT FK_Id_CreditScore_ValorTaxaEmprestimo
 GO
 
+	-- Executando o drop de constraint de FK na tabela ValorIndice
+ALTER TABLE ValorIndice
+	DROP CONSTRAINT FK_Id_Indice_ValorIndice
+GO
+ALTER TABLE ValorIndice
+	DROP CONSTRAINT FK_Id_PeriodoIndice_ValorIndice
+GO
+
+
 	-- Executando o drop de constraint de FK na tabela Emprestimo
 ALTER TABLE Emprestimo
 	DROP CONSTRAINT FK_Id_Conta_Emprestimo
@@ -42,7 +51,7 @@ ALTER TABLE Emprestimo
 	DROP CONSTRAINT FK_Id_TaxaEmprestimo_Emprestimo
 GO
 ALTER TABLE Emprestimo
-	DROP CONSTRAINT FK_Id_Taxa_Emprestimo
+	DROP CONSTRAINT FK_Id_ValorIndice_Emprestimo
 GO
 
 	-- Executando o drop de constraint de FK na tabela SaldoDiario
@@ -223,6 +232,12 @@ GO
 DROP TABLE [dbo].[TaxaEmprestimo]
 GO
 DROP TABLE [dbo].[ValorTaxaEmprestimo]
+GO
+DROP TABLE [dbo].[Indice]
+GO
+DROP TABLE [dbo].[PeriodoIndice]
+GO 
+DROP TABLE [dbo].[ValorIndice]
 GO
 DROP TABLE [dbo].[Emprestimo]
 GO
