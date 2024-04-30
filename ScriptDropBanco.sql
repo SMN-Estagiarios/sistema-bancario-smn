@@ -177,6 +177,12 @@ DROP PROC [dbo].[SP_BloquearCartao]
 GO
 DROP PROC [dbo].[SP_InserirNovoCartaoCredito]
 GO
+DROP PROC [dbo].[SP_ExcluirCorrentista]
+GO
+DROP PROC [dbo].[SP_GerarFatura]
+GO
+DROP PROC [dbo].[SP_InserirNovoCorrentista]
+GO
 
 
 	-- DROPANDO TODAS OS JOBS 
