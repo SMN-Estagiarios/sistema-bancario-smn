@@ -9,7 +9,36 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_InserirLancamentoParcela]
 			Autor.................: Odlavir Florentino, Rafael Mauricio e João Victor
 			Data..................: 29/04/2024
 			Ex....................: BEGIN TRAN
-										
+										UPDATE [dbo].[Contas]
+											SET Lim_ChequeEspecial = 1000,
+												Id_CreditScore = 8
+											WHERE Id = 1
+
+											EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'PRE'
+
+										SELECT TOP 5 Id,
+													 Id_Emprestimo,
+													 Id_Lancamento,
+													 Valor,
+													 ValorJurosAtraso,
+													 Data_Cadastro
+											FROM [dbo].[Parcela] WITH(NOLOCK)
+											WHERE	Id_Lancamento IS NULL
+													AND Id_Emprestimo = (SELECT TOP 1 MAX(Id_Emprestimo)
+																			FROM [dbo].[Parcela] WITH(NOLOCK))
+
+
+										EXEC [dbo].[SPJOB_LancarParcela]
+
+										SELECT TOP 5 Id,
+													 Id_Emprestimo,
+													 Id_Lancamento,
+													 Valor,
+													 ValorJurosAtraso,
+													 Data_Cadastro
+											FROM [dbo].[Parcela] WITH(NOLOCK)
+											WHERE Id_Emprestimo = (SELECT TOP 1 MAX(Id_Emprestimo)
+																		FROM [dbo].[Parcela] WITH(NOLOCK))
 									ROLLBACK TRAN
 		*/
 	BEGIN
@@ -24,10 +53,10 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_InserirLancamentoParcela]
 				FROM INSERTED i WITH(NOLOCK)
 					INNER JOIN [dbo].[Emprestimo] e WITH(NOLOCK)
 						ON e.Id_Conta = i.Id_Conta
+				ORDER BY Id_Lancamento ASC
 
 		--Abrir o Cursor
 		OPEN Lancamento
-
 		--Pegar registro
 		FETCH NEXT FROM Lancamento
 			INTO @Id_Lancamento, @Tipo_Lancamento, @Id_Emprestimo
