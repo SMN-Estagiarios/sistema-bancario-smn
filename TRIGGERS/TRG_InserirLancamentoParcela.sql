@@ -9,36 +9,43 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_InserirLancamentoParcela]
 			Autor.................: Odlavir Florentino, Rafael Mauricio e João Victor
 			Data..................: 29/04/2024
 			Ex....................: BEGIN TRAN
-										EXEC [dbo].[SPJOB_CriarLancamentoEmprestimo]
-										SELECT *
-											FROM [dbo].[Parcela]
+										
 									ROLLBACK TRAN
 		*/
 	BEGIN
-		--Declarar as variáveis
-		DECLARE @Id_Lancamento INT,
-				@Id_Emprestimo INT,
-				@Tipo_Lancamento TINYINT
-		--Atribuir valor às variáveis
-		SELECT	@Id_Lancamento = i.Id,
-				@Tipo_Lancamento = i.Id_TipoLancamento,
-				@Id_Emprestimo = e.Id
-			FROM INSERTED i 
-				INNER JOIN [dbo].[Emprestimo] e
-					ON e.Id_Conta = i.Id_Conta
-		--Atualizar registro de parcela caso o tipo do lançamento seja empréstimo
-		IF(@Tipo_Lancamento = 8)
+		DECLARE @Id_Lancamento INT, 
+				@Tipo_Lancamento TINYINT,
+				@Id_Emprestimo INT
+		--Montar o cursor de lançamentos
+		DECLARE Lancamento CURSOR FOR
+			SELECT	Id_Lancamento = i.Id,
+					Tipo_Lancamento = i.Id_TipoLancamento,
+					Id_Emprestimo = e.Id
+				FROM INSERTED i WITH(NOLOCK)
+					INNER JOIN [dbo].[Emprestimo] e WITH(NOLOCK)
+						ON e.Id_Conta = i.Id_Conta
+
+		--Abrir o Cursor
+		OPEN Lancamento
+
+		--Pegar registro
+		FETCH NEXT FROM Lancamento
+			INTO @Id_Lancamento, @Tipo_Lancamento, @Id_Emprestimo
+
+		--Loop no cursor
+		WHILE @@FETCH_STATUS = 0
 			BEGIN
-				UPDATE [dbo].[Parcela]
+				--Atualizar o Id do lançamento da parcela
+				UPDATE TOP(1) [dbo].[Parcela]
 					SET Id_Lancamento = @Id_Lancamento
-					WHERE	Id_Emprestimo = @Id_Emprestimo
-							AND DATEPART(MONTH, Data_Cadastro) = DATEPART(MONTH, GETDATE())
-						
-				--Retornar erro caso mais de uma linha seja atualizada
-				IF @@ROWCOUNT <> 1
-					BEGIN
-						RAISERROR('Mais de um registro foi alterado', 16, 1)
-					END
+					WHERE	Id_Lancamento IS NULL
+							AND Id_Emprestimo = @Id_Emprestimo
+				--Pegar próximo registro
+				FETCH NEXT FROM Lancamento
+					INTO @Id_Lancamento, @Tipo_Lancamento, @Id_Emprestimo
 			END
+		--Fechar cursor
+		CLOSE Lancamento
+		DEALLOCATE Lancamento
 	END
 GO
