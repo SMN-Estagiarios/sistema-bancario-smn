@@ -13,10 +13,14 @@ AS
 
                                     DECLARE @Dat_ini DATETIME = GETDATE();
 									
-                                   SELECT * FROM [dbo].[FNC_ListarValorAtualTaxaCartao](1)
+									SELECT * FROM [dbo].[FNC_ListarValorAtualTaxaCartao](1)
 								   
-                                    SELECT 
-                                            DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
+									INSERT INTO ValorTaxaCartao (Id_TaxaCartao, Aliquota, DataInicial) VALUES
+															   (1, 0.00500, GETDATE()-1)
+
+									SELECT * FROM [dbo].[FNC_ListarValorAtualTaxaCartao](1)
+
+                                    SELECT DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
                                 ROLLBACK TRAN
 		*/
 
@@ -37,7 +41,5 @@ AS
 				AND vtc.Id_TaxaCartao = @IdTaxaCartao
 				ORDER BY vtc.DataInicial DESC
 		RETURN
+
 	END
-
-
-	

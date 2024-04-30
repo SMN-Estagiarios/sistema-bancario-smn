@@ -13,10 +13,16 @@ AS
 
                                     DECLARE @Dat_ini DATETIME = GETDATE();
 									
-                                   SELECT * FROM [dbo].[FNC_ListarValorAtualTaxaEmprestimo](1, 8)
-								   
-                                    SELECT 
-                                            DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
+									SELECT * FROM [dbo].[FNC_ListarValorAtualTaxaEmprestimo](1, 8)
+
+									INSERT INTO ValorTaxaEmprestimo (Id_TaxaEmprestimo, Id_CreditScore, Aliquota, DataInicial) VALUES
+																   (1, 8, 0.04500, GETDATE()-1);
+
+									SELECT * FROM [dbo].[FNC_ListarValorAtualTaxaEmprestimo](1, 8)
+
+									SELECT * FROM [dbo].[FNC_ListarValorAtualTaxaEmprestimo](2, 8)
+
+                                    SELECT DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
                                 ROLLBACK TRAN
 		*/
 
@@ -38,7 +44,5 @@ AS
 				AND vte.Id_CreditScore = @IdCreditScore
 				ORDER BY vte.DataInicial DESC
 		RETURN
+
 	END
-
-
-	

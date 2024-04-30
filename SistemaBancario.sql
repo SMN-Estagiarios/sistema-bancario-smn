@@ -204,9 +204,9 @@ CREATE TABLE Tarifas (
 );
 
 CREATE TABLE PrecoTarifas (
-	Id INT,
+	Id INT IDENTITY,
 	Id_Tarifa TINYINT NOT NULL,
-	Valor DECIMAL(4,2),
+	Valor DECIMAL(4,2) NOT NULL,
 	DataInicial DATE NOT NULL,
 	CONSTRAINT PK_IdPrecoTarifas PRIMARY KEY(Id),
 	CONSTRAINT FK_Id_Tarifa_PrecoTarifas FOREIGN KEY(Id_Tarifa) REFERENCES Tarifas(Id)
@@ -245,22 +245,22 @@ CREATE TABLE Parcela (
 );
 
 CREATE TABLE LancamentosPrecoTarifas (
-	Id_Lancamentos INT UNIQUE,
-	Id_PrecoTarifas INT,
+	Id_Lancamentos INT UNIQUE NOT NULL,
+	Id_PrecoTarifas INT NOT NULL,
 	CONSTRAINT FK_Id_Lancamentos_LancamentosPrecoTarifas FOREIGN KEY(Id_Lancamentos) REFERENCES Lancamentos(Id),
 	CONSTRAINT FK_Id_PrecoTarifas_LancamentosPrecoTarifas FOREIGN KEY(Id_PrecoTarifas) REFERENCES PrecoTarifas(Id)
 );
 
 CREATE TABLE LancamentosValorTaxa (
-	Id_Lancamentos INT UNIQUE,
-	Id_ValorTaxa INT,
+	Id_Lancamentos INT UNIQUE NOT NULL,
+	Id_ValorTaxa INT NOT NULL,
 	CONSTRAINT FK_Id_Lancamentos_LancamentosValorTaxa FOREIGN KEY(Id_Lancamentos) REFERENCES Lancamentos(Id),
 	CONSTRAINT FK_Id_ValorTaxa_LancamentosValorTaxa FOREIGN KEY(Id_ValorTaxa) REFERENCES ValorTaxa(Id)
 );
 
 CREATE TABLE LancamentosTransacao (
-	Id_Lancamentos INT UNIQUE,
-	Id_TransacaoCartaoCredito INT,
+	Id_Lancamentos INT UNIQUE NOT NULL,
+	Id_TransacaoCartaoCredito INT NOT NULL,
 	CONSTRAINT FK_Id_Lancamentos_LancamentosTransacao FOREIGN KEY(Id_Lancamentos) REFERENCES Lancamentos(Id),
 	CONSTRAINT FK_Id_TransacaoCartaoCredito_LancamentosTransacao FOREIGN KEY(Id_TransacaoCartaoCredito) REFERENCES TransacaoCartaoCredito(Id)
 );
@@ -279,8 +279,8 @@ CREATE TABLE Transferencias (
 );
 
 CREATE TABLE TransferenciasLancamentos (
-	IdTransferencia INT NOT NULL,
 	IdLancamento INT UNIQUE NOT NULL,
+	IdTransferencia INT NOT NULL,
 	CONSTRAINT FK_IdTransferencia_TransferenciaLancamentos FOREIGN KEY (IdTransferencia) REFERENCES Transferencias(Id),
-	CONSTRAINT FK_IdLancamento_TransferenciaLancamentos FOREIGN KEY (IdLancamento) REFERENCES Usuarios(Id)
+	CONSTRAINT FK_IdLancamento_TransferenciaLancamentos FOREIGN KEY (IdLancamento) REFERENCES Lancamentos(Id)
 );
