@@ -3,23 +3,31 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_CriarLancamentoEmprestimo]
 	/*
 		Documentação
 				Arquivo Fonte.....: SPJOB_CriarLancamentoEmprestimo.sql
-				Objetivo..........: Verificar se existe parcela a ser vencida e gerar um lancamento.
-									Id_Usuario setado para 0, Id_TipoLancamento = 8.
+				Objetivo..........: Verificar diariamente se existe parcela a ser vencida e gerar um lancamento.
+									Id_Usuario fixo em 0 
+									Id_TipoLancamento fixo em 8 (empréstimo)
 				Autor.............: Odlavir Florentino, Rafael Mauricio e João Victor
  				Data..............: 26/04/2024
 				Ex................: BEGIN TRAN
-										SELECT * FROM Lancamentos
+										DBCC FREEPROCCACHE
+										DECLARE @Dat_ini DATETIME = GETDATE()
+										SELECT TOP 10 *
+											FROM Lancamentos
+											ORDER BY Dat_Lancamento DESC
+
 										UPDATE [dbo].[Contas]
 											SET Id_CreditScore = 1,
 												Lim_ChequeEspecial = 5000
 										WHERE Id = 1
-
-										EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'PRE', '2024-04-29'
-										EXEC [dbo].[SP_ListarSimulacaoEmprestimo] 1, 1000
+										
 										EXEC [dbo].[SPJOB_CriarLancamentoEmprestimo]
+										
+										SELECT TOP 10 * 
+											FROM Lancamentos
+											ORDER BY Dat_Lancamento DESC
 
-										SELECT * FROM Lancamentos
-									ROLLBACK TRAN
+										SELECT DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
+									ROLLBACK TRAN 
 	*/ 
 	BEGIN
 		--Declarar variáveis
@@ -36,17 +44,18 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_CriarLancamentoEmprestimo]
 											Dat_Lancamento,
 											Estorno
 										)
-									SELECT	Id_Conta,
+									SELECT	e.Id_Conta,
 											0,
 											8,
 											'D',
-											ValorParcela,
+											(p.Valor + p.ValorJurosAtraso),
 											'Empréstimo',
 											@DataAtual,
 											0
-			FROM [dbo].[Emprestimo] WITH(NOLOCK)
-			WHERE	DataInicio < @DataAtual
-					AND DATEPART(DAY, DataInicio) = DATEPART(DAY, @DataAtual)
-					AND @DataAtual <= DATEADD(MONTH, NumeroParcelas - 1, DataInicio)
+			FROM [dbo].[Emprestimo] e WITH(NOLOCK)
+				INNER JOIN [dbo].[Parcela] p WITH(NOLOCK)
+					ON p.Id_Emprestimo = e.Id
+			WHERE	p.Data_Cadastro <= @DataAtual
+					AND p.Id_Status = 2
 	END	
 GO
