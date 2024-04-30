@@ -7,7 +7,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 	Documentacao
 	Arquivo Fonte.....: CartaoCredito.sql
 	Objetivo..........: 
-	Autor.............: Olívio Freitas, Orcino Ferreira, Isabella Tragante
+	Autor.............: Olï¿½vio Freitas, Orcino Ferreira, Isabella Tragante
 	Data..............: 24/04/2024
 	Ex................: BEGIN TRAN
 							DBCC DROPCLEANBUFFERS;
@@ -47,7 +47,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 							FROM [dbo].[Correntista] WITH(NOLOCK)
 							WHERE Id = @IdCorrentista)
 			BEGIN
-				PRINT 'Correntista não existe em nosso banco'
+				PRINT 'Correntista nï¿½o existe em nosso banco'
 				RETURN 1
 			END
 		ELSE
@@ -61,7 +61,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 							FROM [dbo].[Contas] WITH(NOLOCK)
 							WHERE Id = @IdConta)
 			BEGIN
-				PRINT 'Conta não encontrada'
+				PRINT 'Conta nï¿½o encontrada'
 				RETURN 2
 			END
 		ELSE
@@ -74,15 +74,15 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 							ON C.Id_CreditScore = CS.Id
 					WHERE C.Id_Correntista = @IdCorrentista
 
-				-- Verifica se o CreditScore está baixo ou nullo
+				-- Verifica se o CreditScore estï¿½ baixo ou nullo
 				If @IdCreditScore <= 3 OR @IdCreditScore IS NULL
-					-- Restrição para criação do cartão baseado no credit score.
+					-- Restriï¿½ï¿½o para criaï¿½ï¿½o do cartï¿½o baseado no credit score.
 					BEGIN
 						SET @LimiteCartao = 100
 						PRINT 'Score baixo. Aumente sua renda!'
 					END
 				ELSE
-					-- Aplicar limite do cartão baseado no credit score
+					-- Aplicar limite do cartï¿½o baseado no credit score
 					BEGIN
 						SET @LimiteCartao = (@SaldoConta * @Aliquota) / 1.6
 					END
@@ -96,11 +96,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 							WHERE COR.Id = @IdCorrentista
 								AND CON.Id = @IdConta)
 			BEGIN
-				PRINT 'Conta não pertence ao correntista'
+				PRINT 'Conta nï¿½o pertence ao correntista'
 				RETURN 3
 			END
 
-		-- Gera novo número de cartão de crédito
+		-- Gera novo nï¿½mero de cartï¿½o de crï¿½dito
 		SET @NumeroCartao =  CAST(round(RAND()*10000000000000000,0) AS BIGINT)
 		WHILE @NumeroCartao = (SELECT Numero
 								FROM [dbo].[CartaoCredito] WITH(NOLOCK)
@@ -118,9 +118,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 
 		IF @DiaVencimento IN (6, 11, 16, 21, 26)
 			BEGIN
-				-- Criar novo cartão
-				INSERT INTO CartaoCredito (Id_Conta, Id_StatusCartaoCredito, NomeImpresso, Numero, Cvc, Limite, DataEmissao, DataValidade, Aproximacao, DiaVencimento)
-									VALUES(@IdConta, 1, @NomeCorrentista, @NumeroCartao, @NumeroCVC, @LimiteCartao, @DataAtual, @DataValidade, 0, @DiaVencimento)
+				-- Criar novo cartï¿½o
+				INSERT INTO CartaoCredito (Id_Conta, Id_StatusCartaoCredito, NomeImpresso, Numero, Cvc, Limite, LimiteComprometido, DataEmissao, DataValidade, Aproximacao, DiaVencimento)
+									VALUES(@IdConta, 2, @NomeCorrentista, @NumeroCartao, @NumeroCVC, @LimiteCartao, 0, @DataAtual, @DataValidade, 0, @DiaVencimento)
 
 			RETURN 0						
 			END
@@ -138,7 +138,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtivaCartaoCredito]
 	Documentacao
 	Arquivo Fonte.....: CartaoCredito.sql
 	Objetivo..........: 
-	Autor.............: Olívio Freitas, Orcino Ferreira, Isabella Tragante
+	Autor.............: Olï¿½vio Freitas, Orcino Ferreira, Isabella Tragante
 	Data..............: 26/04/2024
 	Ex................: BEGIN TRAN
 							DBCC DROPCLEANBUFFERS;
@@ -198,7 +198,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtivaAproximacaoCartao]
 	Documentacao
 	Arquivo Fonte.....: CartaoCredito.sql
 	Objetivo..........: Cria uma conta na tabela [dbo].[Contas]
-	Autor.............: Olívio Freitas, Orcino Ferreira, Isabella Tragante
+	Autor.............: Olï¿½vio Freitas, Orcino Ferreira, Isabella Tragante
 	Data..............: 26/04/2024
 	Ex................: BEGIN TRAN
 							DBCC DROPCLEANBUFFERS;
@@ -237,7 +237,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_BloquearCartao]
 		/*
 		Documentacao
 		Arquivo Fonte.....: CartaoCredito.sql
-		Objetivo..........: Alterar o Status do Cartão para 3(bloqueado)
+		Objetivo..........: Alterar o Status do Cartï¿½o para 3(bloqueado)
 		Autor.............: Isabella, Olivio e Orcino
 			Data..............: 26/04/2024
 		Ex................: BEGIN TRAN
