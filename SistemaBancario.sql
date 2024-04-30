@@ -265,7 +265,7 @@ CREATE TABLE Parcela (
 	Id INT IDENTITY,
 	Id_Emprestimo INT NOT NULL,
 	Id_Lancamento INT,
-	Valor DECIMAL(15,2) NOT NULL,
+	Valor DECIMAL(15,2),
 	ValorJurosAtraso DECIMAL(6,2) NOT NULL DEFAULT(0.0),
 	Data_Cadastro DATE NOT NULL
 	CONSTRAINT PK_Parcela PRIMARY KEY (Id),

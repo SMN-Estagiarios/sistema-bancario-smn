@@ -39,6 +39,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 									[dbo].[Parcela] WITH(NOLOCK)
 								SELECT * FROM Lancamentos
 							ROLLBACK TRAN
+
+							--- Resultado ---
+							00: Lancamento(s) criado(s) com sucesso.
+							01: Não teve lancamentos ou lancamentos foram adiados
 	*/
 	BEGIN
 		--DECLARE @DataAtual DATE = GETDATE(),
@@ -109,6 +113,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 							0							
 						FROM #Tabela
 						WHERE Valor <= SaldoDisponivel
+
+				RETURN 0
 			END
 
 			
@@ -121,5 +127,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 					SET ValorJurosAtraso = ValorJurosAtraso + ([dbo].[FNC_BuscarTaxaJurosAtraso](Id_Emprestimo) * Valor)
 				WHERE	Data_Cadastro < @DataAtual AND
 						Id_Lancamento IS NULL
+
+				RETURN 1
 			END
 	END

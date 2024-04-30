@@ -11,10 +11,11 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 	Autor.............: Joao Victor Maia, Odlavir Florentino, Rafael Mauricio
 	Data..............: 29/04/2024
 	Ex................: BEGIN TRAN
-							SELECT	Id,
+							SELECT	Id
 									Id_Conta,
 									Id_StatusEmprestimo,
 									Id_ValorTaxaEmprestimo,
+									Id_ValorIndice,
 									ValorSolicitado,
 									NumeroParcelas,
 									Tipo,
@@ -29,12 +30,14 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 									Data_Cadastro
 								FROM [dbo].[Parcela] WITH(NOLOCK)
 
-							EXEC [dbo].[SP_RealizarEmprestimo] 1, 500, 5, 'PRE', NULL
+							EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'PRE'
+							EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 5, 'POS', NULL, 1, 1
 
-							SELECT	Id,
+							SELECT	Id
 									Id_Conta,
 									Id_StatusEmprestimo,
 									Id_ValorTaxaEmprestimo,
+									Id_ValorIndice,
 									ValorSolicitado,
 									NumeroParcelas,
 									Tipo,
@@ -56,42 +59,94 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 				@ValorSolicitado DECIMAL(15,2),
 				@ValorParcela DECIMAL(15,2),
 				@NumeroParcelas INT,
+				@Id_ValorTaxaEmprestimo INT,
+				@Id_ValorIndice INT,
 				@DataInicio DATE,
-				@ContagemParcela INT = 1
+				@ContagemParcela INT = 1,
+				@Taxa DECIMAL(6,5)
+
 
 		SELECT @Id = Id, 
 			   @Id_Conta = Id_Conta,
 			   @ValorSolicitado = ValorSolicitado,
+			   @Id_ValorTaxaEmprestimo = Id_ValorTaxaEmprestimo,
+			   @Id_ValorIndice = Id_ValorIndice,
 			   @NumeroParcelas = NumeroParcelas,
 			   @DataInicio = DataInicio
 			FROM inserted
 
+		--Pegar Taxa da Conta
+		SELECT @Taxa = [dbo].[FNC_CalcularTaxaEmprestimo](@Id_Conta)
+
+		CREATE TABLE #Tabela	(
+									Parcelas TINYINT,
+									PrecoParcela DECIMAL(6,2)
+								)
+
+		--Listar a simulação de empréstimo em que o valor da parcela seja maior que 100
+		INSERT INTO #Tabela 
+			SELECT	QuantidadeParcela AS TotalParcelas,
+					@ValorSolicitado * @Taxa / (1 - POWER(1 + @Taxa, - QuantidadeParcela)) AS PrecoParcela
+			FROM [dbo].[FNC_ListarParcelasEmprestimo]()
+			WHERE	@ValorSolicitado * @Taxa / (1 - POWER(1 + @Taxa, - QuantidadeParcela)) > 100
+
+
 		SELECT @ValorParcela = PrecoParcela 
-			FROM [dbo].[FNC_ListarSimulacaoEmprestimo](@Id_Conta, @ValorSolicitado)
+			FROM #Tabela
 			WHERE Parcelas = @NumeroParcelas
-		
-		WHILE @ContagemParcela <= @NumeroParcelas
+
+		IF @Id_ValorTaxaEmprestimo IS NOT NULL
 			BEGIN
-				SET @DataInicio = DATEADD(MONTH, 1, @DataInicio)
-
-				IF DAY(@DataInicio) > DAY(EOMONTH(@DataInicio))	
+				WHILE @ContagemParcela <= @NumeroParcelas
 					BEGIN
-						SET @DataInicio = EOMONTH(@DataInicio)
+						SET @DataInicio = DATEADD(MONTH, 1, @DataInicio)
+
+						IF DAY(@DataInicio) > DAY(EOMONTH(@DataInicio))	
+							BEGIN
+								SET @DataInicio = EOMONTH(@DataInicio)
+							END
+
+						INSERT INTO [DBO].[Parcela] (   Id_Emprestimo,
+														Id_Lancamento,
+														Valor,
+														ValorJurosAtraso,
+														Data_Cadastro
+													) VALUES (
+																@Id,
+																NULL,
+																@ValorParcela,
+																0.00,
+																@DataInicio
+															 )
+
+						SET @ContagemParcela = @ContagemParcela + 1
 					END
+			END
+		ELSE IF @Id_ValorIndice IS NOT NULL
+			BEGIN
+				WHILE @ContagemParcela <= @NumeroParcelas
+					BEGIN
+						SET @DataInicio = DATEADD(MONTH, 1, @DataInicio)
 
-				INSERT INTO [DBO].[Parcela] (   Id_Emprestimo,
-												Id_Lancamento,
-												Valor,
-												ValorJurosAtraso,
-												Data_Cadastro
-											) VALUES (
-														@Id,
-														NULL,
-														@ValorParcela,
-														0.00,
-														@DataInicio
-													 )
+						IF DAY(@DataInicio) > DAY(EOMONTH(@DataInicio))	
+							BEGIN
+								SET @DataInicio = EOMONTH(@DataInicio)
+							END
 
-				SET @ContagemParcela = @ContagemParcela + 1
+						INSERT INTO [DBO].[Parcela] (   Id_Emprestimo,
+														Id_Lancamento,
+														Valor,
+														ValorJurosAtraso,
+														Data_Cadastro
+													) VALUES (
+																@Id,
+																NULL,
+																NULL,
+																0.00,
+																@DataInicio
+																)
+
+						SET @ContagemParcela = @ContagemParcela + 1
+					END
 			END
 	END
