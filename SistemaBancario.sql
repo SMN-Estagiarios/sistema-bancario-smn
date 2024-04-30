@@ -267,3 +267,11 @@ CREATE TABLE Transferencias (
 	CONSTRAINT FK_Id_Conta_Debito_Transferencias FOREIGN KEY (Id_Conta_Debito) REFERENCES Contas(Id),
 	CONSTRAINT FK_Id_Usuario_Transferencias FOREIGN KEY (Id_Usuario ) REFERENCES Usuarios(Id)
 );
+
+
+CREATE TABLE LancamentosTransferencia (
+	Id_Lancamentos INT UNIQUE,
+	Id_Transferencia INT,
+	CONSTRAINT FK_Id_Lancamentos_LancamentosTransferencias FOREIGN KEY(Id_Lancamentos) REFERENCES Lancamentos(Id),
+	CONSTRAINT FK_Id_Tranferencia_LancamentosTransferencia FOREIGN KEY(Id_Transferencia) REFERENCES Transferencias(Id)
+);

@@ -131,6 +131,13 @@ ALTER TABLE Transferencias
 	DROP CONSTRAINT FK_Id_Usuario_Transferencias
 GO
 
+	-- Executando o drop de constraint de FK na tabela LancamentosTransferencia
+ALTER TABLE LancamentosTransferencia
+	DROP CONSTRAINT FK_Id_Lancamentos_LancamentosTransferencias
+GO
+ALTER TABLE LancamentosTransferencia
+	DROP CONSTRAINT FK_Id_Tranferencia_LancamentosTransferencia
+GO
 	-- DROPANDO TRIGGERS DO SISTEMA BANCARIO
 DROP TRIGGER [TRG_AplicarTarifaTransferencia]
 GO
@@ -173,6 +180,8 @@ GO
 DROP PROC [dbo].[SPJOB_AtualizarSaldo]
 GO
 DROP PROC [dbo].[SPJOB_LancarTaxaSaldoNegativo]
+GO
+DROP PROC [dbo].[SP_RegistrarLancamentosTransferencia]
 GO
 
 	-- DROPANDO TODAS AS FUNCTIONS
@@ -241,4 +250,6 @@ GO
 DROP TABLE [dbo].[LancamentosTransacao]
 GO
 DROP TABLE [dbo].[Transferencias]
+GO
+DROP TABLE [dbo].[LancamentosTransferencia]
 GO

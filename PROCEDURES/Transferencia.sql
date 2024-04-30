@@ -1,6 +1,3 @@
-USE SistemaBancario
-GO
-
 CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarNovaTransferenciaBancaria]
 	@Id_Usuario INT,
 	@Id_ContaDeb INT,
@@ -40,6 +37,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarNovaTransferenciaBancaria]
 										Dat_Saldo
 								FROM [dbo].[Contas]
 
+
 								SELECT * from Lancamentos
 									
 						   ROLLBACK TRAN
@@ -53,6 +51,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarNovaTransferenciaBancaria]
 							04.................: impossivel fazer trasnferência para a mesma conta destino e origem
 	*/
 	BEGIN
+		
+		DECLARE @Data_Atual DATE = GETDATE()
 		--Verifica se as contas Existem
 		IF NOT EXISTS (SELECT TOP 1 1
 								FROM [dbo].[Contas]
@@ -103,7 +103,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarNovaTransferenciaBancaria]
 														@Id_ContaDeb, 
 														@Vlr_Transferencia, 
 														@Nom_referencia, 
-														GETDATE())
+														@Data_Atual)
 			END
 		RETURN 0
 	END
@@ -111,9 +111,7 @@ GO
 
 CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEstornoTransferencia]
 	@Id_Transferencia INT
-
 	AS
-
 	/*
 			Documentação
 			Arquivo Fonte.....: Transfencia.sql
@@ -134,9 +132,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEstornoTransferencia]
 											Dat_Saldo
 									FROM [dbo].[Contas]
 
+									Select * from Transferencias
 									SELECT * from Lancamentos
 
-								  EXEC @RET = [dbo].[SP_RealizarEstornoTransferencia]6
+								  EXEC @RET = [dbo].[SP_RealizarEstornoTransferencia]15
 
 									SELECT @RET AS RETORNO,
 										   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUcaO
@@ -147,6 +146,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEstornoTransferencia]
 											Dat_Saldo
 									FROM [dbo].[Contas]
 									SELECT * from Lancamentos
+									SELECT * from transferencias
 								ROLLBACK TRAN
 	*/
 	BEGIN
@@ -161,10 +161,16 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEstornoTransferencia]
 						BEGIN
 							RETURN 1
 						END
-					--efetuando a deleção de registro de transferência para disparo do trigger
-					DELETE [dbo].[Transferencias]
-						WHERE Id = @Id_Transferencia
-						RETURN 0
+					
+					ALTER TABLE [dbo].[LancamentosTransferencia]
+					DROP CONSTRAINT [FK_Id_Tranferencia_LancamentosTransferencia]
+						
+						DELETE [dbo].[Transferencias]
+							WHERE Id = @Id_Transferencia
+							RETURN 0
+
+					ALTER TABLE [dbo].[LancamentosTransferencia]
+					ADD CONSTRAINT [FK_Id_Tranferencia_LancamentosTransferencia] FOREIGN KEY (Id_Transferencia) REFERENCES Transferencias(Id);
 				END
 			ELSE
 				BEGIN
@@ -172,10 +178,115 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEstornoTransferencia]
 				END
 	END
 GO
-        
+
+CREATE OR ALTER  PROCEDURE [dbo].[SP_RegistrarLancamentosTransferencia]
+		@Id_Transferencia INT,
+		@Id_Lancamentos INT 
+	AS 
+	/*
+			Documentação
+			Arquivo Fonte.....: Transferencia.sql
+			Objetivo..........: Instancia uma nova trasnferência entre contas
+			Autor.............: Adriel Alexsander, Thays Carvalho, Isabella Tragante
+ 			Data..............: 02/04/2024
+			Autor Alteracao...: Adriel Alexander de Sousa
+			Data Alteracao....: 29/04/2024
+			Ex................: BEGIN TRAN
+									DBCC DROPCLEANBUFFERS;
+									DBCC FREEPROCCACHE;
+
+									DECLARE @RET INT, 
+									@Dat_init DATETIME = GETDATE()
+
+									SELECT  Id,
+											Vlr_SldInicial, 
+											Vlr_Credito,
+											Vlr_debito,
+											Dat_Saldo
+									FROM [dbo].[Contas]
+
+									SELECT * FROM [dbo].[LancamentosTransferencia]
+
+									EXEC @RET =  [SP_RealizarNovaTransferenciaBancaria] 0,1, 2,  50, 'Transfe pagamento aluguel' 
+
+									SELECT @RET AS RETORNO,
+											DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUcaO
+									SELECT  Id,
+											Vlr_SldInicial, 
+											Vlr_Credito,
+											Vlr_debito,
+											Dat_Saldo
+									FROM [dbo].[Contas]
+
+									SELECT * FROM [dbo].[LancamentosTransferencia]
+
+									SELECT * from Lancamentos
+									
+								ROLLBACK TRAN
+
+		    EX2..............: BEGIN TRAN
+									DBCC DROPCLEANBUFFERS;
+									DBCC FREEPROCCACHE;
+
+									DECLARE @RET INT, 
+									@Dat_init DATETIME = GETDATE()
+
+										SELECT  Id,
+												Vlr_SldInicial, 
+												Vlr_Credito,
+												Vlr_debito,
+												Dat_Saldo
+										FROM [dbo].[Contas]
+
+										Select * from Transferencias
+										SELECT * from Lancamentos
+										SELECT * from [dbo].[LancamentosTransferencia]
+
+									  EXEC @RET = [dbo].[SP_RealizarEstornoTransferencia]15
+
+										SELECT @RET AS RETORNO,
+											   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUcaO
+										SELECT  Id,
+												Vlr_SldInicial, 
+												Vlr_Credito,
+												Vlr_debito,
+												Dat_Saldo
+										FROM [dbo].[Contas]
+										SELECT * from Lancamentos
+										SELECT * from transferencias
+										SELECT * from [dbo].[LancamentosTransferencia]
+								ROLLBACK TRAN
+
+							-- RETORNO --
+							
+							00.................: Sucesso
+							01.................: Erro na inserção do lancamento
+						
+	*/ 
+	 BEGIN
+			BEGIN
+				 INSERT INTO [dbo].[LancamentosTransferencia](
+															  Id_Transferencia, 
+															  Id_Lancamentos
+															 )
+														VALUES
+															 (
+															 @Id_Transferencia, 
+															 @Id_Lancamentos
+															 )
+				 IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
+					BEGIN 
+						RAISERROR('Erro ao registrar o Lancamento Da Transferencia: ', 16,1)
+						RETURN 1 
+					END
+				RETURN 0
+			END
+ 
+     END
+GO 
+
 CREATE OR ALTER PROCEDURE [dbo].[SP_ListarExtratoTransferencia]
 	@Id_Conta INT = null
-
 	AS
 	/*
 			Documentação
@@ -191,7 +302,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarExtratoTransferencia]
 								 SELECT @RET AS RETORNO,
 										DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUÇÃO 	
 	*/
-
 	BEGIN
 		SELECT
 			Id_Conta,
