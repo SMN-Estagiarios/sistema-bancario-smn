@@ -113,13 +113,15 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 							0							
 						FROM #Tabela
 						WHERE Valor <= SaldoDisponivel
-			END
 
-			UPDATE [dbo].[Parcela]
+				UPDATE [dbo].[Parcela]
 					SET Id_Status = 3
 				WHERE Id IN (SELECT Id
 								FROM #Tabela
 								WHERE Valor <= SaldoDisponivel)
+			END
+
+			
 
 		IF EXISTS (SELECT TOP 1 1
 							FROM #Tabela
@@ -127,10 +129,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 			BEGIN
 				UPDATE [dbo].[Parcela]
 					SET Id_Status = 2,
-						ValorJurosAtraso = ValorJurosAtraso + ([dbo].[FNC_BuscarTaxaJurosAtraso](Id) * Valor)
+						ValorJurosAtraso = ValorJurosAtraso + ([dbo].[FNC_BuscarTaxaJurosAtraso](Id_Emprestimo) * Valor)
 				WHERE Id IN (SELECT Id
 								FROM #Tabela
 								WHERE	Valor > SaldoDisponivel AND
-										Id_Status = 1)
+										Id_Status IN (1, 2))
 			END
 	END

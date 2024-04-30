@@ -11,13 +11,49 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 	Autor.............: Joao Victor Maia, Odlavir Florentino, Rafael Mauricio
 	Data..............: 29/04/2024
 	Ex................: BEGIN TRAN
-							SELECT * FROM Emprestimo
-							SELECT * FROM Parcela
+							SELECT	Id,
+									Id_Conta,
+									Id_StatusEmprestimo,
+									Id_ValorTaxaEmprestimo,
+									Id_Taxa,
+									ValorSolicitado,
+									ValorParcela,
+									NumeroParcelas,
+									Tipo,
+									DataInicio
+								FROM [dbo].[Emprestimo] WITH(NOLOCK)
+
+							SELECT	Id,
+									Id_Emprestimo,
+									Id_Lancamento,
+									Id_Status,
+									Valor,
+									ValorJurosAtraso,
+									Data_Cadastro
+								FROM [dbo].[Parcela] WITH(NOLOCK)
 
 							EXEC [dbo].[SP_RealizarEmprestimo] 1, 500, 5, 'PRE', NULL
 
-							SELECT * FROM Emprestimo
-							SELECT * FROM Parcela
+							SELECT	Id,
+									Id_Conta,
+									Id_StatusEmprestimo,
+									Id_ValorTaxaEmprestimo,
+									Id_Taxa,
+									ValorSolicitado,
+									ValorParcela,
+									NumeroParcelas,
+									Tipo,
+									DataInicio
+								FROM [dbo].[Emprestimo] WITH(NOLOCK)
+
+							SELECT	Id,
+									Id_Emprestimo,
+									Id_Lancamento,
+									Id_Status,
+									Valor,
+									ValorJurosAtraso,
+									Data_Cadastro
+								FROM [dbo].[Parcela] WITH(NOLOCK)
 						ROLLBACK TRAN
 	*/
 	BEGIN
@@ -36,13 +72,15 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 			   @DataInicio = DataInicio
 			FROM inserted
 
-		SELECT @ValorParcela = PrecoParcela FROM [dbo].[FNC_ListarSimulacaoEmprestimo](@Id_Conta, @ValorSolicitado)
+		SELECT @ValorParcela = PrecoParcela 
+			FROM [dbo].[FNC_ListarSimulacaoEmprestimo](@Id_Conta, @ValorSolicitado)
 			WHERE Parcelas = @NumeroParcelas
 		
 		WHILE @ContagemParcela <= @NumeroParcelas
 			BEGIN
 				SET @DataInicio = DATEADD(MONTH, 1, @DataInicio)
-				IF DAY(@DataInicio) >= DAY(EOMONTH(@DataInicio))	
+
+				IF DAY(@DataInicio) > DAY(EOMONTH(@DataInicio))	
 					BEGIN
 						SET @DataInicio = EOMONTH(@DataInicio)
 					END
@@ -53,17 +91,15 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 												Valor,
 												ValorJurosAtraso,
 												Data_Cadastro
-											) VALUES	(
-															@Id,
-															NULL,
-															1,
-															@ValorParcela,
-															0.00,
-															@DataInicio
-														)
+											) VALUES (
+														@Id,
+														NULL,
+														1,
+														@ValorParcela,
+														0.00,
+														@DataInicio
+													 )
 
 				SET @ContagemParcela = @ContagemParcela + 1
-
 			END
-
 	END
