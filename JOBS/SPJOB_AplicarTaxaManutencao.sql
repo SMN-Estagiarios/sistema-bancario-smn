@@ -20,6 +20,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 
 										SELECT * FROM Contas ORDER BY Dat_Abertura DESC
 										SELECT * FROM Lancamentos ORDER BY Dat_Lancamento DESC
+										
+										INSERT INTO Contas
+												(Id_Correntista, Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura , Ativo, Lim_ChequeEspecial)
+											VALUES
+												(1, 0, 0, 0, GETDATE(), DATEFROMPARTS(YEAR(@Dat_init), MONTH(DATEADD(MONTH, -1, @Dat_init)), DAY(@Dat_init)), 1, 0)
 
 										INSERT INTO Contas
 												(Id_Correntista, Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura , Ativo, Lim_ChequeEspecial)
