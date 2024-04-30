@@ -16,8 +16,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 										DBCC DROPCLEANBUFFERS;
 										DBCC FREEPROCCACHE;
 
-										DECLARE @RET INT, 
-												@Dat_init DATETIME = GETDATE()
+										DECLARE @Dat_init DATETIME = GETDATE()
 
 										SELECT * FROM Contas ORDER BY Dat_Abertura DESC
 										SELECT * FROM Lancamentos ORDER BY Dat_Lancamento DESC
@@ -27,10 +26,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 											VALUES
 												(1, 0, 0, 0, GETDATE(), DATEFROMPARTS(YEAR(@Dat_init), MONTH(DATEADD(MONTH, -1, @Dat_init)), DAY(@Dat_init)), 1, 0)
 
-										EXEC @RET = [dbo].[SPJOB_AplicarTaxaManutencao];
+										EXEC [dbo].[SPJOB_AplicarTaxaManutencao];
 
-										SELECT	@RET AS RETORNO,
-												DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS TempoExecucao
+										SELECT DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS TempoExecucao
 										
 										SELECT * FROM Lancamentos
 										SELECT * FROM Contas
@@ -47,7 +45,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 					@Data_Cobranca INT,
 					@Valor_TMC DECIMAL(4,2),
 					@Nome_Tarifa VARCHAR(50),
-					@IdTarifa TINYINT = 5 -- Tarifa de manutenção de conta
+					@IdTarifa TINYINT = 5, -- Tarifa de manutenção de conta
+					@IdPrecoTarifas INT
 					
 			SELECT @Data_Abertura = Dat_Abertura
 				FROM Contas
@@ -55,69 +54,70 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AplicarTaxaManutencao]
 				AND DAY(Dat_Abertura) = DAY(@Data_Atual)
 
 			-- Capturar Id_Taxa e Valor da Taxa
-			SELECT	@Valor_TMC = Valor,
+			SELECT	@IdPrecoTarifas = IdPrecoTarifas,
+					@Valor_TMC = Valor,
 					@Nome_Tarifa = Nome
 				FROM [dbo].[FNC_ListarValorAtualTarifa](@IdTarifa)
 
-			-- Comparar Mes/Ano Atual > DataAbertura Lancar @Data_Cobranca
+			-- Se o último dia do mês atual for menor que o dia de abertura de conta, cobrar no último dia do mês atual
 			IF DAY(EOMONTH(@Data_Atual)) < DAY(@Data_Abertura)
 				SET @Data_Cobranca = DAY(EOMONTH(@Data_Atual));
 			ELSE
 				SET @Data_Cobranca = DAY(@Data_Abertura); 
 				
-			-- Insert dos LANCAMENTOS
-			INSERT INTO [dbo].[Lancamentos]	(	
-								Id_Conta,
-								Id_Usuario,
-								Id_TipoLancamento,
-								Tipo_Operacao,
-								Vlr_Lanc,
-								Nom_Historico,
-								Dat_Lancamento,
-								Estorno
-							)
-				SELECT	Id, 
-						0,
-						6, -- Tarifa
-						'D',
-						@Valor_TMC,
-						@Nome_Tarifa,
-						@Data_Atual,
-						0
-					FROM [dbo].[Contas] WITH (NOLOCK)
-					WHERE DAY(Dat_Abertura) = @Data_Cobranca
+			-- Criar uma tabela temporária para armazenar os IDs dos lançamentos inseridos
+			CREATE TABLE #InsertedLancamentos (
+				IdLancamento INT
+			)
+
+			-- INSERT em Lancamentos juntamente com capturar os Ids dos Lancamentos inseridos
+			INSERT INTO [dbo].[Lancamentos] (	
+				Id_Conta,
+				Id_Usuario,
+				Id_TipoLancamento,
+				Tipo_Operacao,
+				Vlr_Lanc,
+				Nom_Historico,
+				Dat_Lancamento,
+				Estorno
+			) OUTPUT INSERTED.Id INTO #InsertedLancamentos(IdLancamento)
+				SELECT	
+					Id, 
+					0,
+					6, -- Tarifa
+					'D',
+					@Valor_TMC,
+					@Nome_Tarifa,
+					@Data_Atual,
+					0
+				FROM 
+					[dbo].[Contas] WITH (NOLOCK)
+				WHERE 
+					DAY(Dat_Abertura) = @Data_Cobranca
 
 			-- Checagem de erro
 			DECLARE @MSG VARCHAR(100),
-					@ERRO INT
-				SET @ERRO = @@ERROR
+					@ERRO INT = @@ERROR
 			
-					IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
-						BEGIN
-							SET @MSG = 'ERRO' + CAST(@ERRO AS VARCHAR(3)) + ', na aplicacao de Tarifa de Manutenção de Conta'
-								RAISERROR(@MSG, 16, 1)
-						END
+			IF @ERRO <> 0 OR @@ROWCOUNT <> 1
+				BEGIN
+					SET @MSG = 'ERRO' + CAST(@ERRO AS VARCHAR(3)) + ', na aplicacao de Tarifa de Manutenção de Conta'
+						RAISERROR(@MSG, 16, 1)
+				END
 
-			DECLARE @IdLancamentoInserido INT = SCOPE_IDENTITY(),
-					@IdPrecoTarifas INT;
-	
-			SELECT @IdPrecoTarifas = IdPrecoTarifas
-				FROM [dbo].[FNC_ListarValorAtualTarifa](@IdTarifa);
+			INSERT INTO [dbo].[LancamentosPrecoTarifas] (Id_Lancamentos, Id_PrecoTarifas) 
+				SELECT	il.IdLancamento,
+						@IdPrecoTarifas
+						FROM #InsertedLancamentos il
 
-			INSERT INTO [dbo].[LancamentosPrecoTarifas] (
-															Id_Lancamentos,
-															Id_PrecoTarifas
-														)
-												VALUES	(
-															@IdLancamentoInserido,
-															@IdPrecoTarifas
-														)
+			-- Apagar a tabela temporária
+			DROP TABLE #InsertedLancamentos
 
 			SET @ERRO = @@ERROR
 			
-				IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
-					BEGIN
-						SET @MSG = 'ERRO' + CAST(@ERRO AS VARCHAR(3)) + ', na aplicacao de Tarifa de Manutenção de Conta'
-							RAISERROR(@MSG, 16, 1)
-					END
+			IF @ERRO <> 0 OR @@ROWCOUNT <> 1
+				BEGIN
+					SET @MSG = 'ERRO' + CAST(@ERRO AS VARCHAR(3)) + ', em armazenar LancamentosPrecoTarifas na aplicacao de Tarifa de Manutenção de Conta'
+						RAISERROR(@MSG, 16, 1)
+				END
 GO

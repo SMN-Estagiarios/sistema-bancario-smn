@@ -13,18 +13,15 @@ AS
 
                                     DECLARE @Dat_ini DATETIME = GETDATE();
 
-                                   SELECT * FROM [dbo].[FNC_ListarValorAtualTarifa](4)
-
-									INSERT INTO PrecoTarifas(Id, Id_Tarifa, Valor, DataInicial) 
-													 VALUES (6, 4, 4, GETDATE()-1);
-
-									INSERT INTO PrecoTarifas(Id, Id_Tarifa, Valor, DataInicial) 
-													 VALUES (7, 4, 10, GETDATE()+1);
-
 									SELECT * FROM [dbo].[FNC_ListarValorAtualTarifa](4)
 
-                                    SELECT 
-                                            DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
+									INSERT INTO PrecoTarifas (Id_Tarifa, Valor, DataInicial) VALUES
+															  (4, 0.005, GETDATE()-1)
+
+									
+									SELECT * FROM [dbo].[FNC_ListarValorAtualTarifa](4)
+
+                                    SELECT DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
                                 ROLLBACK TRAN
 		*/
 
@@ -45,6 +42,5 @@ AS
 				AND T.Id = @IdTarifa
 				ORDER BY P.DataInicial DESC
 		RETURN
-	END
 
-	
+	END

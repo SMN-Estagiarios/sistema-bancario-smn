@@ -118,20 +118,20 @@ INSERT INTO [dbo].[PrecoTarifas]	(Id_Tarifa, Valor, DataInicial) VALUES
 									(2, 20, '01/04/2024'),
 									(3, 30, '01/04/2024'),
 									(4, 15, '01/04/2024'),
-									(5, 25,'01/04/2024');
+									(5, 25, '01/04/2024');
 GO
 
 
 
 INSERT INTO [dbo].[TipoLancamento]	(Id, Nome) VALUES 
-									(1,'Depósito'),
-									(2,'Saque'),
-									(3,'Transferência'),
-									(4,'Pagamento'),
-									(5,'Recebimento'),
-									(6,'Tarifa'),
-									(7,'Investimento'),
-									(8,'Empréstimo'),
-									(9,'Juros'),
-									(10,'Juros cheque especial');
+									(1, 'Depósito'),
+									(2, 'Saque'),
+									(3, 'Transferência'),
+									(4, 'Pagamento'),
+									(5, 'Recebimento'),
+									(6, 'Tarifa'),
+									(7, 'Investimento'),
+									(8, 'Empréstimo'),
+									(9, 'Juros'),
+									(10, 'Juros cheque especial');
 GO

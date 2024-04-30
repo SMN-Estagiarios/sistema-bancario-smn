@@ -163,6 +163,14 @@ DROP PROC [dbo].[SP_ListarCreditSCore]
 GO
 DROP PROC [dbo].[SP_ListarTarifas]
 GO
+DROP PROC [dbo].[SP_InserirValorTarifa]
+GO
+DROP PROC [dbo].[SP_InserirValorTaxa]
+GO
+DROP PROC [dbo].[SP_InserirValorTaxaCartao]
+GO
+DROP PROC [dbo].[SP_InserirValorTaxaEmprestimo]
+GO
 
 
 	-- DROPANDO TODAS OS JOBS 
@@ -183,8 +191,14 @@ DROP FUNCTION [dbo].[FNC_CalcularSaldoDisponivel]
 GO
 DROP FUNCTION [dbo].[FNC_ListarSaldoNegativo]
 GO
-DROP FUNCTION [dbo].[FNC_ListaValorAtualTarifa]
+DROP FUNCTION [dbo].[FNC_ListarValorAtualTarifa]
 GO
+DROP FUNCTION [dbo].[FNC_ListarValorAtualTaxa]
+GO
+DROP FUNCTION [dbo].[FNC_ListarValorAtualTaxaCartao]
+GO
+DROP FUNCTION [dbo].[FNC_ListarValorAtualTaxaEmprestimo]
+
 
 	--DROPANDO TODAS AS TABELAS
 

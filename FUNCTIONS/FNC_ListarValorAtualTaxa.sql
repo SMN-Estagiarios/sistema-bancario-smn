@@ -15,13 +15,12 @@ AS
 
 									SELECT * FROM [dbo].[FNC_ListarValorAtualTaxa](2)
 
-								   INSERT INTO ValorTaxa (Id_Taxa, Aliquota, DataInicial) VALUES
+									INSERT INTO ValorTaxa (Id_Taxa, Aliquota, DataInicial) VALUES
 														 (2, 0.00500, GETDATE()-1)
 								   
 								    SELECT * FROM [dbo].[FNC_ListarValorAtualTaxa](2)
 
-                                    SELECT 
-                                            DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
+                                    SELECT DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
                                 ROLLBACK TRAN
 		*/
 
@@ -42,7 +41,5 @@ AS
 				AND T.Id = @IdTaxa
 				ORDER BY vt.DataInicial DESC
 		RETURN
+
 	END
-
-
-	
