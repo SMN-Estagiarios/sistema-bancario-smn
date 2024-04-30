@@ -185,7 +185,7 @@ CREATE TABLE Fatura(
 CREATE TABLE TransacaoCartaoCredito(
 	Id INT IDENTITY,
 	Id_CartaoCredito INT NOT NULL,
-	Id_Fatura INT NOT NULL,
+	Id_Fatura INT,
 	Id_ValorTaxaCartao INT NOT NULL,
 	Id_TipoTransacao TINYINT NOT NULL,
 	Nom_Historico VARCHAR(500) NOT NULL,
