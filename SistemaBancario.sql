@@ -122,22 +122,48 @@ CREATE TABLE ValorTaxaEmprestimo (
 	CONSTRAINT FK_Id_CreditScore_ValorTaxaEmprestimo FOREIGN KEY (Id_CreditScore) REFERENCES CreditScore (Id)
 );
 
+CREATE TABLE Indice (
+	Id TINYINT,
+	Nome VARCHAR(50) NOT NULL
+
+	CONSTRAINT PK_IdIndice PRIMARY KEY (Id)
+);
+
+CREATE TABLE PeriodoIndice (
+	Id TINYINT,
+	Nome VARCHAR(15) NOT NULL
+
+	CONSTRAINT PK_PeriodoIndice PRIMARY KEY (Id)
+);
+
+CREATE TABLE ValorIndice (
+	Id INT IDENTITY,
+	Id_Indice TINYINT NOT NULL,
+	Id_PeriodoIndice TINYINT NOT NULL,
+	Aliquota DECIMAL(6,5) NOT NULL,
+	DataInicio DATE NOT NULL
+
+	CONSTRAINT PK_IdValorIndice PRIMARY KEY (Id),
+	CONSTRAINT FK_Id_Indice_ValorIndice FOREIGN KEY (Id_Indice) REFERENCES Indice(Id),
+	CONSTRAINT FK_Id_PeriodoIndice_ValorIndice FOREIGN KEY (Id_PeriodoIndice) REFERENCES PeriodoIndice(Id)
+);
+
 CREATE TABLE Emprestimo (
 	Id INT IDENTITY, 
 	Id_Conta INT NOT NULL,
 	Id_StatusEmprestimo TINYINT NOT NULL,
-	Id_ValorTaxaEmprestimo INT NOT NULL, 
-	Id_Taxa TINYINT NOT NULL,
+	Id_ValorTaxaEmprestimo INT, 
+	Id_ValorIndice INT,
 	ValorSolicitado DECIMAL(15,2) NOT NULL,
-	ValorParcela DECIMAL(15,2) NOT NULL,
 	NumeroParcelas SMALLINT NOT NULL, 
 	Tipo CHAR(3) NOT NULL, 
 	DataInicio DATE NOT NULL
+
 	CONSTRAINT PK_IdEmprestimo PRIMARY KEY (Id),
 	CONSTRAINT FK_Id_Conta_Emprestimo FOREIGN KEY (Id_Conta) REFERENCES Contas (Id),
 	CONSTRAINT FK_Id_StatusEmprestimo_Emprestimo FOREIGN KEY (Id_StatusEmprestimo) REFERENCES StatusEmprestimo (Id),
 	CONSTRAINT FK_Id_TaxaEmprestimo_Emprestimo FOREIGN KEY (Id_ValorTaxaEmprestimo) REFERENCES ValorTaxaEmprestimo (Id),
-	CONSTRAINT FK_Id_Taxa_Emprestimo FOREIGN KEY (Id_Taxa) REFERENCES Taxa (Id)
+	CONSTRAINT FK_Id_ValorIndice_Emprestimo FOREIGN KEY (Id_ValorIndice) REFERENCES ValorIndice(Id)
 );
 
 CREATE TABLE SaldoDiario(
