@@ -164,7 +164,7 @@ CREATE TABLE CartaoCredito(
 CREATE TABLE Fatura(
 	Id INT IDENTITY,
 	Id_Conta INT NOT NULL,
-	Id_Lancamento INT NOT NULL,
+	Id_Lancamento INT,
 	CodigoBarra BIGINT NOT NULL,
 	DataEmissao DATE NOT NULL,
 	DataVencimento DATE NOT NULL,
