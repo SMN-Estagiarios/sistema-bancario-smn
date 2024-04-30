@@ -1,5 +1,5 @@
 CREATE OR ALTER FUNCTION [dbo].[FNC_ListarValorAtualTarifa](@IdTarifa INT)
-	RETURNS @Tabela TABLE(IdTarifa INT, Nome VARCHAR(50), Valor DECIMAL(4,2), Taxa DECIMAL(6,5), DataValidade DATE)
+	RETURNS @Tabela TABLE(IdTarifa INT, Nome VARCHAR(50), Valor DECIMAL(4,2), DataValidade DATE)
 AS
 		/*
             Documentação
@@ -28,15 +28,13 @@ AS
             SELECT TOP 1 T.Id,
 						 T.Nome,
 						 P.Valor,
-						 P.Taxa,
 						 P.DataInicial
 				FROM [dbo].[Tarifas] T WITH(NOLOCK)
 					INNER JOIN [dbo].[PrecoTarifas] P WITH(NOLOCK)
-						ON T.Id = P.IdTarifa
+						ON T.Id = P.Id_Tarifa
 				WHERE P.DataInicial <= @DataAtual 
-				AND P.IdTarifa = @IdTarifa
+				AND P.Id_Tarifa = @IdTarifa
 				ORDER BY P.DataInicial DESC
-
 		RETURN
 
 	END
