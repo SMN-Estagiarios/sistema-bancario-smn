@@ -141,13 +141,18 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarEmprestimo]	@IdConta INT = NULL,
 
 								DECLARE @Dat_ini DATETIME = GETDATE()
 
+								UPDATE [dbo].[Contas]
+									SET Id_CreditScore = 8,
+										Lim_ChequeEspecial = 10000
+									WHERE Id IN (1,2)
+
 								EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'PRE', NULL
-								EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'POS', NULL, 1, 1
+								EXEC [dbo].[SP_RealizarEmprestimo] 2, 1000, 2, 'POS', NULL, 1, 1
 
 								EXEC [dbo].[SP_ListarEmprestimo] 1
 								EXEC [dbo].[SP_ListarEmprestimo] 
 
-								SELECT DATEDIFF(millisecond, @Dat_ini, GETDATE()) AS ResultadoExecucao
+								SELECT DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
 							ROLLBACK TRAN
 
 								-- RETORNO --
