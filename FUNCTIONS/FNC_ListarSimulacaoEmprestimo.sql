@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER FUNCTION [dbo].[FNC_ListarSimulacaoEmprestimo](
 																@Id_Cta INT,
 																@ValorSolicitado DECIMAL(15,2)

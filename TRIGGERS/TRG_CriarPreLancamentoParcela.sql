@@ -31,7 +31,7 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 								FROM [dbo].[Parcela] WITH(NOLOCK)
 
 							EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'PRE'
-							EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 5, 'POS', NULL, 1, 1
+							EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 8, 'POS', NULL, 1, 5
 
 							SELECT	Id
 									Id_Conta,
@@ -90,13 +90,15 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 			FROM [dbo].[FNC_ListarParcelasEmprestimo]()
 			WHERE	@ValorSolicitado * @Taxa / (1 - POWER(1 + @Taxa, - QuantidadeParcela)) > 100
 
-
+		-- Armazenar o valor da parcela de acordo com o numero de parcelas do emprestimo
 		SELECT @ValorParcela = PrecoParcela 
 			FROM #Tabela
 			WHERE Parcelas = @NumeroParcelas
 
+		-- Verificando se o tipo de emprestimo é Pre-fixado
 		IF @Id_ValorTaxaEmprestimo IS NOT NULL
 			BEGIN
+				-- Gerando as parcelas
 				WHILE @ContagemParcela <= @NumeroParcelas
 					BEGIN
 						SET @DataInicio = DATEADD(MONTH, 1, @DataInicio)
@@ -124,11 +126,35 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 			END
 		ELSE IF @Id_ValorIndice IS NOT NULL
 			BEGIN
-				WHILE @ContagemParcela <= @NumeroParcelas
+				DECLARE @ValorIndice DECIMAL(6,5),
+						@Id_PeriodoIndice INT,
+						@ParcelaIncremento INT,
+						@ParcelaWhile INT
+
+				SELECT	@ValorIndice = Aliquota,
+						@Id_PeriodoIndice = Id_PeriodoIndice
+					FROM [dbo].[ValorIndice] WITH(NOLOCK)
+					WHERE Id = @Id_ValorIndice
+
+				SET @ValorParcela = (@ValorSolicitado / @NumeroParcelas) + (@ValorSolicitado * @ValorIndice)
+
+				SET @ParcelaIncremento  =	CASE WHEN @Id_PeriodoIndice = 1 THEN 1
+												 WHEN @Id_PeriodoIndice = 2 THEN 2
+												 WHEN @Id_PeriodoIndice = 3 THEN 3
+												 WHEN @Id_PeriodoIndice = 4 THEN 6
+												 WHEN @Id_PeriodoIndice = 5 THEN 12
+										END
+
+				IF @ParcelaIncremento < @NumeroParcelas
+					SET @ParcelaWhile = @ParcelaIncremento
+				ELSE
+					SET @ParcelaWhile = @NumeroParcelas
+
+				WHILE @ContagemParcela <= @ParcelaWhile
 					BEGIN
 						SET @DataInicio = DATEADD(MONTH, 1, @DataInicio)
 
-						IF DAY(@DataInicio) > DAY(EOMONTH(@DataInicio))	
+						IF DAY(@DataInicio) > DAY(EOMONTH(@DataInicio))
 							BEGIN
 								SET @DataInicio = EOMONTH(@DataInicio)
 							END
@@ -141,10 +167,10 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 													) VALUES (
 																@Id,
 																NULL,
-																NULL,
+																@ValorParcela,
 																0.00,
 																@DataInicio
-																)
+															 )
 
 						SET @ContagemParcela = @ContagemParcela + 1
 					END

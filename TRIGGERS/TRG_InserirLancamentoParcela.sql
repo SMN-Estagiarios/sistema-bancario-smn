@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER TRIGGER [dbo].[TRG_InserirLancamentoParcela]
 	ON [dbo].[Lancamentos]
 	FOR INSERT

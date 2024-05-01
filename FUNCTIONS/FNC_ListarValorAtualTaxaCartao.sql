@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER FUNCTION [dbo].[FNC_ListarValorAtualTaxaCartao](@IdTaxaCartao INT)
 	RETURNS @Tabela TABLE(IdValorTaxaCartao INT, IdTaxaCartao TINYINT, Nome VARCHAR(50), Valor DECIMAL(6,5), DataValidade DATE)
 AS

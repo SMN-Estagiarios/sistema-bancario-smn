@@ -39,6 +39,16 @@ ALTER TABLE ValorIndice
 	DROP CONSTRAINT FK_Id_PeriodoIndice_ValorIndice
 GO
 
+	-- Executando drop de constraint de FK na tabela Parcela
+ALTER TABLE Parcela
+	DROP CONSTRAINT FK_Id_Emprestimo_Parcela;
+GO
+ALTER TABLE Parcela
+	DROP CONSTRAINT FK_Id_Lancamento_Parcela;
+GO
+ALTER TABLE Parcela
+	DROP CONSTRAINT FK_Id_ValorIndice_Parcela;
+GO
 
 	-- Executando o drop de constraint de FK na tabela Emprestimo
 ALTER TABLE Emprestimo
@@ -51,7 +61,10 @@ ALTER TABLE Emprestimo
 	DROP CONSTRAINT FK_Id_TaxaEmprestimo_Emprestimo
 GO
 ALTER TABLE Emprestimo
-	DROP CONSTRAINT FK_Id_ValorIndice_Emprestimo
+	DROP CONSTRAINT FK_Id_Indice_Emprestimo
+GO
+ALTER TABLE Emprestimo
+	DROP CONSTRAINT FK_Id_PeriodoIndice_Emprestimo
 GO
 
 	-- Executando o drop de constraint de FK na tabela SaldoDiario
@@ -103,14 +116,6 @@ ALTER TABLE Lancamentos
 GO
 ALTER TABLE Lancamentos
 	DROP CONSTRAINT FK_Id_TipoLancamento_Lancamentos
-GO
-
-	-- Executando drop de constraint de FK na tabela Parcela
-ALTER TABLE Parcela
-	DROP CONSTRAINT FK_Id_Emprestimo_Parcela;
-GO
-ALTER TABLE Parcela
-	DROP CONSTRAINT FK_Id_Lancamento_Parcela;
 GO
 
 	-- Executando o drop de constraint de FK na tabela LancamentosPrecoTarifas
@@ -241,6 +246,8 @@ DROP TABLE [dbo].[PeriodoIndice]
 GO 
 DROP TABLE [dbo].[ValorIndice]
 GO
+DROP TABLE [dbo].[Parcela]
+GO
 DROP TABLE [dbo].[Emprestimo]
 GO
 DROP TABLE [dbo].[SaldoDiario]
@@ -270,8 +277,6 @@ GO
 DROP TABLE [dbo].[Transferencias]
 GO
 DROP TABLE [dbo].[Contas]
-GO
-DROP TABLE [dbo].[Parcela]
 GO
 DROP TABLE [dbo].[Usuarios]
 GO

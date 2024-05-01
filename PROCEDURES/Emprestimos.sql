@@ -98,14 +98,15 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 		ELSE
 			BEGIN
 				-- Buscando o Valor Indice de acordo com o passado na procedure
-				SELECT	@IdValorIndice = VI.Id
+				SELECT	TOP 1 @IdValorIndice = VI.Id
 					FROM [dbo].[ValorIndice] VI WITH(NOLOCK) 
 						INNER JOIN [dbo].[Indice] I WITH(NOLOCK)
 							ON VI.Id_Indice = I.Id
 						INNER JOIN [dbo].[PeriodoIndice] P WITH(NOLOCK)
 							ON VI.Id_PeriodoIndice = P.Id
 					WHERE	P.Id = @PeriodoAtualizacao AND
-							I.Id = @TipoIndice;
+							I.Id = @TipoIndice
+					ORDER BY VI.Id DESC;
 			END
 
 		-- Criando o emprestimo
