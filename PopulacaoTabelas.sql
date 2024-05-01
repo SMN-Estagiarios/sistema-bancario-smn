@@ -127,5 +127,6 @@ INSERT INTO [dbo].[TipoLancamento]	(Id, Nome) VALUES
 									(8,'Empréstimo'),
 									(9,'Juros'),
 									(10,'Juros cheque especial'),
-									(11,'Saque de cartao de credito')
+									(11,'Saque de cartao de credito'),
+									(12,'Pagamento Fatura cartao de credito')
 GO
