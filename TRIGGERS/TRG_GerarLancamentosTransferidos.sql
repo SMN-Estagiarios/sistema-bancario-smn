@@ -119,12 +119,6 @@ FOR INSERT, DELETE, UPDATE
 				@Id_ContaCre = Id_Conta_Credito,
 				@Id_ContaDeb = Id_Conta_Debito, 
 				@Id_Usuario = Id_Usuario,
-<<<<<<< HEAD
-=======
-				@Id_ContaCre = Id_Conta_Credito,
-				@Id_ContaDeb = Id_Conta_Debito, 
-				@Dat_Transferencia = Dat_Trans,
->>>>>>> feat/cartaoCredito
 				@Vlr_Transferencia = Vlr_Trans,
 				@Nom_Referencia = Nom_Referencia,
 				@Dat_Transferencia = Dat_Trans   
