@@ -36,12 +36,6 @@ INSERT INTO [dbo].[ValorTaxaCartao]	(Id_TaxaCartao, Aliquota, DataInicial) VALUE
 									(3, 0.0638, '2024-04-01');
 GO
 
-INSERT INTO [dbo].[StatusFatura]	(Id, Nome) VALUES 
-									(1, 'Aberta'),
-									(2, 'Fechada'),
-									(3, 'Paga'),
-									(4, 'Em atraso');
-GO
 
 INSERT INTO [dbo].[Taxa]	(Id, Nome) VALUES
 							(1, 'TSN'),

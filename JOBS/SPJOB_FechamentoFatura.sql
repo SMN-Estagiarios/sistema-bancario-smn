@@ -29,11 +29,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_FechamentoFatura]
 	*/
 	BEGIN
 				DECLARE   @DataVencimento DATE,
-								@IdCartaoCredito INT,
-								@DiaVencimento INT,
-								@IdFatura INT,
-								@DataAtual DATE = GETDATE(),
-								@Vlr_Fatura DECIMAL(15,2)
+							@IdCartaoCredito INT,
+							@DiaVencimento INT,
+							@IdFatura INT,
+							@DataAtual DATE = GETDATE(),
+							@Vlr_Fatura DECIMAL(15,2)
 			
 				-- Criando uma tabela temp
 				CREATE TABLE #NovaFatura (Id INT)

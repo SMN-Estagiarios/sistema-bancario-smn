@@ -161,35 +161,7 @@ CREATE TABLE CartaoCredito(
 	CONSTRAINT FK_Id_StatusCartaoCredito_CartaoCredito FOREIGN KEY (Id_StatusCartaoCredito) REFERENCES StatusCartaoCredito(Id)
 );
 
-CREATE TABLE Fatura(
-	Id INT IDENTITY,
-	Id_CartaoCredito INT NOT NULL,
-	Id_Lancamento INT,
-	CodigoBarra BIGINT NOT NULL,
-	DataEmissao DATE NOT NULL,
-	DataVencimento DATE NOT NULL,
-	Vlr_Fatura DECIMAL(15, 2) NOT NULL, 
-	CONSTRAINT PK_IdFatura PRIMARY KEY(Id),
-	CONSTRAINT FK_Id_CartaoCredito_Fatura FOREIGN KEY(Id_CartaoCredito) REFERENCES CartaoCredito(Id),
-	CONSTRAINT FK_Id_Lancamento_Fatura FOREIGN KEY(Id_Lancamento) REFERENCES Lancamentos(Id)
-);
 
-CREATE TABLE TransacaoCartaoCredito(
-	Id INT IDENTITY,
-	Id_CartaoCredito INT NOT NULL,
-	Id_Fatura INT,
-	Id_ValorTaxaCartao INT NOT NULL,
-	Id_TipoTransacao TINYINT NOT NULL,
-	Nom_Historico VARCHAR(500) NOT NULL,
-	Dat_Trans DATETIME NOT NULL,
-	Valor_Trans DECIMAL(15,2) NOT NULL,
-	Estorno BIT NOT NULL
-	CONSTRAINT PK_Id_TransacaoCartaoCredito PRIMARY KEY (Id),
-	CONSTRAINT FK_Id_CartaoCredito_TransacaoCartaoCredito FOREIGN KEY (Id_CartaoCredito) REFERENCES CartaoCredito(Id),
-	CONSTRAINT FK_Id_Fatura_TransacaoCartaoCredito FOREIGN KEY (Id_Fatura) REFERENCES Fatura(Id),
-	CONSTRAINT FK_Id_ValorTaxaCartao_TransacaoCartaoCredito FOREIGN KEY (Id_ValorTaxaCartao) REFERENCES ValorTaxaCartao(Id),
-	CONSTRAINT FK_Id_TipoTransacao_TransacaoCartaoCredito FOREIGN KEY (Id_TipoTransacao) REFERENCES TipoTransacao(Id)
-);
 
 CREATE TABLE Tarifas (
 	Id TINYINT,
@@ -226,6 +198,34 @@ CREATE TABLE Lancamentos (
 	CONSTRAINT FK_Id_Usuario_Lancamentos FOREIGN KEY (Id_Usuario) REFERENCES Usuarios(Id),
 	CONSTRAINT FK_Id_TipoLancamento_Lancamentos FOREIGN KEY (Id_TipoLancamento) REFERENCES TipoLancamento(Id),
 	CONSTRAINT CHK_Tipo_Operacao_C_D CHECK(Tipo_Operacao = 'C' OR Tipo_Operacao = 'D')
+);
+CREATE TABLE Fatura(
+	Id INT IDENTITY,
+	Id_CartaoCredito INT NOT NULL,
+	Id_Lancamento INT,
+	CodigoBarra BIGINT NOT NULL,
+	DataEmissao DATE NOT NULL,
+	DataVencimento DATE NOT NULL,
+	Vlr_Fatura DECIMAL(15, 2) NOT NULL, 
+	CONSTRAINT PK_IdFatura PRIMARY KEY(Id),
+	CONSTRAINT FK_Id_CartaoCredito_Fatura FOREIGN KEY(Id_CartaoCredito) REFERENCES CartaoCredito(Id),
+	CONSTRAINT FK_Id_Lancamento_Fatura FOREIGN KEY(Id_Lancamento) REFERENCES Lancamentos(Id)
+);
+CREATE TABLE TransacaoCartaoCredito(
+	Id INT IDENTITY,
+	Id_CartaoCredito INT NOT NULL,
+	Id_Fatura INT,
+	Id_ValorTaxaCartao INT NOT NULL,
+	Id_TipoTransacao TINYINT NOT NULL,
+	Nom_Historico VARCHAR(500) NOT NULL,
+	Dat_Trans DATETIME NOT NULL,
+	Valor_Trans DECIMAL(15,2) NOT NULL,
+	Estorno BIT NOT NULL
+	CONSTRAINT PK_Id_TransacaoCartaoCredito PRIMARY KEY (Id),
+	CONSTRAINT FK_Id_CartaoCredito_TransacaoCartaoCredito FOREIGN KEY (Id_CartaoCredito) REFERENCES CartaoCredito(Id),
+	CONSTRAINT FK_Id_Fatura_TransacaoCartaoCredito FOREIGN KEY (Id_Fatura) REFERENCES Fatura(Id),
+	CONSTRAINT FK_Id_ValorTaxaCartao_TransacaoCartaoCredito FOREIGN KEY (Id_ValorTaxaCartao) REFERENCES ValorTaxaCartao(Id),
+	CONSTRAINT FK_Id_TipoTransacao_TransacaoCartaoCredito FOREIGN KEY (Id_TipoTransacao) REFERENCES TipoTransacao(Id)
 );
 
 CREATE TABLE Parcela (

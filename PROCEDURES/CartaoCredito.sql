@@ -20,7 +20,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 							SELECT * FROM CartaoCredito;
 							SELECT * FROM Fatura;
 							
-							EXEC @RET = [dbo].[SP_InserirNovoCartaoCredito] 2, 2, 11
+							EXEC @RET =[dbo].[SP_InserirNovoCartaoCredito] 2, 2, 6
 
 							SELECT * FROM CartaoCredito;
 							SELECT * FROM Contas;
@@ -74,15 +74,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 							ON C.Id_CreditScore = CS.Id
 					WHERE C.Id_Correntista = @IdCorrentista
 
-<<<<<<< HEAD
+
 				-- Verifica se o CreditScore está baixo ou nullo
 				If @IdCreditScore <= 3 OR @IdCreditScore IS NULL
 					-- Restrição para criação do cartão baseado no credit score.
-=======
-				-- Verifica se o CreditScore estï¿½ baixo ou nullo
-				If @IdCreditScore <= 3 OR @IdCreditScore IS NULL
-					-- Restriï¿½ï¿½o para criaï¿½ï¿½o do cartï¿½o baseado no credit score.
->>>>>>> 51531ebd723d399fa9f9bfdcfa7a2cb72e1447af
+				
 					BEGIN
 						SET @LimiteCartao = 100
 						PRINT 'Score baixo. Aumente sua renda!'
@@ -102,7 +98,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 							WHERE COR.Id = @IdCorrentista
 								AND CON.Id = @IdConta)
 			BEGIN
-				PRINT 'Conta nï¿½o pertence ao correntista'
+				PRINT 'Conta nao pertence ao correntista'
 				RETURN 3
 			END
 
@@ -123,26 +119,19 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 		SET	@DataValidade = DATEADD(YEAR, 4, @DataAtual)
 
 		IF @DiaVencimento IN (6, 11, 16, 21, 26)
-			BEGIN
-<<<<<<< HEAD
-				-- Criar novo cartão
-				INSERT INTO CartaoCredito (Id_Conta, Id_StatusCartaoCredito, NomeImpresso, Numero, Cvc, Limite, DataEmissao, DataValidade, Aproximacao, DiaVencimento)
-									VALUES(@IdConta, 1, @NomeCorrentista, @NumeroCartao, @NumeroCVC, @LimiteCartao, @DataAtual, @DataValidade, 0, @DiaVencimento)
-				EXEC [dbo].[SP_GerarFatura] @Idconta
-=======
+			BEGIN			
+
 				-- Criar novo cartï¿½o
 				INSERT INTO CartaoCredito (Id_Conta, Id_StatusCartaoCredito, NomeImpresso, Numero, Cvc, Limite, LimiteComprometido, DataEmissao, DataValidade, Aproximacao, DiaVencimento)
 									VALUES(@IdConta, 2, @NomeCorrentista, @NumeroCartao, @NumeroCVC, @LimiteCartao, 0, @DataAtual, @DataValidade, 0, @DiaVencimento)
 
->>>>>>> 51531ebd723d399fa9f9bfdcfa7a2cb72e1447af
+
 			RETURN 0						
 			END
 		ELSE
 			RAISERROR('Escolha entre os dias 6, 11, 16, 21 ou 26', 16, 1)
 	END
 GO
-
-
 
 CREATE OR ALTER PROCEDURE [dbo].[SP_AtivaCartaoCredito]
 	@IdCartao INT
