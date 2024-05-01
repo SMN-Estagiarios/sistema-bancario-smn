@@ -1,12 +1,8 @@
 CREATE OR ALTER FUNCTION [dbo].[FNC_ListarValorAtualTarifa](@IdTarifa INT)
-<<<<<<< HEAD
 	RETURNS @Tabela TABLE(IdPrecoTarifas INT, IdTarifa INT, Nome VARCHAR(50), Valor DECIMAL(4,2), DataValidade DATE)
-=======
-	RETURNS @Tabela TABLE(IdTarifa INT, Nome VARCHAR(50), Valor DECIMAL(4,2), DataValidade DATE)
->>>>>>> feat/cartaoCredito
 AS
 		/*
-            Documentação
+            DocumentaÃ§Ã£o
             Arquivo Fonte.....: FNC_ListaValorAtualTarifa.sql
             Objetivo..........: Listar a taxa ou valor vigente na data de consulta para uma tarifa
             Autor.............: Gustavo Targino, Danyel Targino e Thays Carvalho
@@ -43,11 +39,7 @@ AS
 					INNER JOIN [dbo].[PrecoTarifas] P WITH(NOLOCK)
 						ON T.Id = P.Id_Tarifa
 				WHERE P.DataInicial <= @DataAtual 
-<<<<<<< HEAD
 				AND T.Id = @IdTarifa
-=======
-				AND P.Id_Tarifa = @IdTarifa
->>>>>>> feat/cartaoCredito
 				ORDER BY P.DataInicial DESC
 		RETURN
 
