@@ -103,12 +103,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarNovaTransferenciaBancaria]
 														@Id_ContaDeb, 
 														@Vlr_Transferencia, 
 														@Nom_referencia, 
-<<<<<<< HEAD
 														@Data_Atual
 													)
-=======
-														GETDATE())
->>>>>>> feat/cartaoCredito
 			END
 		RETURN 0
 	END
@@ -204,10 +200,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarExtratoTransferencia]
 			Vlr_Lanc AS Vlr_Transferencia,
 			Nom_Historico AS Descrição
 				FROM [dbo].[Lancamentos] WITH (NOLOCK)
-<<<<<<< HEAD
 				WHERE Id_Conta =	ISNULL(@Id_Conta, Id_Conta) 
-=======
-				WHERE Id_Conta = ISNULL(@Id_Conta, Id_Conta) 
->>>>>>> feat/cartaoCredito
 	END
 GO
