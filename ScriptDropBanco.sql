@@ -146,6 +146,8 @@ DROP TRIGGER [TRG_AtualizarSaldo]
 GO
 DROP TRIGGER [TRG_GerarLancamentosTransferidos]
 GO
+DROP TRIGGER [TRG_AtualizarLimiteComprometidoCartao]
+GO
 
 
 	-- DROPANDO TODAS AS PROCEDURES
@@ -204,6 +206,10 @@ GO
 DROP FUNCTION [dbo].[FNC_ListarSaldoNegativo]
 GO
 DROP FUNCTION [dbo].[FNC_ListarValorAtualTarifa]
+GO
+DROP FUNCTION [dbo].[FNC_IdentificarTaxaDoDia]
+GO
+DROP FUNCTION [dbo].[FNC_ListarSaldosEJurosDoMes]
 GO
 
 	--DROPANDO TODAS AS TABELAS
