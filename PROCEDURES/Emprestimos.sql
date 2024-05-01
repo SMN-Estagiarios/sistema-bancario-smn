@@ -48,6 +48,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 								-- RETORNO --
 							
 								00.................: Sucesso ao realizar um emprestimo
+								01.................: Erro ao criar um emprestimo
 	*/
 	BEGIN
 		--Declarar variáveis
@@ -118,7 +119,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 													@Tipo,
 													@DataInicio
 													)
-		RETURN 0
+		IF @@ROWCOUNT <> 0
+			RETURN 0
+		ELSE
+			RETURN 1
 	END
 GO
 
@@ -148,23 +152,27 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarEmprestimo]	@IdConta INT = NULL,
 
 								-- RETORNO --
 							
-								00.................:
+								00.................: Valor retornado com sucesso
+								01.................: Nenhum valor foi retornado
 	*/
 	BEGIN
-			BEGIN
-				SELECT	Id,
-						Id_Conta,
-						Id_StatusEmprestimo,
-						Id_ValorTaxaEmprestimo,
-						Id_Indice,
-						Id_PeriodoIndice,
-						ValorSolicitado,
-						NumeroParcelas,
-						Tipo,
-						DataInicio
-					FROM [dbo].[Emprestimo] WITH(NOLOCK)
-					WHERE	Id_Conta = ISNULL(@IdConta, Id_Conta) AND
-							DATEDIFF(DAY, DataInicio, ISNULL(@DataInicio, DataInicio)) = 0
-			END
+		SELECT	Id,
+				Id_Conta,
+				Id_StatusEmprestimo,
+				Id_ValorTaxaEmprestimo,
+				Id_Indice,
+				Id_PeriodoIndice,
+				ValorSolicitado,
+				NumeroParcelas,
+				Tipo,
+				DataInicio
+			FROM [dbo].[Emprestimo] WITH(NOLOCK)
+			WHERE	Id_Conta = ISNULL(@IdConta, Id_Conta) AND
+					DATEDIFF(DAY, DataInicio, ISNULL(@DataInicio, DataInicio)) = 0
+
+		IF @@ROWCOUNT <> 0
+			RETURN 0
+		ELSE
+			RETURN 1
 	END
 GO

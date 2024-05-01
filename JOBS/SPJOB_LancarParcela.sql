@@ -10,7 +10,16 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 		Autor.............: Joao Victor, Odlavir Florentino e Rafael Mauricio
 		Data..............: 29/04/2024
 		Ex................:	BEGIN TRAN
-								SELECT * FROM Lancamentos
+								SELECT	Id,
+										Id_Conta,
+										Id_Usuario,
+										Id_TipoLancamento,
+										Tipo_Operacao,
+										Vlr_Lanc,
+										Nom_Historico,
+										Dat_Lancamento,
+										Estorno
+									FROM [dbo].[Lancamentos]
 									
 								SELECT	Id,
 										Id_Emprestimo,
@@ -26,9 +35,17 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 									SET Lim_ChequeEspecial = 100
 									WHERE Id = 1
 
-								SELECT * FROM Contas
-								
-								EXEC [dbo].[SPJOB_LancarParcela]
+								DECLARE @DATA_INI DATETIME = GETDATE(),
+										@Ret INT;
+
+								DBCC DROPCLEANBUFFERS
+								DBCC FREEPROCCACHE
+								DBCC FREESYSTEMCACHE ('ALL')
+
+								EXEC @Ret = [dbo].[SPJOB_LancarParcela]
+
+								SELECT	@Ret AS Retorno,
+										DATEDIFF(MILLISECOND, @DATA_INI, GETDATE()) AS ResultadoExecucao
 
 								SELECT	Id,
 										Id_Emprestimo,
@@ -37,7 +54,17 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 										ValorJurosAtraso,
 										Data_Cadastro FROM 
 									[dbo].[Parcela] WITH(NOLOCK)
-								SELECT * FROM Lancamentos
+
+								SELECT	Id,
+										Id_Conta,
+										Id_Usuario,
+										Id_TipoLancamento,
+										Tipo_Operacao,
+										Vlr_Lanc,
+										Nom_Historico,
+										Dat_Lancamento,
+										Estorno
+									FROM [dbo].[Lancamentos]
 							ROLLBACK TRAN
 
 							--- Resultado ---
@@ -45,15 +72,16 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 							01: Não teve lancamentos ou lancamentos foram adiados
 	*/
 	BEGIN
-		--DECLARE @DataAtual DATE = GETDATE(),
 		DECLARE @DataAtual DATE = GETDATE(),
 				@TaxaAtrasadoAtual DECIMAL(6,5);
 
+		-- Verificar se existe a tabela temporaria, caso exista, dropar ela
 		IF OBJECT_ID('tempdb..#Tabela') IS NOT NULL
 			BEGIN
 				DROP TABLE #Tabela;
 			END
 
+		-- Criar tabela temporaria
 		CREATE TABLE #Tabela	(
 									Id INT,
 									Id_Conta INT,
@@ -66,6 +94,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 									SaldoDisponivel DECIMAL(15,2)
 								)
 
+		-- Inserir valores nela
 		INSERT INTO #Tabela (	Id,
 								Id_Conta,
 								Id_Emprestimo,
@@ -89,10 +118,12 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 				WHERE	Data_Cadastro <= @DataAtual AND
 						Id_Lancamento IS NULL
 
+		-- Verificar se existe algum registro na tabela temporaria, onde o valor da parcela é menor que ou igual ao saldo disponivel
 		IF EXISTS(SELECT TOP 1 1
 					FROM #Tabela
 					WHERE Valor <= SaldoDisponivel)
 			BEGIN
+				-- Fazer lancamento da parcela
 				INSERT INTO [dbo].[Lancamentos] (
 													Id_Conta,
 													Id_Usuario,
@@ -117,12 +148,12 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 				RETURN 0
 			END
 
-			
-
+		-- Verificar se existe algum registro onde o valor da parcela é maior que o disponivel
 		IF EXISTS (SELECT TOP 1 1
 							FROM #Tabela
 							WHERE Valor > SaldoDisponivel)
 			BEGIN
+				-- Gerar juros para a parcela
 				UPDATE [dbo].[Parcela]
 					SET ValorJurosAtraso = ValorJurosAtraso + ([dbo].[FNC_BuscarTaxaJurosAtraso](Id_Emprestimo) * Valor)
 				WHERE	Data_Cadastro < @DataAtual AND

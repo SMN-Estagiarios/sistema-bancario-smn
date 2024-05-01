@@ -17,7 +17,7 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_InserirLancamentoParcela]
 												Id_CreditScore = 8
 											WHERE Id = 1
 
-											EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'PRE'
+										EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'PRE'
 
 										SELECT TOP 5 Id,
 													 Id_Emprestimo,
@@ -30,8 +30,15 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_InserirLancamentoParcela]
 													AND Id_Emprestimo = (SELECT TOP 1 MAX(Id_Emprestimo)
 																			FROM [dbo].[Parcela] WITH(NOLOCK))
 
+										DECLARE @DATA_INI DATETIME = GETDATE();
+
+										DBCC DROPCLEANBUFFERS
+										DBCC FREEPROCCACHE
+										DBCC FREESYSTEMCACHE ('ALL')
 
 										EXEC [dbo].[SPJOB_LancarParcela]
+
+										SELECT	DATEDIFF(MILLISECOND, @DATA_INI, GETDATE()) AS ResultadoExecucao
 
 										SELECT TOP 5 Id,
 													 Id_Emprestimo,

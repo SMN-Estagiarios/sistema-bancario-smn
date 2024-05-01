@@ -32,8 +32,17 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 									Data_Cadastro
 								FROM [dbo].[Parcela] WITH(NOLOCK)
 
+							DECLARE @DATA_INI DATETIME = GETDATE();
+
+							DBCC DROPCLEANBUFFERS
+							DBCC FREEPROCCACHE
+							DBCC FREESYSTEMCACHE ('ALL')
+
 							EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'PRE'
-							EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 8, 'POS', NULL, 1, 5
+							EXEC [dbo].[SP_RealizarEmprestimo] 1, 2000, 24, 'POS', NULL, 1, 5
+
+							
+							SELECT	DATEDIFF(MILLISECOND, @DATA_INI, GETDATE()) AS ResultadoExecucao
 
 							SELECT	Id
 									Id_Conta,
@@ -58,6 +67,7 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 						ROLLBACK TRAN
 	*/
 	BEGIN
+		-- Declarando variaveis necessarias
 		DECLARE @Id_Emprestimo INT,
 				@Id_Conta INT,
 				@ValorSolicitado DECIMAL(15,2),
@@ -71,7 +81,7 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 				@Taxa DECIMAL(6,5),
 				@Id_ValorIndice INT = NULL;
 
-
+		-- Setando variaveis
 		SELECT @Id_Emprestimo = Id, 
 			   @Id_Conta = Id_Conta,
 			   @ValorSolicitado = ValorSolicitado,
@@ -115,6 +125,7 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 								SET @DataInicio = EOMONTH(@DataInicio)
 							END
 
+						-- Inserindo parcelas na tabela parcela
 						INSERT INTO [DBO].[Parcela] (
 														Id_Emprestimo,
 														Id_Lancamento,
@@ -136,18 +147,22 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 			END
 		ELSE IF @Id_PeriodoIndice IS NOT NULL AND @Id_Indice IS NOT NULL
 			BEGIN
+				-- Declarando variaveis necessarias para o tipo POS fixada
 				DECLARE @Aliquota DECIMAL(6,5),
 						@ParcelaIncremento INT,
 						@ParcelaWhile INT
 
+				-- Pegando o indice e aliquota mais recente
 				SELECT TOP 1 
 							@Id_ValorIndice = Id,
 							@Aliquota = Aliquota
 					FROM [dbo].[ValorIndice] WITH(NOLOCK)
 					WHERE	Id_Indice = @Id_Indice AND
-							Id_PeriodoIndice = @Id_PeriodoIndice
+							Id_PeriodoIndice = @Id_PeriodoIndice AND
+							DataInicio < = @DataInicio
 					ORDER BY DataInicio DESC
 
+				-- Setando o valor da parcela
 				SET @ValorParcela = (@ValorSolicitado / @NumeroParcelas) + (@ValorSolicitado * @Aliquota)
 
 				SET @ParcelaIncremento  =	CASE WHEN @Id_PeriodoIndice = 1 THEN 1
@@ -162,6 +177,7 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 				ELSE
 					SET @ParcelaWhile = @NumeroParcelas
 
+				-- Gerando parcelas
 				WHILE @ContagemParcela <= @ParcelaWhile
 					BEGIN
 						SET @DataInicio = DATEADD(MONTH, 1, @DataInicio)
@@ -170,7 +186,8 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 							BEGIN
 								SET @DataInicio = EOMONTH(@DataInicio)
 							END
-
+						
+						-- Inserindo parcela
 						INSERT INTO [DBO].[Parcela] (   Id_Emprestimo,
 														Id_Lancamento,
 														Id_ValorIndice,

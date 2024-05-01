@@ -23,11 +23,20 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarParcelasPos]
 										(1, 4, 1, '2024-07-01')
 
 								EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'PRE'
-								EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 24, 'POS', NULL, 1, 4
+								EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 8, 'POS', NULL, 1, 4
 								EXEC [dbo].[SP_RealizarEmprestimo] 1, 5000, 5, 'POS', NULL, 1, 4
 
+								DECLARE @DATA_INI DATETIME = GETDATE(),
+										@Ret INT;
 
-								EXEC [dbo].[SPJOB_AtualizarParcelasPos]
+								DBCC DROPCLEANBUFFERS
+								DBCC FREEPROCCACHE
+								DBCC FREESYSTEMCACHE ('ALL')
+
+								EXEC @Ret = [dbo].[SPJOB_AtualizarParcelasPos]
+
+								SELECT	@Ret AS Retorno,
+										DATEDIFF(MILLISECOND, @DATA_INI, GETDATE()) AS ResultadoExecucao
 
 								SELECT Id,
 										Id_Emprestimo,
@@ -39,10 +48,13 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarParcelasPos]
 									FROM [dbo].[Parcela] WITH(NOLOCK)
 								ORDER BY Id_Emprestimo
 							ROLLBACK TRAN
+
+							-- Retornos --
+							00: Parcelas lancadas com sucesso
+							01: Não existe parcelas a serem lancadas
 	*/
 	BEGIN
-		--DECLARE @DataAtual DATE = GETDATE();
-		DECLARE @DataAtual DATE = '2024-11-01';
+		DECLARE @DataAtual DATE = GETDATE()
 
 		-- Verificando se existe a tabela temporaria, se sim, excluir ela.
 		IF OBJECT_ID('dbo..#Tabela') IS NOT NULL
@@ -60,6 +72,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarParcelasPos]
 									Contagem_Parcela INT
 								)
 
+		-- Inserir registros na tabela temporaria, onde a contagem de parcelas existentes na tabela é menor que a quantidade de parcelas do emprestimo
+		-- e verificar se a data atual é igual ao da ultima parcela
 		INSERT INTO #Tabela	(
 								Id_Emprestimo,
 								Valor_Solicitado,
@@ -81,12 +95,18 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarParcelasPos]
 				HAVING	COUNT(P.Id_Emprestimo) < E.NumeroParcelas AND
 						DATEDIFF(DAY, MAX(Data_Cadastro), @DataAtual) = 0
 
+			IF @@ROWCOUNT = 0
+				RETURN 1
+
+		-- Enquanto existir registros na tabela temporaria, criar parcelas restantes
 		WHILE EXISTS (SELECT TOP 1 1 FROM #Tabela)
 			BEGIN
+				-- Declarando variaveis
 				DECLARE @Aliquota DECIMAL(6,5),
 						@Valor_Parcela DECIMAL(15,2),
 						@Valor_Solicitado DECIMAL(15,2),
 						@Numero_Parcelas INT,
+						@Numero_Parcelas_Restante INT,
 						@Id_PeriodoIndice INT,
 						@Parcela_Incremento INT,
 						@Parcela_While INT,
@@ -95,25 +115,30 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarParcelasPos]
 						@Id_Emprestimo INT,
 						@Id_ValorIndice INT;
 
+				-- Setar a data inicio de criacao das parcelas para um mes apos a ultima parcela lancada
 				SELECT TOP 1 @Data_Inicio = DATEADD(MONTH, Contagem_Parcela, DataInicio)
 					FROM #Tabela T
 						INNER JOIN [dbo].[Emprestimo] E WITH(NOLOCK)
 							ON T.Id_Emprestimo = E.Id
 
+				-- Setando as variaveis com os valores da encontrados na tabela do ultimo valor indice lancado
 				SELECT	TOP 1
 								@Id_Emprestimo = Id_Emprestimo,
 								@Valor_Solicitado = T.Valor_Solicitado,
 								@Id_ValorIndice = VI.Id,
 								@Id_PeriodoIndice = T.Id_PeriodoIndice,
 								@Numero_Parcelas = T.Numero_Parcelas,
+								@Numero_Parcelas_Restante = T.Numero_Parcelas - T.Contagem_Parcela,
 								@Aliquota = VI.Aliquota
 					FROM #Tabela T
 						INNER JOIN [dbo].[ValorIndice] VI WITH(NOLOCK)
 							ON T.Id_Indice = VI.Id_Indice AND T.Id_PeriodoIndice = VI.Id_PeriodoIndice
 					ORDER BY VI.DataInicio DESC
 
+				-- Calcular o valor da parcela de acordo com os novos valores de indice
 				SET @Valor_Parcela = (@Valor_Solicitado / @Numero_Parcelas) + (@Valor_Solicitado * @Aliquota)
 
+				-- Setar a variavel de acordo com o periodo de atualizacao do indice indicado no emprestimo
 				SET @Parcela_Incremento =	CASE WHEN @Id_PeriodoIndice = 1 THEN 1
 												 WHEN @Id_PeriodoIndice = 2 THEN 2
 												 WHEN @Id_PeriodoIndice = 3 THEN 3
@@ -121,11 +146,14 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarParcelasPos]
 												 WHEN @Id_PeriodoIndice = 5 THEN 12
 										END
 
-				IF @Parcela_Incremento < @Numero_Parcelas
+				-- Verificar se o numero de parcela restante é maior que periodo de atualizacao do indice indicado no emprestimo
+				IF @Parcela_Incremento < @Numero_Parcelas_Restante
+					-- Setar a variavel do loop para a menor
 					SET @Parcela_While = @Parcela_Incremento
 				ELSE
-					SET @Parcela_While = @Numero_Parcelas
+					SET @Parcela_While = @Numero_Parcelas_Restante
 
+				-- Gerar parcelas até a contagem atingir a quantidade da variavel do loop
 				WHILE @Contagem_Parcela <= @Parcela_While
 					BEGIN
 						SET @Data_Inicio = DATEADD(MONTH, 1, @Data_Inicio)
@@ -135,6 +163,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarParcelasPos]
 								SET @Data_Inicio = EOMONTH(@Data_Inicio)
 							END
 
+						-- Inserir os registros das tabelas
 						INSERT INTO [DBO].[Parcela] (
 														Id_Emprestimo,
 														Id_Lancamento,
@@ -154,10 +183,13 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarParcelasPos]
 						SET @Contagem_Parcela = @Contagem_Parcela + 1
 					END
 
+				-- Deletar o primeiro registro da tabela
 				DELETE #Tabela
 					WHERE Id_Emprestimo =	(
 												SELECT TOP 1 Id_Emprestimo
 													FROM #Tabela
 											)
 			END
+		RETURN 0
 	END
+
