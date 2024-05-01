@@ -25,9 +25,17 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 	
 						DECLARE @Dat_init DATETIME = GETDATE(),
 								@RET INT
+<<<<<<< HEAD
 						SELECT TOP 10 * FROM Lancamentos
 	
 						EXEC  = [dbo].[SP_CriarLancamentos]	1, 0, 1,1, 'C', 100, 'Deposito', null, 0
+=======
+								
+						SELECT TOP 10 * FROM Lancamentos	
+
+						EXEC @RET = [dbo].[SP_CriarLancamentos]	1, 0, 1, 'C', 100, 'Deposito', null, 0						
+
+>>>>>>> feat/cartaoCredito
 						SELECT TOP 10 * FROM Lancamentos
 	
 						SELECT @RET AS RETORNO
@@ -44,7 +52,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 		    */
 
 	BEGIN
+<<<<<<< HEAD
 		DECLARE @DataAtual DATETIME = GETDATE(); 
+=======
+		DECLARE @DataAtual DATETIME = GETDATE();
+>>>>>>> feat/cartaoCredito
 		-- Caso Valor do Lançamento seja menor que 0:
 		IF @Vlr_Lanc < 0
 			BEGIN			
@@ -65,7 +77,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 			-- Caso paramentro seja NULL sera atribuido a variavel @DataAtual para recerber GETDATE
 			IF @Dat_Lancamento IS NULL
 				BEGIN
+<<<<<<< HEAD
 				
+=======
+		
+>>>>>>> feat/cartaoCredito
 					INSERT INTO [dbo].[Lancamentos] (Id_Conta,Id_Usuario,Id_TipoLancamento,Tipo_Operacao,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
 									(@Id_Cta, @Id_Usuario,@Id_TipoLancamento,@Tipo_Operacao,@Vlr_Lanc,@Nom_Historico,@DataAtual, @Estorno)
 				END

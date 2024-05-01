@@ -36,10 +36,37 @@ INSERT INTO [dbo].[ValorTaxaCartao]	(Id_TaxaCartao, Aliquota, DataInicial) VALUE
 									(3, 0.0638, '2024-04-01');
 GO
 
+<<<<<<< HEAD
 INSERT INTO [dbo].[StatusFatura]	(Id, Nome) VALUES 
 									(1, 'Aberta'),
 									(2, 'Fechada'),
 									(3, 'Paga');
+=======
+
+INSERT INTO [dbo].[Taxa]	(Id, Nome) VALUES
+							(1, 'TSN'),
+							(2, 'IOF');
+GO
+
+INSERT INTO [dbo].[ValorTaxa]	(Id_Taxa, Aliquota, DataInicial) VALUES
+								(1, 0.00200, '2024-03-01'),
+								(2, 0.00380, '2024-04-01'),
+								(1, 0.00400, '2024-03-15'),
+								(1, 0.00600, '2024-04-01'),
+								(1, 0.00800, '2024-04-15');
+
+GO
+
+INSERT INTO [dbo].[CreditScore]	(Id, Nome, Faixa, Aliquota) VALUES
+								(1, 'Não elegível', -2000, 0),
+								(2, 'Negativado', -200, 0.2),
+								(3, 'Péssimo', 0, 0.4),
+								(4, 'Ruim', 600, 0.6),
+								(5, 'Mediano', 800, 0.8),
+								(6, 'Bom', 1000, 1.2),
+								(7, 'Ótimo', 1500, 1.4),
+								(8, 'Excelente', 3000, 2.0);
+>>>>>>> feat/cartaoCredito
 GO
 
 INSERT INTO [dbo].[Taxa]	(Id, Nome) VALUES
@@ -76,16 +103,24 @@ INSERT INTO [dbo].[Correntista] (Nome, Cpf, DataNasc, Contato, Email, Logradouro
 GO
 
 INSERT INTO [dbo].[Contas]	(Vlr_SldInicial, Vlr_Credito, Vlr_Debito, Dat_Saldo, Dat_Abertura, Ativo, Lim_ChequeEspecial, Id_Correntista) VALUES 
-							(0.00, 0.00, 0.00, '2024-04-01', '2024-03-01', 1, 0.00, 1),
+							(1000.00, 0.00, 0.00, '2024-04-01', '2024-03-01', 1, 0.00, 1),
 							(0.00, 0.00, 0.00, '2024-04-01', '2024-04-15', 1, 0.00, 2),
 							(0.00, 0.00, 0.00, '2024-04-01', '2024-04-20', 1, 0.00, 3),
 							(0.00, 0.00, 0.00, '2024-04-01', '2024-04-28', 1, 0.00, 4),
 							(0.00, 0.00, 0.00, '2024-04-01', '2024-04-12', 1, 0.00, 5);
 GO
 
+<<<<<<< HEAD
 INSERT INTO [dbo].[TaxaEmprestimo]	(Id, Nome) VALUES 
 									(1, 'Padrão'),
 									(2, 'Atraso');
+=======
+INSERT INTO [dbo].[CartaoCredito]	(Id_Conta, Id_StatusCartaoCredito, NomeImpresso, Numero, Cvc, Limite, LimiteComprometido, DataEmissao, DataValidade, Aproximacao, DiaVencimento) VALUES
+									(1, 1, 'Mozai', 6587893256410236, 133, 5000, 0, GETDATE(), DATEADD(YEAR, 4, GETDATE()), 1, 6);
+
+INSERT INTO [dbo].[TaxaEmprestimo]	(Id, Nome) VALUES 
+									(1, 'Padrão');
+>>>>>>> feat/cartaoCredito
 
 GO
 
@@ -97,6 +132,7 @@ INSERT INTO [dbo].[ValorTaxaEmprestimo]	(Id_TaxaEmprestimo, Id_CreditScore, Aliq
 										(1, 5, 0.050, '2024-04-01'),
 										(1, 6, 0.047, '2024-04-01'),
 										(1, 7, 0.045, '2024-04-01'),
+<<<<<<< HEAD
 										(1, 8, 0.040, '2024-04-01'),
 										(2, 1, 0.03500, '2024-04-01'),
 										(2, 2, 0.03200, '2024-04-01'),
@@ -106,6 +142,9 @@ INSERT INTO [dbo].[ValorTaxaEmprestimo]	(Id_TaxaEmprestimo, Id_CreditScore, Aliq
 										(2, 6, 0.01500, '2024-04-01'),
 										(2, 7, 0.01000, '2024-04-01'),
 										(2, 8, 0.00500, '2024-04-01');
+=======
+										(1, 8, 0.040, '2024-04-01');
+>>>>>>> feat/cartaoCredito
 
 GO
 
@@ -117,12 +156,21 @@ INSERT INTO [dbo].[Tarifas] (Id, Nome) VALUES
 							(5, 'TMC');
 GO
 
+<<<<<<< HEAD
 INSERT INTO [dbo].[PrecoTarifas]	(Id_Tarifa, Valor, DataInicial) VALUES 
 									(1, 10, '01/04/2024'),
 									(2, 20, '01/04/2024'),
 									(3, 30, '01/04/2024'),
 									(4, 15, '01/04/2024'),
 									(5, 25, '01/04/2024');
+=======
+INSERT INTO [dbo].[PrecoTarifas]	(Id, Id_Tarifa, Valor, DataInicial) VALUES 
+									(1, 1, 10, '01/04/2024'),
+									(2, 2, 20, '01/04/2024'),
+									(3, 3, 30, '01/04/2024'),
+									(4, 4, 15, '01/04/2024'),
+									(5, 5, 25,'01/04/2024');
+>>>>>>> feat/cartaoCredito
 GO
 
 
@@ -138,5 +186,10 @@ INSERT INTO [dbo].[TipoLancamento]	(Id, Nome) VALUES
 									(8,'Empréstimo'),
 									(9,'Juros'),
 									(10,'Juros cheque especial'),
+<<<<<<< HEAD
 									(11,'Saque de cartao de credito')
+=======
+									(11,'Saque de cartao de credito'),
+									(12,'Pagamento Fatura cartao de credito')
+>>>>>>> feat/cartaoCredito
 GO

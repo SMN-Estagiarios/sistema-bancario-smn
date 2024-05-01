@@ -146,6 +146,8 @@ DROP TRIGGER [TRG_AtualizarSaldo]
 GO
 DROP TRIGGER [TRG_GerarLancamentosTransferidos]
 GO
+DROP TRIGGER [TRG_AtualizarLimiteComprometidoCartao]
+GO
 
 
 	-- DROPANDO TODAS AS PROCEDURES
@@ -169,6 +171,7 @@ DROP PROC [dbo].[SP_ListarCreditSCore]
 GO
 DROP PROC [dbo].[SP_ListarTarifas]
 GO
+<<<<<<< HEAD
 DROP PROC [dbo].[SP_InserirValorTarifa]
 GO
 DROP PROC [dbo].[SP_InserirValorTaxa]
@@ -176,6 +179,21 @@ GO
 DROP PROC [dbo].[SP_InserirValorTaxaCartao]
 GO
 DROP PROC [dbo].[SP_InserirValorTaxaEmprestimo]
+=======
+DROP PROC [dbo].[SP_AtivaAproximacaoCartao]
+GO
+DROP PROC [dbo].[SP_AtivaCartaoCredito]
+GO
+DROP PROC [dbo].[SP_BloquearCartao]
+GO
+DROP PROC [dbo].[SP_InserirNovoCartaoCredito]
+GO
+DROP PROC [dbo].[SP_ExcluirCorrentista]
+GO
+DROP PROC [dbo].[SP_GerarFatura]
+GO
+DROP PROC [dbo].[SP_InserirNovoCorrentista]
+>>>>>>> feat/cartaoCredito
 GO
 
 
@@ -198,6 +216,13 @@ GO
 DROP FUNCTION [dbo].[FNC_ListarSaldoNegativo]
 GO
 DROP FUNCTION [dbo].[FNC_ListarValorAtualTarifa]
+<<<<<<< HEAD
+=======
+GO
+DROP FUNCTION [dbo].[FNC_IdentificarTaxaDoDia]
+GO
+DROP FUNCTION [dbo].[FNC_ListarSaldosEJurosDoMes]
+>>>>>>> feat/cartaoCredito
 GO
 DROP FUNCTION [dbo].[FNC_ListarValorAtualTaxa]
 GO
