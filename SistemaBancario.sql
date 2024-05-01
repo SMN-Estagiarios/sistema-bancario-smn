@@ -206,7 +206,8 @@ CREATE TABLE Fatura(
 	CodigoBarra BIGINT NOT NULL,
 	DataEmissao DATE NOT NULL,
 	DataVencimento DATE NOT NULL,
-	Vlr_Fatura DECIMAL(15, 2) NOT NULL, 
+	Vlr_Fatura DECIMAL(15, 2) NOT NULL,
+	MultaAtraso DECIMAL(15,2) NOT NULL 
 	CONSTRAINT PK_IdFatura PRIMARY KEY(Id),
 	CONSTRAINT FK_Id_CartaoCredito_Fatura FOREIGN KEY(Id_CartaoCredito) REFERENCES CartaoCredito(Id),
 	CONSTRAINT FK_Id_Lancamento_Fatura FOREIGN KEY(Id_Lancamento) REFERENCES Lancamentos(Id)

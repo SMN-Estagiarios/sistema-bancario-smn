@@ -25,16 +25,20 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_PagamentoFatura]
 									SELECT @RET AS RETORNO,
 									DATEDIFF(millisecond, @Dat_init, GETDATE()) AS TempoExecucao
 								ROLLBACK TRAN
+		RETORNO:
+		0:Sucesso
+		1:Erro
 	*/
 	BEGIN
 		--Criação de tabela temporaria.
-		CREATE TABLE #PagamentoFatura(Id INT,Id_CartaoCredito INT, Vlr_Fatura DECIMAL(15,2))
+		CREATE TABLE #PagamentoFatura(Id INT,Id_CartaoCredito INT, Vlr_Fatura DECIMAL(15,2), MultaAtraso DECIMAL(15,2))
 		DECLARE @DataAtual DATE = GETDATE()
 		--Armazenando os valores na tabela temporaria.
 		INSERT INTO #PagamentoFatura
 			SELECT	f.Id,
 					f.Id_CartaoCredito,
-					f.Vlr_Fatura
+					f.Vlr_Fatura,
+					f.MultaAtraso
 				FROM [dbo].[Fatura]f WITH(NOLOCK)					
 				WHERE f.Id_Lancamento IS NULL AND f.DataVencimento <= @DataAtual		
 		--Verificação se tem registro na tabela temporaria.
@@ -43,17 +47,21 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_PagamentoFatura]
 				DECLARE @IdFatura INT,
 						@IdCartaoCredito INT,
 						@VlrFatura DECIMAL(15,2),
+						@MultaAtraso DECIMAL(15,2),
 						@IdConta INT
 				--Selecionando o top 1 da tabela temporaria.
 				SELECT TOP 1 @IdFatura = pf.Id,
 							 @IdCartaoCredito = pf.Id_CartaoCredito,
 							 @VlrFatura = pf.Vlr_Fatura,
+							 @MultaAtraso = pf.MultaAtraso,
 							 @IdConta = cc.Id_Conta
 					FROM #PagamentoFatura pf
 						INNER JOIN [dbo].[CartaoCredito]cc
-							ON cc.Id = pf.Id_CartaoCredito		
+							ON cc.Id = pf.Id_CartaoCredito
+					--Soma o valot da fatura mais juros por atraso se existir.
+					DECLARE @VlrTotal DECIMAL(15,2) = @VlrFatura + @MultaAtraso
 					--Verificação se Valor da Fatura é maior que o saldo disponivel da conta.
-					IF @VlrFatura > (SELECT [dbo].[FNC_CalcularSaldoDisponivel](@IdConta, NULL, NULL, NULL, NULL))
+					IF @VlrTotal > (SELECT [dbo].[FNC_CalcularSaldoDisponivel](@IdConta, NULL, NULL, NULL, NULL))
 						BEGIN
 							PRINT 'Contas com saldo insuficiente'
 							RETURN 1
@@ -61,14 +69,14 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_PagamentoFatura]
 					ELSE
 						BEGIN
 							--Gerando Lançamento caso a conta tenha saldo.
-							EXEC [dbo].[SP_CriarLancamentos] @IdConta, 0, 4, 'D', @VlrFatura, 'Pagamento Fatura', null, 0
+							EXEC [dbo].[SP_CriarLancamentos] @IdConta, 0, 12, 'D', @VlrTotal, 'Pagamento Fatura', null, 0
 
 							DECLARE @IdLancamento INT;
 							--Faço a Seleção do Id do lançamento que foi criado agora.
 							SELECT TOP  1 
 										@IdLancamento = Id 
-								FROM Lancamentos
-								WHERE Id_Conta = @IdConta And Vlr_Lanc = @VlrFatura
+								FROM [dbo].[Lancamentos]Lancamentos WITH(NOLOCK)
+								WHERE Id_Conta = @IdConta And Vlr_Lanc = @VlrTotal
 								ORDER BY Dat_Lancamento DESC
 							--Setando o Id_lancamento da fatura para o id criado no lançamento.
 							UPDATE [dbo].[Fatura]
@@ -81,4 +89,4 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_PagamentoFatura]
 		DROP TABLE #PagamentoFatura
 		RETURN 0
 	END
-GO       
+GO
