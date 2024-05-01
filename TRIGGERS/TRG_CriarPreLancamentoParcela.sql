@@ -15,7 +15,8 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 									Id_Conta,
 									Id_StatusEmprestimo,
 									Id_ValorTaxaEmprestimo,
-									Id_ValorIndice,
+									Id_Indice,
+									Id_PeriodoIndice,
 									ValorSolicitado,
 									NumeroParcelas,
 									Tipo,
@@ -25,6 +26,7 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 							SELECT	Id,
 									Id_Emprestimo,
 									Id_Lancamento,
+									Id_ValorIndice,
 									Valor,
 									ValorJurosAtraso,
 									Data_Cadastro
@@ -37,7 +39,8 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 									Id_Conta,
 									Id_StatusEmprestimo,
 									Id_ValorTaxaEmprestimo,
-									Id_ValorIndice,
+									Id_Indice,
+									Id_PeriodoIndice,
 									ValorSolicitado,
 									NumeroParcelas,
 									Tipo,
@@ -47,6 +50,7 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 							SELECT	Id,
 									Id_Emprestimo,
 									Id_Lancamento,
+									Id_ValorIndice,
 									Valor,
 									ValorJurosAtraso,
 									Data_Cadastro
@@ -54,23 +58,26 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 						ROLLBACK TRAN
 	*/
 	BEGIN
-		DECLARE @Id INT,
+		DECLARE @Id_Emprestimo INT,
 				@Id_Conta INT,
 				@ValorSolicitado DECIMAL(15,2),
 				@ValorParcela DECIMAL(15,2),
 				@NumeroParcelas INT,
 				@Id_ValorTaxaEmprestimo INT,
-				@Id_ValorIndice INT,
+				@Id_Indice INT,
+				@Id_PeriodoIndice INT,
 				@DataInicio DATE,
 				@ContagemParcela INT = 1,
-				@Taxa DECIMAL(6,5)
+				@Taxa DECIMAL(6,5),
+				@Id_ValorIndice INT = NULL;
 
 
-		SELECT @Id = Id, 
+		SELECT @Id_Emprestimo = Id, 
 			   @Id_Conta = Id_Conta,
 			   @ValorSolicitado = ValorSolicitado,
 			   @Id_ValorTaxaEmprestimo = Id_ValorTaxaEmprestimo,
-			   @Id_ValorIndice = Id_ValorIndice,
+			   @Id_Indice = Id_Indice,
+			   @Id_PeriodoIndice = Id_PeriodoIndice,
 			   @NumeroParcelas = NumeroParcelas,
 			   @DataInicio = DataInicio
 			FROM inserted
@@ -108,14 +115,17 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 								SET @DataInicio = EOMONTH(@DataInicio)
 							END
 
-						INSERT INTO [DBO].[Parcela] (   Id_Emprestimo,
+						INSERT INTO [DBO].[Parcela] (
+														Id_Emprestimo,
 														Id_Lancamento,
+														Id_ValorIndice,
 														Valor,
 														ValorJurosAtraso,
 														Data_Cadastro
 													) VALUES (
-																@Id,
+																@Id_Emprestimo,
 																NULL,
+																@Id_ValorIndice,
 																@ValorParcela,
 																0.00,
 																@DataInicio
@@ -124,19 +134,21 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 						SET @ContagemParcela = @ContagemParcela + 1
 					END
 			END
-		ELSE IF @Id_ValorIndice IS NOT NULL
+		ELSE IF @Id_PeriodoIndice IS NOT NULL AND @Id_Indice IS NOT NULL
 			BEGIN
-				DECLARE @ValorIndice DECIMAL(6,5),
-						@Id_PeriodoIndice INT,
+				DECLARE @Aliquota DECIMAL(6,5),
 						@ParcelaIncremento INT,
 						@ParcelaWhile INT
 
-				SELECT	@ValorIndice = Aliquota,
-						@Id_PeriodoIndice = Id_PeriodoIndice
+				SELECT TOP 1 
+							@Id_ValorIndice = Id,
+							@Aliquota = Aliquota
 					FROM [dbo].[ValorIndice] WITH(NOLOCK)
-					WHERE Id = @Id_ValorIndice
+					WHERE	Id_Indice = @Id_Indice AND
+							Id_PeriodoIndice = @Id_PeriodoIndice
+					ORDER BY DataInicio DESC
 
-				SET @ValorParcela = (@ValorSolicitado / @NumeroParcelas) + (@ValorSolicitado * @ValorIndice)
+				SET @ValorParcela = (@ValorSolicitado / @NumeroParcelas) + (@ValorSolicitado * @Aliquota)
 
 				SET @ParcelaIncremento  =	CASE WHEN @Id_PeriodoIndice = 1 THEN 1
 												 WHEN @Id_PeriodoIndice = 2 THEN 2
@@ -161,12 +173,14 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 
 						INSERT INTO [DBO].[Parcela] (   Id_Emprestimo,
 														Id_Lancamento,
+														Id_ValorIndice,
 														Valor,
 														ValorJurosAtraso,
 														Data_Cadastro
 													) VALUES (
-																@Id,
+																@Id_Emprestimo,
 																NULL,
+																@Id_ValorIndice,
 																@ValorParcela,
 																0.00,
 																@DataInicio

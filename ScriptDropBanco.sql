@@ -39,17 +39,6 @@ ALTER TABLE ValorIndice
 	DROP CONSTRAINT FK_Id_PeriodoIndice_ValorIndice
 GO
 
-	-- Executando drop de constraint de FK na tabela Parcela
-ALTER TABLE Parcela
-	DROP CONSTRAINT FK_Id_Emprestimo_Parcela;
-GO
-ALTER TABLE Parcela
-	DROP CONSTRAINT FK_Id_Lancamento_Parcela;
-GO
-ALTER TABLE Parcela
-	DROP CONSTRAINT FK_Id_ValorIndice_Parcela;
-GO
-
 	-- Executando o drop de constraint de FK na tabela Emprestimo
 ALTER TABLE Emprestimo
 	DROP CONSTRAINT FK_Id_Conta_Emprestimo
@@ -116,6 +105,17 @@ ALTER TABLE Lancamentos
 GO
 ALTER TABLE Lancamentos
 	DROP CONSTRAINT FK_Id_TipoLancamento_Lancamentos
+GO
+
+	-- Executando drop de constraint de FK na tabela Parcela
+ALTER TABLE Parcela
+	DROP CONSTRAINT FK_Id_Emprestimo_Parcela;
+GO
+ALTER TABLE Parcela
+	DROP CONSTRAINT FK_Id_Lancamento_Parcela;
+GO
+ALTER TABLE Parcela
+	DROP CONSTRAINT FK_Id_ValorIndice_Parcela;
 GO
 
 	-- Executando o drop de constraint de FK na tabela LancamentosPrecoTarifas

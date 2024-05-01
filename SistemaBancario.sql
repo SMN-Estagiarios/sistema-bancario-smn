@@ -153,8 +153,8 @@ CREATE TABLE Emprestimo (
 	Id_Conta INT NOT NULL,
 	Id_StatusEmprestimo TINYINT NOT NULL,
 	Id_ValorTaxaEmprestimo INT, 
-	Id_Indice TINYINT NOT NULL,
-	Id_PeriodoIndice TINYINT NOT NULL,
+	Id_Indice TINYINT,
+	Id_PeriodoIndice TINYINT,
 	ValorSolicitado DECIMAL(15,2) NOT NULL,
 	NumeroParcelas SMALLINT NOT NULL, 
 	Tipo CHAR(3) NOT NULL, 
@@ -166,21 +166,6 @@ CREATE TABLE Emprestimo (
 	CONSTRAINT FK_Id_TaxaEmprestimo_Emprestimo FOREIGN KEY (Id_ValorTaxaEmprestimo) REFERENCES ValorTaxaEmprestimo (Id),
 	CONSTRAINT FK_Id_Indice_Emprestimo FOREIGN KEY (Id_Indice) REFERENCES Indice(Id),
 	CONSTRAINT FK_Id_PeriodoIndice_Emprestimo FOREIGN KEY (Id_PeriodoIndice) REFERENCES PeriodoIndice(Id)
-);
-
-CREATE TABLE Parcela (
-	Id INT IDENTITY,
-	Id_Emprestimo INT NOT NULL,
-	Id_Lancamento INT,
-	Id_ValorIndice INT,
-	Valor DECIMAL(15,2),
-	ValorJurosAtraso DECIMAL(6,2) NOT NULL DEFAULT(0.0),
-	Data_Cadastro DATE NOT NULL
-
-	CONSTRAINT PK_Parcela PRIMARY KEY (Id),
-	CONSTRAINT FK_Id_Emprestimo_Parcela FOREIGN KEY (Id_Emprestimo) REFERENCES Emprestimo(Id),
-	CONSTRAINT FK_Id_Lancamento_Parcela FOREIGN KEY (Id_Lancamento) REFERENCES Lancamentos(Id),
-	CONSTRAINT FK_Id_ValorIndice_Parcela FOREIGN KEY (Id_ValorIndice) REFERENCES ValorIndice(Id)
 );
 
 CREATE TABLE SaldoDiario(
@@ -275,6 +260,21 @@ CREATE TABLE Lancamentos (
 	CONSTRAINT FK_Id_Usuario_Lancamentos FOREIGN KEY (Id_Usuario) REFERENCES Usuarios(Id),
 	CONSTRAINT FK_Id_TipoLancamento_Lancamentos FOREIGN KEY (Id_TipoLancamento) REFERENCES TipoLancamento(Id),
 	CONSTRAINT CHK_Tipo_Operacao_C_D CHECK(Tipo_Operacao = 'C' OR Tipo_Operacao = 'D')
+);
+
+CREATE TABLE Parcela (
+	Id INT IDENTITY,
+	Id_Emprestimo INT NOT NULL,
+	Id_Lancamento INT,
+	Id_ValorIndice INT,
+	Valor DECIMAL(15,2),
+	ValorJurosAtraso DECIMAL(6,2) NOT NULL DEFAULT(0.0),
+	Data_Cadastro DATE NOT NULL
+
+	CONSTRAINT PK_Parcela PRIMARY KEY (Id),
+	CONSTRAINT FK_Id_Emprestimo_Parcela FOREIGN KEY (Id_Emprestimo) REFERENCES Emprestimo(Id),
+	CONSTRAINT FK_Id_Lancamento_Parcela FOREIGN KEY (Id_Lancamento) REFERENCES Lancamentos(Id),
+	CONSTRAINT FK_Id_ValorIndice_Parcela FOREIGN KEY (Id_ValorIndice) REFERENCES ValorIndice(Id)
 );
 
 CREATE TABLE LancamentosPrecoTarifas (

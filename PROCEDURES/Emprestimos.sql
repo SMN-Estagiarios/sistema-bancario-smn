@@ -7,8 +7,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 	@NumeroParcelas INT,
 	@Tipo CHAR(3),
 	@DataInicio DATE = NULL,
-	@TipoIndice INT = NULL,
-	@PeriodoAtualizacao INT = NULL
+	@Id_Indice INT = NULL,
+	@Id_PeriodoIndice INT = NULL
 	AS
 	/* 
 			Documentação
@@ -34,7 +34,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 											Id_Conta,
 											Id_StatusEmprestimo,
 											Id_ValorTaxaEmprestimo,
-											Id_ValorIndice,
+											Id_Indice,
+											Id_PeriodoIndice,
 											ValorSolicitado,
 											NumeroParcelas,
 											Tipo,
@@ -53,8 +54,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 		DECLARE @DataAtual DATE = GETDATE(),
 				@Id_Tarifa INT,
 				@IdTaxaEmprestimo DECIMAL(5,4) = NULL,
-				@TaxaTotal DECIMAL(5,4),
-				@IdValorIndice INT = NULL;
+				@TaxaTotal DECIMAL(5,4);
 				
 		-- Caso o parâmetro da primeira parcela for nulo, será passada para daqui a 1 mês e a data não poderá ser em um fim de semana
 		SET @DataInicio = ISNULL(@DataInicio, @DataAtual)
@@ -95,26 +95,14 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 					WHERE	c.Id = @Id_Cta AND
 							vte.Id_TaxaEmprestimo = 1;
 			END
-		ELSE
-			BEGIN
-				-- Buscando o Valor Indice de acordo com o passado na procedure
-				SELECT	TOP 1 @IdValorIndice = VI.Id
-					FROM [dbo].[ValorIndice] VI WITH(NOLOCK) 
-						INNER JOIN [dbo].[Indice] I WITH(NOLOCK)
-							ON VI.Id_Indice = I.Id
-						INNER JOIN [dbo].[PeriodoIndice] P WITH(NOLOCK)
-							ON VI.Id_PeriodoIndice = P.Id
-					WHERE	P.Id = @PeriodoAtualizacao AND
-							I.Id = @TipoIndice
-					ORDER BY VI.Id DESC;
-			END
 
 		-- Criando o emprestimo
 		INSERT INTO [dbo].[Emprestimo]	(
 											Id_Conta,
 											Id_StatusEmprestimo,
 											Id_ValorTaxaEmprestimo,
-											Id_ValorIndice,
+											Id_Indice,
+											Id_PeriodoIndice,
 											ValorSolicitado,
 											NumeroParcelas,
 											Tipo,
@@ -123,7 +111,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 													@Id_Cta,
 													2,
 													@IdTaxaEmprestimo,
-													@IdValorIndice,
+													@Id_Indice,
+													@Id_PeriodoIndice,
 													@ValorSolicitado,
 													@NumeroParcelas,
 													@Tipo,
@@ -149,7 +138,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarEmprestimo]	@IdConta INT = NULL,
 								DECLARE @Dat_ini DATETIME = GETDATE()
 
 								EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'PRE', NULL
-								--EXEC [dbo].[SP_RealizarEmprestimo] 2, 1000, 2, 'POS', NULL, 1, 1
+								EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'POS', NULL, 1, 1
 
 								EXEC [dbo].[SP_ListarEmprestimo] 1
 								EXEC [dbo].[SP_ListarEmprestimo] 
@@ -167,7 +156,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarEmprestimo]	@IdConta INT = NULL,
 						Id_Conta,
 						Id_StatusEmprestimo,
 						Id_ValorTaxaEmprestimo,
-						Id_ValorIndice,
+						Id_Indice,
+						Id_PeriodoIndice,
 						ValorSolicitado,
 						NumeroParcelas,
 						Tipo,

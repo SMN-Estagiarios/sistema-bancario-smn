@@ -12,7 +12,28 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_BuscarTaxaJurosAtraso]	(
 		Objetivo..........: Buscar a taxa de juros de atraso atual para uma determinada conta
 		Autor.............: Joao Victor, Odlavir Florentino, Rafael Mauricio
 		Data..............: 29/04/2024
-		Ex................:	SELECT [dbo].[FNC_BuscarTaxaJurosAtraso](29)
+		Ex................:	BEGIN TRAN
+								DECLARE @Id_Emp INT;
+
+								EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 5, 'PRE'
+
+								SELECT	Id,
+										Id_Conta,
+										Id_StatusEmprestimo,
+										Id_ValorTaxaEmprestimo,
+										Id_Indice,
+										Id_PeriodoIndice,
+										ValorSolicitado,
+										NumeroParcelas,
+										Tipo,
+										DataInicio
+									FROM [dbo].[Emprestimo] WITH(NOLOCK)
+
+								SELECT	TOP 1 @Id_Emp = Id
+									FROM [dbo].[Emprestimo] WITH(NOLOCK)
+
+								SELECT [dbo].[FNC_BuscarTaxaJurosAtraso](@Id_Emp)
+							ROLLBACK TRAN
 	*/
 
 	BEGIN
