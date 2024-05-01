@@ -40,7 +40,7 @@ CREATE TABLE ValorTaxaCartao (
 	DataInicial DATE NOT NULL
 	CONSTRAINT PK_IdValorTaxaCartao PRIMARY KEY(Id),
 	CONSTRAINT FK_Id_TaxaCartao_TaxaCartao FOREIGN KEY (Id_TaxaCartao) REFERENCES TaxaCartao(Id)
-<<<<<<< HEAD
+
 );
 
 
@@ -48,8 +48,6 @@ CREATE TABLE StatusFatura(
 	Id TINYINT,
 	Nome VARCHAR(50) NOT NULL,
 	CONSTRAINT PK_IdStatusFatura PRIMARY KEY(Id)
-=======
->>>>>>> feat/cartaoCredito
 );
 
 
@@ -226,11 +224,8 @@ CREATE TABLE Fatura(
 CREATE TABLE TransacaoCartaoCredito(
 	Id INT IDENTITY,
 	Id_CartaoCredito INT NOT NULL,
-<<<<<<< HEAD
 	Id_Fatura INT NOT NULL,
-=======
 	Id_Fatura INT,
->>>>>>> feat/cartaoCredito
 	Id_ValorTaxaCartao INT NOT NULL,
 	Id_TipoTransacao TINYINT NOT NULL,
 	Nom_Historico VARCHAR(500) NOT NULL,
@@ -244,7 +239,6 @@ CREATE TABLE TransacaoCartaoCredito(
 	CONSTRAINT FK_Id_TipoTransacao_TransacaoCartaoCredito FOREIGN KEY (Id_TipoTransacao) REFERENCES TipoTransacao(Id)
 );
 
-<<<<<<< HEAD
 CREATE TABLE Tarifas (
 	Id TINYINT,
 	Nome VARCHAR(50) NOT NULL,
@@ -280,7 +274,7 @@ CREATE TABLE Lancamentos (
 	CONSTRAINT FK_Id_Usuario_Lancamentos FOREIGN KEY (Id_Usuario) REFERENCES Usuarios(Id),
 	CONSTRAINT FK_Id_TipoLancamento_Lancamentos FOREIGN KEY (Id_TipoLancamento) REFERENCES TipoLancamento(Id),
 	CONSTRAINT CHK_Tipo_Operacao_C_D CHECK(Tipo_Operacao = 'C' OR Tipo_Operacao = 'D')
-=======
+;
 CREATE TABLE Parcela (
 	Id_Emprestimo INT NOT NULL,
 	Id_Lancamento INT NOT NULL UNIQUE,
@@ -310,7 +304,7 @@ CREATE TABLE LancamentosTransacao (
 	Id_TransacaoCartaoCredito INT,
 	CONSTRAINT FK_Id_Lancamentos_LancamentosTransacao FOREIGN KEY(Id_Lancamentos) REFERENCES Lancamentos(Id),
 	CONSTRAINT FK_Id_TransacaoCartaoCredito_LancamentosTransacao FOREIGN KEY(Id_TransacaoCartaoCredito) REFERENCES TransacaoCartaoCredito(Id)
->>>>>>> feat/cartaoCredito
+
 );
 
 CREATE TABLE Parcela (
@@ -358,16 +352,8 @@ CREATE TABLE Transferencias (
 );
 
 CREATE TABLE TransferenciasLancamentos (
-<<<<<<< HEAD
 	IdLancamento INT UNIQUE NOT NULL,
 	IdTransferencia INT NOT NULL,
 	CONSTRAINT FK_IdTransferencia_TransferenciaLancamentos FOREIGN KEY (IdTransferencia) REFERENCES Transferencias(Id),
 	CONSTRAINT FK_IdLancamento_TransferenciaLancamentos FOREIGN KEY (IdLancamento) REFERENCES Lancamentos(Id)
 );
-=======
-	IdTransferencia INT NOT NULL,
-	IdLancamento INT UNIQUE NOT NULL,
-	CONSTRAINT FK_IdTransferencia_TransferenciaLancamentos FOREIGN KEY (IdTransferencia) REFERENCES Transferencias(Id),
-	CONSTRAINT FK_IdLancamento_TransferenciaLancamentos FOREIGN KEY (IdLancamento) REFERENCES Usuarios(Id)
-);
->>>>>>> feat/cartaoCredito
