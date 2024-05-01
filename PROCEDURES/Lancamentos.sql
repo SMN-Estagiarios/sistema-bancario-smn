@@ -25,9 +25,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 	
 						DECLARE @Dat_init DATETIME = GETDATE(),
 								@RET INT
-						SELECT TOP 10 * FROM Lancamentos
-	
-						EXEC @RET = [dbo].[SP_CriarLancamentos]	1, 0, 1, 'D', 100, 'Saque', null, 0
+								
+						SELECT TOP 10 * FROM Lancamentos	
+
+						EXEC @RET = [dbo].[SP_CriarLancamentos]	1, 0, 1, 'C', 100, 'Deposito', null, 0						
+
 						SELECT TOP 10 * FROM Lancamentos
 	
 						SELECT @RET AS RETORNO
@@ -44,6 +46,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 		    */
 
 	BEGIN
+		DECLARE @DataAtual DATETIME = GETDATE();
 		-- Caso Valor do Lançamento seja menor que 0:
 		IF @Vlr_Lanc < 0
 			BEGIN			
@@ -55,29 +58,24 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 				 RETURN 2
 			END
 		-- Caso o lançamento seja de mes anterior:
-		IF DATEDIFF(MONTH,@Dat_Lancamento,GETDATE()) <> 0
+		IF DATEDIFF(MONTH,@Dat_Lancamento, @DataAtual) <> 0
 			BEGIN			 
 				RETURN 3
 			END
 		-- Caso a checagem tiver correta:
 		ELSE	
-			--Verificação se a conta tem saldo
-			IF @Vlr_Lanc <= (SELECT [dbo].[FNC_CalcularSaldoDisponivel](@Id_Cta, NULL, NULL, NULL, NULL))
-				BEGIN
 			-- Caso paramentro seja NULL sera atribuido a variavel @DataAtual para recerber GETDATE
-					IF @Dat_Lancamento IS NULL
-						BEGIN
-							DECLARE @DataAtual DATETIME
-							SET @DataAtual = GETDATE()
-	
-							INSERT INTO [dbo].[Lancamentos] (Id_Conta,Id_Usuario,Id_TipoLancamento,Tipo_Operacao,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
-											(@Id_Cta, @Id_Usuario,@Id_TipoLancamento,@Tipo_Operacao,@Vlr_Lanc,@Nom_Historico,@DataAtual, @Estorno)
-						END
-	
-					ELSE				
-							INSERT INTO [dbo].[Lancamentos]  (Id_Conta,Id_Usuario,Id_TipoLancamento,Tipo_Operacao,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
-											 (@Id_Cta, @Id_Usuario,@Id_TipoLancamento,@Tipo_Operacao,@Vlr_Lanc,	@Nom_Historico,@DataAtual, @Estorno)
+			IF @Dat_Lancamento IS NULL
+				BEGIN
+		
+					INSERT INTO [dbo].[Lancamentos] (Id_Conta,Id_Usuario,Id_TipoLancamento,Tipo_Operacao,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
+									(@Id_Cta, @Id_Usuario,@Id_TipoLancamento,@Tipo_Operacao,@Vlr_Lanc,@Nom_Historico,@DataAtual, @Estorno)
 				END
+	
+			ELSE
+				INSERT INTO [dbo].[Lancamentos]  (Id_Conta,Id_Usuario,Id_TipoLancamento,Tipo_Operacao,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
+								 (@Id_Cta, @Id_Usuario,@Id_TipoLancamento,@Tipo_Operacao,@Vlr_Lanc,	@Nom_Historico,@Dat_Lancamento, @Estorno)
+				
 				IF @@ROWCOUNT <> 0
 					RETURN 0 
 				ELSE 
