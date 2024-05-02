@@ -45,7 +45,7 @@ FOR INSERT, DELETE
 					@Vlr_Transferencia DECIMAL(15,2),
 					@Nom_Referencia VARCHAR(200), 
 					@Dat_Transferencia DATETIME,
-					@TipoLancamento INT = 3,
+					@TipoLancamento INT = 3, --id_tipolancamento travado em transferencia 
 					@Id_LancamentoInserido INT
 
 	   		-- atribui��o de valores para casos de Insert

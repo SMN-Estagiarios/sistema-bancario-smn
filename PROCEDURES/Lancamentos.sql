@@ -27,7 +27,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 								@RET INT
 						SELECT TOP 10 * FROM Lancamentos
 	
-						EXEC @RET = [dbo].[SP_CriarLancamentos]	1, 1, 1,1, 'C', 100, 'Deposito', null, 0
+						EXEC  = [dbo].[SP_CriarLancamentos]	1, 0, 1,1, 'C', 100, 'Deposito', null, 0
 						SELECT TOP 10 * FROM Lancamentos
 	
 						SELECT @RET AS RETORNO
@@ -44,6 +44,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 		    */
 
 	BEGIN
+		DECLARE @DataAtual DATETIME = GETDATE(); 
 		-- Caso Valor do Lançamento seja menor que 0:
 		IF @Vlr_Lanc < 0
 			BEGIN			
@@ -55,7 +56,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 				 RETURN 2
 			END
 		-- Caso o lançamento seja de mes anterior:
-		IF DATEDIFF(MONTH,@Dat_Lancamento,GETDATE()) <> 0
+		IF DATEDIFF(MONTH,@Dat_Lancamento, @DataAtual) <> 0
 			BEGIN			 
 				RETURN 3
 			END
@@ -64,16 +65,14 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_CriarLancamentos]
 			-- Caso paramentro seja NULL sera atribuido a variavel @DataAtual para recerber GETDATE
 			IF @Dat_Lancamento IS NULL
 				BEGIN
-					DECLARE @DataAtual DATETIME
-					SET @DataAtual = GETDATE()
-	
+				
 					INSERT INTO [dbo].[Lancamentos] (Id_Conta,Id_Usuario,Id_TipoLancamento,Tipo_Operacao,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
 									(@Id_Cta, @Id_Usuario,@Id_TipoLancamento,@Tipo_Operacao,@Vlr_Lanc,@Nom_Historico,@DataAtual, @Estorno)
 				END
 	
 			ELSE
 				INSERT INTO [dbo].[Lancamentos]  (Id_Conta,Id_Usuario,Id_TipoLancamento,Tipo_Operacao,Vlr_Lanc,Nom_Historico,Dat_Lancamento,Estorno) VALUES 
-								 (@Id_Cta, @Id_Usuario,@Id_TipoLancamento,@Tipo_Operacao,@Vlr_Lanc,	@Nom_Historico,@DataAtual, @Estorno)
+								 (@Id_Cta, @Id_Usuario,@Id_TipoLancamento,@Tipo_Operacao,@Vlr_Lanc,	@Nom_Historico,@Dat_Lancamento, @Estorno)
 				
 				IF @@ROWCOUNT <> 0
 					RETURN 0 

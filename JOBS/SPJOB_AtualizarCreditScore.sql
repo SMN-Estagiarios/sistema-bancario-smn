@@ -10,23 +10,23 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarCreditScore]
 			Autor.............: Gustavo Targino, Jo o Victor Maia, Gabriel Damiani
 			Data..............: 16/04/2024
 			EX................:	BEGIN TRAN
-								DBCC DROPCLEANBUFFERS;
-								DBCC FREEPROCCACHE;
+									DBCC DROPCLEANBUFFERS;
+									DBCC FREEPROCCACHE;
 
-								DECLARE @Ret INT,
-										@Dat_ini DATETIME = GETDATE();
+									DECLARE @Ret INT,
+											@Dat_ini DATETIME = GETDATE();
 
-								SELECT  TOP 20	*
-									FROM [dbo].[Contas] WITH(NOLOCK);
+									SELECT  TOP 20	*
+										FROM [dbo].[Contas] WITH(NOLOCK);
 
-								EXEC @Ret = [dbo].[SPJOB_AtualizarCreditScore]
-			
-								SELECT  TOP 20	*
-									FROM [dbo].[Contas] WITH(NOLOCK);
+									EXEC @Ret = [dbo].[SPJOB_AtualizarCreditScore]
 
-								SELECT  @Ret AS Retorno,
-										DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
-							ROLLBACK TRAN
+									SELECT  TOP 20	*
+										FROM [dbo].[Contas] WITH(NOLOCK);
+
+									SELECT  @Ret AS Retorno,
+											DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
+								ROLLBACK TRAN
 		*/
    BEGIN
 
