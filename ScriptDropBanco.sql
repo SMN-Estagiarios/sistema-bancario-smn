@@ -200,7 +200,10 @@ GO
 DROP PROC [dbo].[SP_GerarFatura]
 GO
 DROP PROC [dbo].[SP_InserirNovoCorrentista]
-
+GO
+DROP PROC [dbo].[SP_GerarTransacaoCartaoCredito]
+GO
+DROP PROC [dbo].[SPJOB_FechamentoFatura]
 GO
 
 
@@ -215,6 +218,12 @@ DROP PROC [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 GO
 DROP PROC [dbo].[SP_RegistrarLancamentosTransferencia]
 GO
+DROP PROC [dbo].[SPJOB_PagamentoFatura]
+GO
+DROP PROC [dbo].[SPJOB_FechamentoFatura]
+GO
+DROP PROC [dbo].[SPJOB_AplicarMultaAtrasoFatura]
+GO
 
 	-- DROPANDO TODAS AS FUNCTIONS
 
@@ -225,19 +234,19 @@ GO
 DROP FUNCTION [dbo].[FNC_ListarSaldoNegativo]
 GO
 DROP FUNCTION [dbo].[FNC_ListarValorAtualTarifa]
-
 GO
 DROP FUNCTION [dbo].[FNC_IdentificarTaxaDoDia]
 GO
 DROP FUNCTION [dbo].[FNC_ListarSaldosEJurosDoMes]
-
 GO
 DROP FUNCTION [dbo].[FNC_ListarValorAtualTaxa]
 GO
 DROP FUNCTION [dbo].[FNC_ListarValorAtualTaxaCartao]
 GO
 DROP FUNCTION [dbo].[FNC_ListarValorAtualTaxaEmprestimo]
-
+GO
+DROP FUNCTION [dbo].[SPJOB_FechamentoFatura]
+GO
 
 	--DROPANDO TODAS AS TABELAS
 
