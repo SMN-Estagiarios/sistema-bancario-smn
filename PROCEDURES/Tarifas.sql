@@ -24,17 +24,12 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarTarifas]
 
 
     BEGIN
-       
-		DECLARE @DataAtual DATE = GETDATE()
-
-            SELECT	T.Nome,
-					P.Valor,
-					P.DataInicial
-				FROM [dbo].[Tarifas] T WITH(NOLOCK)
-					INNER JOIN [dbo].[PrecoTarifas] P WITH(NOLOCK)
-						ON P.Id_Tarifa = T.Id
-				ORDER BY P.DataInicial DESC
 				
+			-- Listando todas as tarifas
+            SELECT	T.Id,
+					T.Nome
+				FROM [dbo].[Tarifas] T WITH(NOLOCK)
+					
     END		
 GO	
 
@@ -59,7 +54,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTarifa]
 
 									SELECT * FROM PrecoTarifas
 
-                                    EXEC @Ret = [dbo].[SP_InserirValorTarifa] 1, 50.00, '2024-04-30'
+                                    EXEC @Ret = [dbo].[SP_InserirValorTarifa] 1, 50.00, '2024-05-30'
 
 									SELECT * FROM PrecoTarifas
 
@@ -68,30 +63,26 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTarifa]
                                 ROLLBACK TRAN
 
 			Retornos..........:	
-						0 - Data inválida: Não é possível a data inicial ser menor que a atual.
-						1 - Registro inserido.
+						0 - Registro inserido.
+						1 - Data inválida: Não é possível a data inicial ser menor que a atual.
+						2 - Falha na inclusão do registro.
 		*/
 
     BEGIN
-       
 		-- Impedir data inicial anterior a hoje
 		IF DATEDIFF(DAY, @DataInicial, GETDATE()) > 0
-			RETURN 0
+			RETURN 1
 
-		INSERT INTO [dbo].[PrecoTarifas] (Id_Tarifa, Valor, DataInicial) VALUES
-										 (@IdTarifa, @Valor, @DataInicial)
+		-- Inserir novo valor com validade inicial para uma tarifa
+		INSERT INTO [dbo].[PrecoTarifas] (Id_Tarifa, Valor, DataInicial)
+			VALUES	(@IdTarifa, @Valor, @DataInicial)
 	
-		-- Checagem de erro
-		DECLARE @MSG VARCHAR(100),
-				@ERRO INT = @@ERROR
-			
-		IF @ERRO <> 0 OR @@ROWCOUNT <> 1
+		-- Verificando se houve erro ao inserir novo registro
+		IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
 			BEGIN
-				SET @MSG = 'ERRO' + CAST(@ERRO AS VARCHAR(3)) + ', ao inserir nova tarifa com data inicial'
-					RAISERROR(@MSG, 16, 1)
+				RETURN 2
 			END
 			
-		RETURN 1
-        		
+		RETURN 0
     END		
 GO

@@ -104,8 +104,8 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 		INSERT INTO #Tabela 
 			SELECT	QuantidadeParcela AS TotalParcelas,
 					@ValorSolicitado * @Taxa / (1 - POWER(1 + @Taxa, - QuantidadeParcela)) AS PrecoParcela
-			FROM [dbo].[FNC_ListarParcelasEmprestimo]()
-			WHERE	@ValorSolicitado * @Taxa / (1 - POWER(1 + @Taxa, - QuantidadeParcela)) > 100
+				FROM [dbo].[FNC_ListarParcelasEmprestimo]()
+				WHERE	@ValorSolicitado * @Taxa / (1 - POWER(1 + @Taxa, - QuantidadeParcela)) > 100
 
 		-- Armazenar o valor da parcela de acordo com o numero de parcelas do emprestimo
 		SELECT @ValorParcela = PrecoParcela 

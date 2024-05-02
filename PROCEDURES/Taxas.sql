@@ -6,13 +6,19 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarTaxas]
 		Objetivo..............: Listar todas as taxas registradas
 		Autor.................: Odlavir Florentino, Jo�o Victor, Rafael Maur�cio
 		Data..................: 01/05/2024
-		Ex....................: DECLARE @Dat_ini DATETIME = GETDATE()
+		Ex....................: BEGIN TRAN
+		
+								DECLARE @Dat_ini DATETIME = GETDATE()
 
 								EXEC [dbo].[SP_ListarTaxas]
 
 								SELECT DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
+
+								ROLLBACK TRAN
 	*/
 	BEGIN
+
+		-- Listando todas as taxas
 		SELECT	Id,
 				Nome
 			FROM [dbo].[Taxa] WITH(NOLOCK)
@@ -24,7 +30,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirTaxa]
 	@Nome VARCHAR(50)
 	AS
 	/*
-		Documenta��o
+		Documentação
 		Arquivo Fonte.........:	Taxas.sql
 		Objetivo..............: Inserir uma nova taxa
 		Autor.................: Odlavir Florentino, Jo�o Victor, Rafael Maur�cio
@@ -39,21 +45,22 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirTaxa]
 								ROLLBACK TRAN
 	*/
 	BEGIN
-		--Conferir se a taxa j� existe
+		--Conferir se a taxa já existe
 		IF EXISTS(SELECT TOP 1 1
 					FROM [dbo].[Taxa]
 					WHERE Nome = @Nome)
 			BEGIN
-				RAISERROR('Essa taxa j� existe dentro do banco', 16, 1)
+				RAISERROR('Essa taxa já existe dentro do banco', 16, 1)
 				RETURN
 				
 			END
-		--Conferir se o ID j� existe
+
+		--Conferir se o ID já existe
 		IF EXISTS(SELECT TOP 1 1
 					FROM [dbo].[Taxa]
 					WHERE Id = Id)
 			BEGIN
-				RAISERROR('Esse ID j� existe dentro do banco', 16, 1)
+				RAISERROR('Esse ID já existe dentro do banco', 16, 1)
 				RETURN
 			END
 		--Inserir a taxa
@@ -110,13 +117,14 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirTaxa]
 					OR Nome = ISNULL(@Nome, NULL)
 	END
 GO
+
 CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxa]
 		@IdTaxa INT,
 		@Aliquota DECIMAL(6,5),
 		@DataInicial DATE
     AS  
         /*
-            Documenta��o
+            Documentação
             Arquivo Fonte.....: Taxas.sql
             Objetivo..........: Inserir novo valor taxa com data inicial maior ou igual a data atual
             Autor.............: Gustavo Targino, Danyel Targino, Thays Carvalho
@@ -130,7 +138,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxa]
 
 									SELECT * FROM ValorTaxa
 
-                                    EXEC @Ret = [dbo].[SP_InserirValorTaxa] 1, 0.04, '2024-04-30'
+                                    EXEC @Ret = [dbo].[SP_InserirValorTaxa] 1, 0.04, '2024-05-30'
 
 									SELECT * FROM ValorTaxa
 
@@ -150,6 +158,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxa]
 		IF DATEDIFF(DAY, @DataInicial, GETDATE()) > 0
 			RETURN 0
 
+		-- Inserir nova alíquota com validade inicial para uma taxa
 		INSERT INTO [dbo].[ValorTaxa] (Id_Taxa, Aliquota, DataInicial) VALUES
 										 (@IdTaxa, @Aliquota, @DataInicial)
 	
@@ -157,6 +166,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxa]
 		DECLARE @MSG VARCHAR(100),
 				@ERRO INT = @@ERROR
 			
+		-- Verificando se houve erro ao inserir novo registro
 		IF @ERRO <> 0 OR @@ROWCOUNT <> 1
 			BEGIN
 				SET @MSG = 'ERRO' + CAST(@ERRO AS VARCHAR(3)) + ', ao inserir nova taxa com data inicial'
@@ -175,7 +185,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxaCartao]
 		@DataInicial DATE
     AS  
         /*
-            Documenta��o
+            Documentação
             Arquivo Fonte.....: Taxas.sql
             Objetivo..........: Inserir novo valor taxa do cart�o com data inicial maior ou igual a data atual
             Autor.............: Gustavo Targino, Danyel Targino, Thays Carvalho
@@ -209,6 +219,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxaCartao]
 		IF DATEDIFF(DAY, @DataInicial, GETDATE()) > 0
 			RETURN 0
 
+		-- Inserir nova alíquota com validade inicial para uma taxa de cartão
 		INSERT INTO [dbo].[ValorTaxaCartao] (Id_TaxaCartao, Aliquota, DataInicial) VALUES
 										 (@IdTaxaCartao, @Aliquota, @DataInicial)
 	
@@ -216,6 +227,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxaCartao]
 		DECLARE @MSG VARCHAR(100),
 				@ERRO INT = @@ERROR
 			
+		-- Verificando se houve erro ao inserir novo registro
 		IF @ERRO <> 0 OR @@ROWCOUNT <> 1
 			BEGIN
 				SET @MSG = 'ERRO' + CAST(@ERRO AS VARCHAR(3)) + ', ao inserir nova taxa com data inicial'
@@ -234,7 +246,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxaEmprestimo]
 		@DataInicial DATE
     AS  
         /*
-            Documenta��o
+            Documentação
             Arquivo Fonte.....: Taxas.sql
             Objetivo..........: Inserir novo valor taxa do cart�o com data inicial maior ou igual a data atual
             Autor.............: Gustavo Targino, Danyel Targino, Thays Carvalho
@@ -268,6 +280,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxaEmprestimo]
 		IF DATEDIFF(DAY, @DataInicial, GETDATE()) > 0
 			RETURN 0
 
+		-- Inserir nova alíquota com validade inicial para uma taxa de empréstimo
 		INSERT INTO [dbo].[ValorTaxaEmprestimo] (Id_TaxaEmprestimo, Id_CreditScore, Aliquota, DataInicial) VALUES
 												(@IdTaxaEmprestimo, @IdCreditScore, @Aliquota, @DataInicial)
 	
@@ -275,6 +288,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxaEmprestimo]
 		DECLARE @MSG VARCHAR(100),
 				@ERRO INT = @@ERROR
 			
+		-- Verificando se houve erro ao inserir novo registro
 		IF @ERRO <> 0 OR @@ROWCOUNT <> 1
 			BEGIN
 				SET @MSG = 'ERRO' + CAST(@ERRO AS VARCHAR(3)) + ', ao inserir nova taxa com data inicial'

@@ -6,7 +6,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 	/*
 		Documentacao
 		Arquivo Fonte.....: SPJOB_LancarParcela.sql
-		Objetivo..........: Verificar a data da parcela e caso esteja na data correta, fazer o seu lancamento
+		Objetivo..........: Baixa todas as parcelas que estão vencendo no dia da execução do job
 		Autor.............: Joao Victor, Odlavir Florentino e Rafael Mauricio
 		Data..............: 29/04/2024
 		Ex................:	BEGIN TRAN
@@ -54,7 +54,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 										ValorJurosAtraso,
 										Data_Cadastro FROM 
 									[dbo].[Parcela] WITH(NOLOCK)
-
+									
 								SELECT	Id,
 										Id_Conta,
 										Id_Usuario,
@@ -74,12 +74,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 	BEGIN
 		DECLARE @DataAtual DATE = GETDATE(),
 				@TaxaAtrasadoAtual DECIMAL(6,5);
-
-		-- Verificar se existe a tabela temporaria, caso exista, dropar ela
-		IF OBJECT_ID('tempdb..#Tabela') IS NOT NULL
-			BEGIN
-				DROP TABLE #Tabela;
-			END
 
 		-- Criar tabela temporaria
 		CREATE TABLE #Tabela	(
@@ -111,12 +105,12 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 					P.Valor,
 					P.ValorJurosAtraso,
 					P.Data_Cadastro,
-					[dbo].[FNC_CalcularSaldoDisponivel](E.Id_Conta, NULL, NULL, NULL, NULL) SaldoDisponivel
+					[dbo].[FNC_CalcularSaldoDisponivel](E.Id_Conta, NULL, NULL, NULL, NULL) AS SaldoDisponivel
 				FROM [dbo].[Parcela] P WITH(NOLOCK)
 					INNER JOIN [dbo].[Emprestimo] E WITH(NOLOCK)
 						ON P.Id_Emprestimo = E.Id
-				WHERE	Data_Cadastro <= @DataAtual AND
-						Id_Lancamento IS NULL
+				WHERE	P.Data_Cadastro <= @DataAtual AND
+						P.Id_Lancamento IS NULL
 
 		-- Verificar se existe algum registro na tabela temporaria, onde o valor da parcela é menor que ou igual ao saldo disponivel
 		IF EXISTS(SELECT TOP 1 1

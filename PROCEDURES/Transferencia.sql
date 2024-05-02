@@ -163,15 +163,15 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEstornoTransferencia]
 							RETURN 1
 						END
 					
-					ALTER TABLE [dbo].[LancamentosTransferencia]
-					DROP CONSTRAINT [FK_Id_Tranferencia_LancamentosTransferencia]
+					ALTER TABLE [dbo].[TransferenciasLancamentos]
+					DROP CONSTRAINT [FK_IdTransferencia_TransferenciaLancamentos]
 						
 						DELETE [dbo].[Transferencias]
 							WHERE Id = @Id_Transferencia
 							RETURN 0
 
-					ALTER TABLE [dbo].[LancamentosTransferencia]
-					ADD CONSTRAINT [FK_Id_Tranferencia_LancamentosTransferencia] FOREIGN KEY (Id_Transferencia) REFERENCES Transferencias(Id);
+					ALTER TABLE [dbo].[TrasnferenciasLancamentos]
+					ADD CONSTRAINT [FK_IdTransferencia_TransferenciaLancamentos] FOREIGN KEY (Id_Transferencia) REFERENCES Transferencias(Id);
 				END
 			ELSE
 				BEGIN
@@ -206,7 +206,7 @@ CREATE OR ALTER  PROCEDURE [dbo].[SP_RegistrarLancamentosTransferencia]
 											Dat_Saldo
 									FROM [dbo].[Contas]
 
-									SELECT * FROM [dbo].[LancamentosTransferencia]
+									SELECT * FROM [dbo].[TransferenciasLancamentos]
 
 									EXEC @RET =  [SP_RealizarNovaTransferenciaBancaria] 0,1, 2,  50, 'Transfe pagamento aluguel' 
 
@@ -219,7 +219,7 @@ CREATE OR ALTER  PROCEDURE [dbo].[SP_RegistrarLancamentosTransferencia]
 											Dat_Saldo
 									FROM [dbo].[Contas]
 
-									SELECT * FROM [dbo].[LancamentosTransferencia]
+									SELECT * FROM [dbo].[TransferenciasLancamentos]
 
 									SELECT * from Lancamentos
 									
@@ -241,9 +241,9 @@ CREATE OR ALTER  PROCEDURE [dbo].[SP_RegistrarLancamentosTransferencia]
 
 										Select * from Transferencias
 										SELECT * from Lancamentos
-										SELECT * from [dbo].[LancamentosTransferencia]
+										SELECT * from [dbo].[TransferenciasLancamentos]
 
-									  EXEC @RET = [dbo].[SP_RealizarEstornoTransferencia]15
+									  EXEC @RET = [dbo].[SP_RealizarEstornoTransferencia]4
 
 										SELECT @RET AS RETORNO,
 											   DATEDIFF(millisecond, @Dat_init, GETDATE()) AS EXECUcaO
@@ -255,7 +255,7 @@ CREATE OR ALTER  PROCEDURE [dbo].[SP_RegistrarLancamentosTransferencia]
 										FROM [dbo].[Contas]
 										SELECT * from Lancamentos
 										SELECT * from transferencias
-										SELECT * from [dbo].[LancamentosTransferencia]
+										SELECT * from [dbo].[TransferenciasLancamentos]
 								ROLLBACK TRAN
 
 							-- RETORNO --
@@ -266,9 +266,9 @@ CREATE OR ALTER  PROCEDURE [dbo].[SP_RegistrarLancamentosTransferencia]
 	*/ 
 	 BEGIN
 			BEGIN
-				 INSERT INTO [dbo].[LancamentosTransferencia](
-															  Id_Transferencia, 
-															  Id_Lancamentos
+				 INSERT INTO [dbo].[TransferenciasLancamentos](
+															  IdTransferencia, 
+															  IdLancamento
 															 )
 														VALUES
 															 (

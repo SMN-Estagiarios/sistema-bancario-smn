@@ -13,11 +13,20 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_InserirLancamentoParcela]
 			Data..................: 29/04/2024
 			Ex....................: BEGIN TRAN
 										UPDATE [dbo].[Contas]
-											SET Lim_ChequeEspecial = 1000,
+											SET Lim_ChequeEspecial = 3000,
 												Id_CreditScore = 8
 											WHERE Id = 1
 
 										EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'PRE'
+
+										DECLARE @Id_Parcela INT
+
+										SELECT TOP 1 @Id_Parcela = Id 
+											FROM [dbo].[Parcela] WITH(NOLOCK)
+
+										UPDATE [dbo].[Parcela]
+											SET Data_Cadastro = GETDATE()
+											WHERE Id = @Id_Parcela
 
 										SELECT TOP 5 Id,
 													 Id_Emprestimo,
@@ -57,16 +66,17 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_InserirLancamentoParcela]
 				@Id_Emprestimo INT
 		--Montar o cursor de lançamentos
 		DECLARE Lancamento CURSOR FOR
-			SELECT	Id_Lancamento = i.Id,
-					Tipo_Lancamento = i.Id_TipoLancamento,
-					Id_Emprestimo = e.Id
-				FROM INSERTED i WITH(NOLOCK)
+			SELECT	i.Id,
+					i.Id_TipoLancamento,
+					e.Id
+				FROM INSERTED i
 					INNER JOIN [dbo].[Emprestimo] e WITH(NOLOCK)
 						ON e.Id_Conta = i.Id_Conta
-				ORDER BY Id_Lancamento ASC
+				ORDER BY i.Id ASC
 
 		--Abrir o Cursor
 		OPEN Lancamento
+
 		--Pegar registro
 		FETCH NEXT FROM Lancamento
 			INTO @Id_Lancamento, @Tipo_Lancamento, @Id_Emprestimo
@@ -88,3 +98,8 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_InserirLancamentoParcela]
 		DEALLOCATE Lancamento
 	END
 GO
+
+/*
+criar no job de baixa de parcela um cursor pra pegar todas as parcelas candidatas a parcela
+insere o lanc, pega o id e faz um updt na tabela de parcela com o id do launçamento
+*/

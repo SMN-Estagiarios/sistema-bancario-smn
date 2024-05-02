@@ -54,7 +54,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 		--Declarar variáveis
 		DECLARE @DataAtual DATE = GETDATE(),
 				@Id_Tarifa INT,
-				@IdTaxaEmprestimo DECIMAL(5,4) = NULL,
+				@IdTaxaEmprestimo INT = NULL,
 				@TaxaTotal DECIMAL(5,4);
 				
 		-- Caso o parâmetro da primeira parcela for nulo, será passada para daqui a 1 mês e a data não poderá ser em um fim de semana

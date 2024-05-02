@@ -8,16 +8,16 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_AtualizarLimiteComprometidoAposPagamento]
 	/*
 	Documentacao
 	Arquivo Fonte:....: TRG_AtualizarLimiteComprometidoAposPagamento.sql
-	Objetivo:.........: Atualiza o limite comprometido do cart„o quando e gerado um pagamento na fatura
-	Autor:............: Isabella Tragante, OlÌvio Freitas e Orcino Ferreira
+	Objetivo:.........: Ap√≥s a fatura ser paga, subtrai o valor da fatura no Cart√£o, no atributo LimiteComprometido 
+	Autor:............: Isabella Tragante, Olivio Freitas e Orcino Ferreira
 	Data:.............: 01/05/2024
 	Exemplo:..........: BEGIN TRAN
 							DECLARE @Dat_init DATETIME = GETDATE(),
 									@RET INT
 							
 							SELECT TOP 10 * FROM CartaoCredito
-							SELECT TOP 10 * FROM Lancamentos	
 							SELECT TOP 10 * FROM Fatura
+							SELECT TOP 10 * FROM Lancamentos	
 
 							EXEC @RET = [dbo].[SPJOB_PagamentoFatura]
 
@@ -25,13 +25,12 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_AtualizarLimiteComprometidoAposPagamento]
 							SELECT TOP 10 * FROM Fatura
 							SELECT TOP 10 * FROM CartaoCredito
 
-	
 							SELECT	@RET AS RETORNO,
 									DATEDIFF(MILLISECOND, @Dat_init, GETDATE()) AS TempoExecucao
 						ROLLBACK TRAN
 	*/
 	BEGIN
-		-- Declaro as vari·veis que preciso
+		-- Declaro as variaveis que preciso
 		DECLARE @ValorPagamento DECIMAL(15,2),
 				@IdCartao INT
 

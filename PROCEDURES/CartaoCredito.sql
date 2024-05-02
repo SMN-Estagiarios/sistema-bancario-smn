@@ -6,7 +6,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 	/*
 	Documentacao
 	Arquivo Fonte.....: CartaoCredito.sql
-	Objetivo..........: 
+	Objetivo..........: Cria um cartão de crédito com base em um correntista, uma conta e já escolhe uma data de vencimento.
+						Se o Score da Conta for baixo, o Limite do Cartão é setado em 100
 	Autor.............: Olivio Freitas, Orcino Ferreira, Isabella Tragante
 	Data..............: 24/04/2024
 	Ex................: BEGIN TRAN
@@ -30,6 +31,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 							DATEDIFF(millisecond, @Dat_init, GETDATE()) AS TempoExecucao
 
 						ROLLBACK TRAN
+	RETORNO...........: 0 - Sucesso
+						1 - Correntista nao existe em nosso banco
+						2 - Conta nao encontrada
+						3 - Conta não pertence ao correntista
 	*/
 	BEGIN
 		DECLARE @NumeroCartao BIGINT,
@@ -47,7 +52,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 							FROM [dbo].[Correntista] WITH(NOLOCK)
 							WHERE Id = @IdCorrentista)
 			BEGIN
-				PRINT 'Correntista nao existe em nosso banco'
 				RETURN 1
 			END
 		ELSE
@@ -61,30 +65,26 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 							FROM [dbo].[Contas] WITH(NOLOCK)
 							WHERE Id = @IdConta)
 			BEGIN
-				PRINT 'Conta nao encontrada'
 				RETURN 2
 			END
 		ELSE
 			BEGIN
 				SELECT	@IdCreditScore = Id_CreditScore,
-						@Aliquota = CS.Aliquota,
-						@SaldoConta = C.Vlr_SldInicial
-					FROM [dbo].[Contas] C WITH(NOLOCK)
-						INNER JOIN [dbo].[CreditScore] CS WITH(NOLOCK)
-							ON C.Id_CreditScore = CS.Id
-					WHERE C.Id_Correntista = @IdCorrentista
+						@Aliquota = cs.Aliquota,
+						@SaldoConta = c.Vlr_SldInicial
+					FROM [dbo].[Contas] c WITH(NOLOCK)
+						INNER JOIN [dbo].[CreditScore] cs WITH(NOLOCK)
+							ON c.Id_CreditScore = cs.Id
+					WHERE c.Id_Correntista = @IdCorrentista
 
 
-				-- Verifica se o CreditScore está baixo ou nullo
-				If @IdCreditScore <= 3 OR @IdCreditScore IS NULL
-					-- Restrição para criação do cartão baseado no credit score.
-				
+				-- Verifica se o CreditScore está baixo ou nulo
+				IF @IdCreditScore <= 3 OR @IdCreditScore IS NULL
 					BEGIN
 						SET @LimiteCartao = 100
-						PRINT 'Score baixo. Aumente sua renda!'
 					END
 				ELSE
-					-- Aplicar limite do cartï¿½o baseado no credit score
+					-- Aplicar limite do cartao baseado no credit score
 					BEGIN
 						SET @LimiteCartao = (@SaldoConta * @Aliquota) / 1.6
 					END
@@ -92,17 +92,16 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 			END
 		-- Verifica se a conta pertence ao correntista
 		IF NOT EXISTS (SELECT TOP 1 1
-							FROM [dbo].[Contas] CON WITH(NOLOCK)
-								INNER JOIN [dbo].[Correntista] COR
-									ON COR.Id = CON.Id_Correntista
-							WHERE COR.Id = @IdCorrentista
-								AND CON.Id = @IdConta)
+							FROM [dbo].[Contas] con WITH(NOLOCK)
+								INNER JOIN [dbo].[Correntista] cor
+									ON cor.Id = CON.Id_Correntista
+							WHERE cor.Id = @IdCorrentista
+								AND con.Id = @IdConta)
 			BEGIN
-				PRINT 'Conta nao pertence ao correntista'
 				RETURN 3
 			END
 
-		-- Gera novo nï¿½mero de cartï¿½o de crï¿½dito
+		-- Gera novo numero de cartao de credito
 		SET @NumeroCartao =  CAST(round(RAND()*10000000000000000,0) AS BIGINT)
 		WHILE @NumeroCartao = (SELECT Numero
 								FROM [dbo].[CartaoCredito] WITH(NOLOCK)
@@ -118,14 +117,33 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 		SET @DataAtual = GETDATE()
 		SET	@DataValidade = DATEADD(YEAR, 4, @DataAtual)
 
+		-- Criar novo cartao
 		IF @DiaVencimento IN (6, 11, 16, 21, 26)
 			BEGIN			
-
-				-- Criar novo cartï¿½o
-				INSERT INTO CartaoCredito (Id_Conta, Id_StatusCartaoCredito, NomeImpresso, Numero, Cvc, Limite, LimiteComprometido, DataEmissao, DataValidade, Aproximacao, DiaVencimento)
-									VALUES(@IdConta, 1, @NomeCorrentista, @NumeroCartao, @NumeroCVC, @LimiteCartao, 0, @DataAtual, @DataValidade, 1, @DiaVencimento)
-
-
+				INSERT INTO CartaoCredito (	Id_Conta,
+											Id_StatusCartaoCredito,
+											NomeImpresso,
+											Numero,
+											Cvc,
+											Limite,
+											LimiteComprometido,
+											DataEmissao,
+											DataValidade,
+											Aproximacao,
+											DiaVencimento
+											)
+									VALUES (@IdConta,
+											1,
+											@NomeCorrentista,
+											@NumeroCartao,
+											@NumeroCVC,
+											@LimiteCartao,
+											0,
+											@DataAtual,
+											@DataValidade,
+											1,
+											@DiaVencimento
+											)
 			RETURN 0						
 			END
 		ELSE
@@ -139,8 +157,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtivaCartaoCredito]
 	/*
 	Documentacao
 	Arquivo Fonte.....: CartaoCredito.sql
-	Objetivo..........: 
-	Autor.............: Olï¿½vio Freitas, Orcino Ferreira, Isabella Tragante
+	Objetivo..........: Muda o status do cartão de crédito para Ativo
+	Autor.............: Olivio Freitas, Orcino Ferreira, Isabella Tragante
 	Data..............: 26/04/2024
 	Ex................: BEGIN TRAN
 							DBCC DROPCLEANBUFFERS;
@@ -155,7 +173,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtivaCartaoCredito]
 									INNER JOIN StatusCartaoCredito SCC
 										ON CC.Id_StatusCartaoCredito = SCC.Id
 							
-							EXEC [dbo].[SP_AtivaCartaoCredito] 31
+							EXEC [dbo].[SP_AtivaCartaoCredito] 1
 
 							SELECT	CC.Id AS IdCartao,
 									SCC.Nome
@@ -165,12 +183,12 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtivaCartaoCredito]
 
 							SELECT @RET AS RETORNO,
 							DATEDIFF(millisecond, @Dat_init, GETDATE()) AS TempoExecucao
-
 						ROLLBACK TRAN
-			--    RETORNO --
-            00.................: Sucesso
-            01.................: Cartao nao existe
-            02.................: Erro ao atualizar status
+
+						RETORNO
+								00.................: Sucesso
+								01.................: Cartao nao existe
+								02.................: Erro ao atualizar status
 	*/
 	BEGIN
 		IF NOT EXISTS (SELECT TOP 1 1 
@@ -188,7 +206,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtivaCartaoCredito]
 			IF @@ROWCOUNT = 1 
 				RETURN 0
 			ELSE 
-				RETURN 1
+				RETURN 2
 		END
 	END
 GO
@@ -199,8 +217,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtivaAproximacaoCartao]
 	/*
 	Documentacao
 	Arquivo Fonte.....: CartaoCredito.sql
-	Objetivo..........: Cria uma conta na tabela [dbo].[Contas]
-	Autor.............: Olï¿½vio Freitas, Orcino Ferreira, Isabella Tragante
+	Objetivo..........: Ativa a aproximação do cartão de crédito
+	Autor.............: Olivio Freitas, Orcino Ferreira, Isabella Tragante
 	Data..............: 26/04/2024
 	Ex................: BEGIN TRAN
 							DBCC DROPCLEANBUFFERS;
@@ -213,7 +231,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtivaAproximacaoCartao]
 									Aproximacao
 								FROM CartaoCredito;
 							
-							EXEC  [dbo].[SP_AtivaAproximacaoCartao] 31
+							EXEC  [dbo].[SP_AtivaAproximacaoCartao] 1
 
 							SELECT	Id,
 									Aproximacao
@@ -223,11 +241,25 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtivaAproximacaoCartao]
 							DATEDIFF(millisecond, @Dat_init, GETDATE()) AS TempoExecucao
 
 						ROLLBACK TRAN
+
+						RETORNO: 
+								00.................: Sucesso
+								01.................: Erro! Cartao nao existe
 	*/
 	BEGIN
-		UPDATE [dbo].[CartaoCredito]
-			SET Aproximacao = 1
-			WHERE Id = @IdCartao
+		IF NOT EXISTS (SELECT TOP 1 1 
+							FROM [dbo].[CartaoCredito] cc WITH(NOLOCK)
+							WHERE cc.Id = @IdCartao)
+			BEGIN
+				RETURN 1
+			END
+		ELSE
+		BEGIN
+			UPDATE [dbo].[CartaoCredito]
+				SET Aproximacao = 1
+				WHERE Id = @IdCartao
+			RETURN 0
+		END
 	END
 GO
 
@@ -239,9 +271,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_BloquearCartao]
 		/*
 		Documentacao
 		Arquivo Fonte.....: CartaoCredito.sql
-		Objetivo..........: Alterar o Status do Cartï¿½o para 3(bloqueado)
+		Objetivo..........: Alterar o Status do Cartao para bloqueado
 		Autor.............: Isabella, Olivio e Orcino
-			Data..............: 26/04/2024
+		Data..............: 26/04/2024
 		Ex................: BEGIN TRAN
 								DBCC DROPCLEANBUFFERS;
 								DBCC FREEPROCCACHE;
@@ -259,10 +291,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_BloquearCartao]
 
 							ROLLBACK TRAN
 
-			--    RETORNO --
-		00.................: Sucesso
-		01.................: Cartao nao existe
-		02.................: Erro ao atualizar status
+							RETORNO
+									00.................: Sucesso
+									01.................: Cartao nao existe
+									02.................: Erro ao tentar bloquear o cartão
 		*/
 	BEGIN
 		IF NOT EXISTS (SELECT TOP 1 1 
@@ -280,7 +312,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_BloquearCartao]
 			IF @@ROWCOUNT = 1 
 				RETURN 0
 			ELSE 
-				RETURN 1
+				RETURN 2
 		END
 	END
 GO

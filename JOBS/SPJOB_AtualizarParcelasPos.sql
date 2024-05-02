@@ -54,7 +54,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarParcelasPos]
 							01: Não existe parcelas a serem lancadas
 	*/
 	BEGIN
-		DECLARE @DataAtual DATE = GETDATE()
+		DECLARE @DataAtual DATE = '2024-11-02'
 
 		-- Verificando se existe a tabela temporaria, se sim, excluir ela.
 		IF OBJECT_ID('dbo..#Tabela') IS NOT NULL

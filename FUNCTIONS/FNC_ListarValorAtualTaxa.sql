@@ -7,7 +7,7 @@ AS
 		/*
             Documentação
             Arquivo Fonte.....: FNC_ListarValorAtualTaxa.sql
-            Objetivo..........: Listar a taxa ou valor vigente na data de consulta para uma tarifa
+            Objetivo..........: Listar a taxa vigente na data de consulta
             Autor.............: Gustavo Targino, Danyel Targino e Thays Carvalho
             Data..............: 23/04/2024
             EX................:	BEGIN TRAN
@@ -29,8 +29,10 @@ AS
 
 	BEGIN
 		
+		--Declarar variavel de data para hoje
 		DECLARE @DataAtual DATE = GETDATE()
 
+		-- Inserir na tabela da função o Id do registro, Id da taxa, nome da taxa, alíquota, e data inicial de vigência para a função retornar
 		INSERT INTO @Tabela
             SELECT TOP 1 vt.Id,
 						 t.Id,
@@ -41,7 +43,7 @@ AS
 					INNER JOIN [dbo].[ValorTaxa] vt WITH(NOLOCK)
 						ON T.Id = vt.Id_Taxa
 				WHERE vt.DataInicial <= @DataAtual 
-				AND T.Id = @IdTaxa
+					AND T.Id = @IdTaxa
 				ORDER BY vt.DataInicial DESC
 		RETURN
 

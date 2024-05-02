@@ -145,3 +145,29 @@ INSERT INTO [dbo].[TipoLancamento]	(Id, Nome) VALUES
 									(12,'Pagamento Fatura cartao de credito')
 
 GO
+
+INSERT INTO [dbo].[Indice]    (Id, Nome) VALUES
+                            (1, 'IGPM'),
+                            (2, 'IPCA');
+GO
+
+INSERT INTO [dbo].[PeriodoIndice]    (Id, Nome) VALUES
+                                    (1, 'Mensal'),
+                                    (2, 'Bimestral'),
+                                    (3, 'Trimestral'),
+                                    (4, 'Semestral'),
+                                    (5, 'Anual');
+GO
+
+INSERT INTO [dbo].[ValorIndice]    (Id_Indice, Id_PeriodoIndice, Aliquota, DataInicio) VALUEs
+                                (1, 1, 0.00050, '2024-04-01'),
+                                (1, 2, 0.00040, '2024-04-01'),
+                                (1, 3, 0.00030, '2024-04-01'),
+                                (1, 4, 0.00020, '2024-04-01'),
+                                (1, 5, 0.00010, '2024-04-01'),
+                                (2, 1, 0.00055, '2024-04-01'),
+                                (2, 2, 0.00045, '2024-04-01'),
+                                (2, 3, 0.00035, '2024-04-01'),
+                                (2, 4, 0.00025, '2024-04-01'),
+                                (2, 5, 0.00015, '2024-04-01');
+GO

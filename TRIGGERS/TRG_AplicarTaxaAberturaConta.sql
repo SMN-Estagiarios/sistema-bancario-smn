@@ -8,7 +8,7 @@ AS
 	/*
 		DOCUMENTACAO
 		Arquivo Fonte........:	TRG_AplicarTaxaAberturaConta.sql
-		Objetivo.............:	Insere lancamento referente a tarifa de abertura de conta.
+		Objetivo.............:	Insere lancamento referente a tarifa de abertura de conta ao inserir uma nova conta.
 								Id_Usuario = 0, Usuario do sistema
 								Id_Tarifa = 5, Taxa de abertura de conta
 								Tipo_Operacao = 'D', Debito na conta
@@ -42,19 +42,23 @@ AS
 	*/
 		BEGIN
 		
+		-- Variáveis
 			DECLARE @Id_Conta INT,
 					@Vlr_Tarifa DECIMAL(15,2),
 					@Data_Lancamento DATETIME = GETDATE(),
 					@IdTarifa TINYINT = 4, --Tarifa de abertura de conta
 					@IdPrecoTarifas INT;
 				
+		-- Selecionando o valor vigente para a tarifa de abertura de conta e o Id do registro com esta informação
 			SELECT @Vlr_Tarifa = VT.Valor,
 				   @IdPrecoTarifas = VT.IdPrecoTarifas
 				FROM [dbo].[FNC_ListarValorAtualTarifa](@IdTarifa) VT
 				
+		-- Selecionando o Id da conta inserida para aplicar corretamente a tarifa
 			SELECT	@Id_Conta = Id
 				FROM INSERTED
 
+		-- Inserindo o lançamento de tarifa de abertura de conta para a conta criada
 			INSERT INTO [dbo].[Lancamentos]	(	Id_Conta, 
 												Id_Usuario, 
 												Id_TipoLancamento, 
@@ -78,15 +82,17 @@ AS
 			DECLARE @MSG VARCHAR(100),
 					@ERRO INT = @@ERROR
 				
-			
+			-- Verificando se houve erro ao inserir o lançamento com a cobrança de tarifa de abertura de conta
 			IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
 				BEGIN
 					SET @MSG = 'ERRO' + CAST(@ERRO AS VARCHAR(3)) + ', na aplicacao de Tarifa de Abertura de Conta'
 						RAISERROR(@MSG, 16, 1)
 				END
 
+			-- Selecionando Id do lançamento que foi inserido
 			DECLARE @IdLancamentoInserido INT = SCOPE_IDENTITY();
 	
+			-- Populando tabela de histórico de lançamentos originados por uma tarifa com a tarifa de abertura de conta para a conta criada
 			INSERT INTO [dbo].[LancamentosPrecoTarifas] (
 															Id_Lancamentos,
 															Id_PrecoTarifas
@@ -95,9 +101,11 @@ AS
 															@IdLancamentoInserido,
 															@IdPrecoTarifas
 														)
-
+			
+			-- Verificando possível novo erro
 			SET @ERRO = @@ERROR
 			
+			-- Verificando se houve erro ao inserir histórico
 			IF @@ERROR <> 0 OR @@ROWCOUNT <> 1
 				BEGIN
 					SET @MSG = 'ERRO' + CAST(@ERRO AS VARCHAR(3)) + ', na aplicacao de Tarifa de Abertura de Conta'
