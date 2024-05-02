@@ -187,7 +187,18 @@ DROP PROC [dbo].[SP_ListarCreditSCore]
 GO
 DROP PROC [dbo].[SP_ListarTarifas]
 GO
-
+DROP PROC [dbo].[SP_ListarTaxas]
+GO
+DROP PROC [dbo].[SP_InserirTaxa]
+GO
+DROP PROC [dbo].[SP_ExcluirTaxa]
+GO
+DROP PROC [dbo].[SP_ListarValorTaxas]
+GO
+DROP PROC [dbo].[SP_AtualizarValorTaxas]
+GO
+DROP PROC [dbo].[SP_ExcluirValorTaxas]
+GO
 
 	-- DROPANDO TODAS OS JOBS 
 DROP PROC [dbo].[SPJOB_AplicarTaxaManutencao]
@@ -199,6 +210,8 @@ GO
 DROP PROC [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 GO
 DROP PROC [dbo].[SPJOB_LancarParcela]
+GO
+DROP PROC [dbo].[SPJOB_AtualizarParcelasPos]
 GO
 
 	-- DROPANDO TODAS AS FUNCTIONS

@@ -102,6 +102,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirTaxa]
 				RETURN
 				
 			END
+
+		EXEC [dbo].[SP_ExcluirValorTaxas] NULL, @Id
+
 		DELETE FROM	[dbo].[Taxa]
 			WHERE	Id = ISNULL(@Id, NULL)
 					OR Nome = ISNULL(@Nome, NULL)
