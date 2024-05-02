@@ -30,7 +30,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarCreditScore]
 		*/
    BEGIN
 
-        DECLARE @DataInicio DATE = DATEADD(MONTH, 0, GETDATE()),
+        DECLARE @DataInicio DATE,
                 @DataFim DATE
 
         SET @DataInicio = DATEFROMPARTS(YEAR(DATEADD(MONTH, -1, GETDATE())), MONTH(@DataInicio), 01)
@@ -48,11 +48,11 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarCreditScore]
 									SD.Dat_Saldo
 								FROM SaldoDiario SD
 		), MediaSaldoMensal AS (
-			SELECT AVG(CDC.Vlr_SldFinal) MediaSaldoMensal,
+			SELECT  AVG(CDC.Vlr_SldFinal) MediaSaldoMensal,
 					CDC.Id_Conta	
-				   FROM Cte_SaldoDiario CDC
-				   WHERE Dat_Saldo BETWEEN @DataInicio AND @DataFim
-				   GROUP BY CDC.Id_Conta
+				  FROM Cte_SaldoDiario CDC
+				  WHERE Dat_Saldo BETWEEN @DataInicio AND @DataFim
+				  GROUP BY CDC.Id_Conta
 		)	
 				UPDATE [dbo].[Contas]
 					SET Id_CreditScore = CASE WHEN MSM.MediaSaldoMensal > CS.Faixa 

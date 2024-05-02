@@ -1,4 +1,4 @@
-CREATE OR ALTER PROCEDURE [dbo].[SP_ProcessarPopulacaoSaldoDiario]
+CREATE OR ALTER PROCEDURE [dbo].[SPJOB_ProcessarPopulacaoSaldoDiario]
 			@Mes INT,
 			@Ano INT
     AS
@@ -61,8 +61,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ProcessarPopulacaoSaldoDiario]
 								CROSS JOIN [dbo].[Contas] C WITH(NOLOCK)
 								LEFT JOIN [dbo].[Lancamentos] la WITH(NOLOCK)
 										ON DATEDIFF(DAY, td.DataSaldo, la.Dat_Lancamento) = 0 
-										AND C.Id_Conta = la.Id_Conta
-								WHERE DATEDIFF(DAY, td.DataSaldo, C.Dat_Abertura) >= 0
+										AND C.Id = la.Id_Conta
+							    WHERE  td.DataSaldo >= C.Dat_Abertura
 								GROUP BY td.DataSaldo, c.Id
 											  )
 												INSERT INTO [dbo].[SaldoDiario] (Vlr_Credito, Vlr_Debito, Dat_Saldo, Id_Conta, Vlr_SldInicial, Vlr_SldFinal)
