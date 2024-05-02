@@ -38,7 +38,8 @@ CREATE OR ALTER TRIGGER [dbo].[TRG_AtualizarLimiteComprometidoAposPagamento]
 		-- Capturo os valores que preciso
 		SELECT	@IdCartao = Id_CartaoCredito,
 				@ValorPagamento = Vlr_Fatura
-			FROM inserted;
+			FROM inserted
+			WHERE Id_Lancamento IS NOT NULL;
 
 		-- Subtraio o campo limiteComprometido
 		UPDATE CartaoCredito

@@ -31,6 +31,14 @@ ALTER TABLE ValorTaxaEmprestimo
 	DROP CONSTRAINT FK_Id_CreditScore_ValorTaxaEmprestimo
 GO
 
+	-- Executando o drop de constraint de FK na tabela ValorIndice
+ALTER TABLE ValorIndice
+	DROP CONSTRAINT FK_Id_Indice_ValorIndice
+GO
+ALTER TABLE ValorIndice
+	DROP CONSTRAINT FK_Id_PeriodoIndice_ValorIndice
+GO
+
 	-- Executando o drop de constraint de FK na tabela Emprestimo
 ALTER TABLE Emprestimo
 	DROP CONSTRAINT FK_Id_Conta_Emprestimo
@@ -42,7 +50,10 @@ ALTER TABLE Emprestimo
 	DROP CONSTRAINT FK_Id_TaxaEmprestimo_Emprestimo
 GO
 ALTER TABLE Emprestimo
-	DROP CONSTRAINT FK_Id_Taxa_Emprestimo
+	DROP CONSTRAINT FK_Id_Indice_Emprestimo
+GO
+ALTER TABLE Emprestimo
+	DROP CONSTRAINT FK_Id_PeriodoIndice_Emprestimo
 GO
 
 	-- Executando o drop de constraint de FK na tabela SaldoDiario
@@ -99,8 +110,13 @@ GO
 	-- Executando drop de constraint de FK na tabela Parcela
 ALTER TABLE Parcela
 	DROP CONSTRAINT FK_Id_Emprestimo_Parcela;
+GO
 ALTER TABLE Parcela
 	DROP CONSTRAINT FK_Id_Lancamento_Parcela;
+GO
+ALTER TABLE Parcela
+	DROP CONSTRAINT FK_Id_ValorIndice_Parcela;
+GO
 
 	-- Executando o drop de constraint de FK na tabela LancamentosPrecoTarifas
 ALTER TABLE LancamentosPrecoTarifas
@@ -200,9 +216,50 @@ GO
 DROP PROC [dbo].[SP_GerarFatura]
 GO
 DROP PROC [dbo].[SP_InserirNovoCorrentista]
-
+GO
+DROP PROC [dbo].[SP_GerarTransacaoCartaoCredito]
+GO
+DROP PROC [dbo].[SPJOB_FechamentoFatura]
 GO
 
+DROP PROC [dbo].[SP_InserirValorTarifa]
+GO
+DROP PROC [dbo].[SP_InserirValorTaxa]
+GO
+DROP PROC [dbo].[SP_InserirValorTaxaCartao]
+GO
+DROP PROC [dbo].[SP_InserirValorTaxaEmprestimo]
+
+DROP PROC [dbo].[SP_AtivaAproximacaoCartao]
+GO
+DROP PROC [dbo].[SP_AtivaCartaoCredito]
+GO
+DROP PROC [dbo].[SP_BloquearCartao]
+GO
+DROP PROC [dbo].[SP_InserirNovoCartaoCredito]
+GO
+DROP PROC [dbo].[SP_ExcluirCorrentista]
+GO
+DROP PROC [dbo].[SP_GerarFatura]
+GO
+DROP PROC [dbo].[SP_InserirNovoCorrentista]
+GO
+DROP PROC [dbo].[SP_GerarTransacaoCartaoCredito]
+GO
+DROP PROC [dbo].[SPJOB_FechamentoFatura]
+GO
+DROP PROC [dbo].[SP_ListarTaxas]
+GO
+DROP PROC [dbo].[SP_InserirTaxa]
+GO
+DROP PROC [dbo].[SP_ExcluirTaxa]
+GO
+DROP PROC [dbo].[SP_ListarValorTaxas]
+GO
+DROP PROC [dbo].[SP_AtualizarValorTaxas]
+GO
+DROP PROC [dbo].[SP_ExcluirValorTaxas]
+GO
 
 	-- DROPANDO TODAS OS JOBS 
 DROP PROC [dbo].[SPJOB_AplicarTaxaManutencao]
@@ -213,7 +270,17 @@ DROP PROC [dbo].[SPJOB_AtualizarSaldo]
 GO
 DROP PROC [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 GO
+DROP PROC [dbo].[SPJOB_LancarParcela]
+GO
+DROP PROC [dbo].[SPJOB_AtualizarParcelasPos]
+GO
 DROP PROC [dbo].[SP_RegistrarLancamentosTransferencia]
+GO
+DROP PROC [dbo].[SPJOB_PagamentoFatura]
+GO
+DROP PROC [dbo].[SPJOB_FechamentoFatura]
+GO
+DROP PROC [dbo].[SPJOB_AplicarMultaAtrasoFatura]
 GO
 
 	-- DROPANDO TODAS AS FUNCTIONS
@@ -224,20 +291,24 @@ DROP FUNCTION [dbo].[FNC_CalcularSaldoDisponivel]
 GO
 DROP FUNCTION [dbo].[FNC_ListarSaldoNegativo]
 GO
+DROP FUNCTION [dbo].[FNC_ListaValorAtualTarifa]
+GO
+DROP FUNCTION [dbo].[FNC_BuscarTaxaJurosAtraso]
+GO
 DROP FUNCTION [dbo].[FNC_ListarValorAtualTarifa]
-
 GO
 DROP FUNCTION [dbo].[FNC_IdentificarTaxaDoDia]
 GO
 DROP FUNCTION [dbo].[FNC_ListarSaldosEJurosDoMes]
-
 GO
 DROP FUNCTION [dbo].[FNC_ListarValorAtualTaxa]
 GO
 DROP FUNCTION [dbo].[FNC_ListarValorAtualTaxaCartao]
 GO
 DROP FUNCTION [dbo].[FNC_ListarValorAtualTaxaEmprestimo]
-
+GO
+DROP FUNCTION [dbo].[SPJOB_FechamentoFatura]
+GO
 
 	--DROPANDO TODAS AS TABELAS
 
@@ -264,6 +335,14 @@ GO
 DROP TABLE [dbo].[TaxaEmprestimo]
 GO
 DROP TABLE [dbo].[ValorTaxaEmprestimo]
+GO
+DROP TABLE [dbo].[Indice]
+GO
+DROP TABLE [dbo].[PeriodoIndice]
+GO 
+DROP TABLE [dbo].[ValorIndice]
+GO
+DROP TABLE [dbo].[Parcela]
 GO
 DROP TABLE [dbo].[Emprestimo]
 GO
@@ -296,8 +375,6 @@ GO
 DROP TABLE [dbo].[LancamentosTransferencia]
 GO
 DROP TABLE [dbo].[Contas]
-GO
-DROP TABLE [dbo].[Parcela]
 GO
 DROP TABLE [dbo].[Usuarios]
 GO

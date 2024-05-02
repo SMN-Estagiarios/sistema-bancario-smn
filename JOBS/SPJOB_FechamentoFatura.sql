@@ -59,8 +59,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_FechamentoFatura]
 							DECLARE @CodigoBarra BIGINT =  CAST(round(RAND()*10000000000000000,0) AS BIGINT)
 							SET @Vlr_Fatura = (SELECT [dbo].[FNC_CalculaTransacoes](@IdCartaoCredito))
 							--Gera nova Fatura.
-							INSERT INTO [dbo].[Fatura]	(Id_CartaoCredito, CodigoBarra, DataEmissao, DataVencimento, Vlr_Fatura) 	VALUES
-																	(@IdCartaoCredito, @CodigoBarra, @DataAtual, @DataVencimento, @Vlr_Fatura)
+							INSERT INTO [dbo].[Fatura]	(Id_CartaoCredito, CodigoBarra, DataEmissao, DataVencimento, Vlr_Fatura, MultaAtraso) 	VALUES
+																	(@IdCartaoCredito, @CodigoBarra, @DataAtual, @DataVencimento, @Vlr_Fatura, 0)
 
 							SET @IdFatura = SCOPE_IDENTITY()
 							--Altera as transações do cartao de credito para o id da fatura correspondente.

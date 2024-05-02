@@ -67,9 +67,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarCreditScore]
 							ON MSM.ID_Conta = Contas.ID
 						INNER JOIN [dbo].[CreditScore] CS WITH (NOLOCK)
 							ON CS.Id = (SELECT MAX(Id)
-											FROM [dbo].[CreditScore]
+											FROM [dbo].[CreditScore] WITH(NOLOCK)
 											WHERE MSM.MediaSaldoMensal > Faixa)
 					WHERE Contas.Id = MSM.ID_Conta;
     END
-
 GO
