@@ -121,12 +121,12 @@ INSERT INTO [dbo].[Tarifas] (Id, Nome) VALUES
 							(5, 'TMC');
 GO
 
-INSERT INTO [dbo].[PrecoTarifas]	(Id, Id_Tarifa, Valor, DataInicial) VALUES 
-									(1, 1, 10, '01/04/2024'),
-									(2, 2, 20, '01/04/2024'),
-									(3, 3, 30, '01/04/2024'),
-									(4, 4, 15, '01/04/2024'),
-									(5, 5, 25,'01/04/2024');
+INSERT INTO [dbo].[PrecoTarifas]	(Id_Tarifa, Valor, DataInicial) VALUES 
+									(1, 10, '01/04/2024'),
+									(2, 20, '01/04/2024'),
+									(3, 30, '01/04/2024'),
+									(4, 15, '01/04/2024'),
+									(5, 25,'01/04/2024');
 
 GO
 
