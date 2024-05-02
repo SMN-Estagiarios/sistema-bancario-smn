@@ -96,6 +96,12 @@ ALTER TABLE Lancamentos
 	DROP CONSTRAINT FK_Id_TipoLancamento_Lancamentos
 GO
 
+	-- Executando drop de constraint de FK na tabela Parcela
+ALTER TABLE Parcela
+	DROP CONSTRAINT FK_Id_Emprestimo_Parcela;
+ALTER TABLE Parcela
+	DROP CONSTRAINT FK_Id_Lancamento_Parcela;
+
 	-- Executando o drop de constraint de FK na tabela LancamentosPrecoTarifas
 ALTER TABLE LancamentosPrecoTarifas
 	DROP CONSTRAINT FK_Id_Lancamentos_LancamentosPrecoTarifas
@@ -147,6 +153,8 @@ DROP TRIGGER [TRG_AtualizarSaldo]
 GO
 DROP TRIGGER [TRG_GerarLancamentosTransferidos]
 GO
+DROP TRIGGER [TRG_AtualizarLimiteComprometidoCartao]
+GO
 
 
 	-- DROPANDO TODAS AS PROCEDURES
@@ -171,6 +179,30 @@ GO
 DROP PROC [dbo].[SP_ListarTarifas]
 GO
 
+DROP PROC [dbo].[SP_InserirValorTarifa]
+GO
+DROP PROC [dbo].[SP_InserirValorTaxa]
+GO
+DROP PROC [dbo].[SP_InserirValorTaxaCartao]
+GO
+DROP PROC [dbo].[SP_InserirValorTaxaEmprestimo]
+
+DROP PROC [dbo].[SP_AtivaAproximacaoCartao]
+GO
+DROP PROC [dbo].[SP_AtivaCartaoCredito]
+GO
+DROP PROC [dbo].[SP_BloquearCartao]
+GO
+DROP PROC [dbo].[SP_InserirNovoCartaoCredito]
+GO
+DROP PROC [dbo].[SP_ExcluirCorrentista]
+GO
+DROP PROC [dbo].[SP_GerarFatura]
+GO
+DROP PROC [dbo].[SP_InserirNovoCorrentista]
+
+GO
+
 
 	-- DROPANDO TODAS OS JOBS 
 DROP PROC [dbo].[SPJOB_AplicarTaxaManutencao]
@@ -192,13 +224,23 @@ DROP FUNCTION [dbo].[FNC_CalcularSaldoDisponivel]
 GO
 DROP FUNCTION [dbo].[FNC_ListarSaldoNegativo]
 GO
-DROP FUNCTION [dbo].[FNC_ListaValorAtualTarifa]
+DROP FUNCTION [dbo].[FNC_ListarValorAtualTarifa]
+
 GO
+DROP FUNCTION [dbo].[FNC_IdentificarTaxaDoDia]
+GO
+DROP FUNCTION [dbo].[FNC_ListarSaldosEJurosDoMes]
+
+GO
+DROP FUNCTION [dbo].[FNC_ListarValorAtualTaxa]
+GO
+DROP FUNCTION [dbo].[FNC_ListarValorAtualTaxaCartao]
+GO
+DROP FUNCTION [dbo].[FNC_ListarValorAtualTaxaEmprestimo]
+
 
 	--DROPANDO TODAS AS TABELAS
 
-DROP TABLE [dbo].[Usuarios]
-GO
 DROP TABLE [dbo].[StatusCartaoCredito]
 GO
 DROP TABLE [dbo].[StatusEmprestimo]
@@ -219,8 +261,6 @@ DROP TABLE [dbo].[CreditScore]
 GO
 DROP TABLE [dbo].[Correntista]
 GO
-DROP TABLE [dbo].[Contas]
-GO
 DROP TABLE [dbo].[TaxaEmprestimo]
 GO
 DROP TABLE [dbo].[ValorTaxaEmprestimo]
@@ -234,6 +274,8 @@ GO
 DROP TABLE [dbo].[Fatura]
 GO
 DROP TABLE [dbo].[TransacaoCartaoCredito]
+GO
+DROP TABLE [dbo].[TransferenciasLancamentos]
 GO
 DROP TABLE [dbo].[Tarifas]
 GO
@@ -252,4 +294,10 @@ GO
 DROP TABLE [dbo].[Transferencias]
 GO
 DROP TABLE [dbo].[LancamentosTransferencia]
+GO
+DROP TABLE [dbo].[Contas]
+GO
+DROP TABLE [dbo].[Parcela]
+GO
+DROP TABLE [dbo].[Usuarios]
 GO

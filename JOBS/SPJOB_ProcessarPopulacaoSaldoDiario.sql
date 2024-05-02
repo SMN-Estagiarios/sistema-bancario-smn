@@ -1,7 +1,7 @@
 CREATE OR ALTER PROCEDURE [dbo].[SPJOB_ProcessarPopulacaoSaldoDiario]
     AS
 		/*
-			Documentação
+			Documentaï¿½ï¿½o
 			Arquivo Fonte.....: SPJOB_AtualizarCreditScore.sql
 			Objetivo..........: Atualizar o CreditScore das Contas
 			Autor.............: Gustavo Targino, Jo o Victor Maia, Gabriel Damiani
@@ -52,10 +52,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_ProcessarPopulacaoSaldoDiario]
 							SELECT ISNULL(SUM(CASE WHEN Tipo_Operacao = 'C' THEN Vlr_Lanc ELSE 0 END), 0) AS Valor_Credito,
 								   ISNULL(SUM(CASE WHEN Tipo_Operacao = 'D' THEN Vlr_Lanc ELSE 0 END), 0) AS Valor_Debito,
 								   td.DataSaldo,
-								   COALESCE(la.Id_Conta, t.Id_Conta) AS Id_Conta
+								   C.Id AS Id_Conta
 								FROM #TabelaData td
-								CROSS JOIN (SELECT DISTINCT Id_Conta FROM Lancamentos) t
-								LEFT JOIN Lancamentos la 
+								CROSS JOIN [dbo].[Contas] C WITH(NOLOCK)
+								LEFT JOIN [dbo].[Lancamentos] la WITH(NOLOCK)
 										ON DATEDIFF(DAY, td.DataSaldo, la.Dat_Lancamento) = 0 
 										AND t.Id_Conta = la.Id_Conta
 								GROUP BY td.DataSaldo, COALESCE(la.Id_Conta, t.Id_Conta)
@@ -86,23 +86,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_ProcessarPopulacaoSaldoDiario]
 								FROM CalculoSaldo CS;
 END
 
-
-
-
-/*CalculoCreditoDebito:
-Esta parte da consulta calcula o crédito e débito referentes a cada dia para cada conta.
-ISNULL(SUM(CASE WHEN Tipo_Operacao = 'C' THEN Vlr_Lanc ELSE 0 END), 0) AS Valor_Credito: Calcula o crédito para cada dia, somando o valor dos lançamentos do tipo 'C' (crédito) na tabela de lançamentos (Lancamentos). Se não houver lançamentos de crédito, retorna 0.
-ISNULL(SUM(CASE WHEN Tipo_Operacao = 'D' THEN Vlr_Lanc ELSE 0 END), 0) AS Valor_Debito: Calcula o débito para cada dia, somando o valor dos lançamentos do tipo 'D' (débito) na tabela de lançamentos (Lancamentos). Se não houver lançamentos de débito, retorna 0.
-td.DataSaldo: Seleciona a data de saldo da tabela temporária #TabelaData.
-COALESCE(la.Id_Conta, t.Id_Conta) AS Id_Conta: Define o ID da conta como o ID da conta da tabela de lançamentos (la.Id_Conta) se estiver presente, caso contrário, utiliza o ID da conta da subconsulta t.
-LEFT JOIN Lancamentos la ...: Faz um join entre a tabela de lançamentos (Lancamentos) e a tabela de datas (#TabelaData), associando os lançamentos à data correspondente.
-GROUP BY td.DataSaldo, COALESCE(la.Id_Conta, t.Id_Conta): Agrupa os resultados pela data de saldo e pelo ID da conta.
-CalculoSaldo:
-Nesta parte, utilizamos os resultados da CTE CalculoCreditoDebito para calcular o saldo final e inicial para cada conta.
-ISNULL(LAG(Saldo_Final, 1, 0) OVER (PARTITION BY Id_Conta ORDER BY DataSaldo), 0) AS Saldo_Inicial: Utiliza a função LAG para obter o saldo final do dia anterior (se houver) como o saldo inicial do dia atual. Se não houver saldo final do dia anterior, define o saldo inicial como 0.
-SUM(Valor_Credito - Valor_Debito) OVER (PARTITION BY Id_Conta ORDER BY DataSaldo) AS Saldo_Final: Calcula o saldo final para cada dia somando o crédito e subtraindo o débito acumulados até aquele dia. O saldo final de um dia é o saldo inicial do dia anterior mais o crédito menos o débito do dia atual.
-Consulta final:
-Simplesmente seleciona todos os resultados da CTE CalculoSaldo, que incluem os campos de crédito, débito, saldo inicial, saldo final e a data de saldo.*/
 
 
 

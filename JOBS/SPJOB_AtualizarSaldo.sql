@@ -53,7 +53,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarSaldo]
 							   C.Vlr_SldInicial,
 							   [dbo].[FNC_CalcularSaldoAtual](C.Id, Vlr_SldInicial, Vlr_Credito, Vlr_Debito), 
 							   @DataSaldoDiario
-							FROM [dbo].[Contas] C
+							FROM [dbo].[Contas] C  WITH(NOLOCK)
 			
 				END TRY
 					BEGIN CATCH

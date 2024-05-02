@@ -103,7 +103,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarNovaTransferenciaBancaria]
 														@Id_ContaDeb, 
 														@Vlr_Transferencia, 
 														@Nom_referencia, 
-														@Data_Atual)
+														@Data_Atual
+													)
 			END
 		RETURN 0
 	END
