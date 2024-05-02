@@ -15,12 +15,16 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_PagamentoFatura]
 
 									SELECT * FROM Contas
 									SELECT * FROM Fatura
+									SELECT * FROM CartaoCredito
 									SELECT * FROM Lancamentos
+
 									EXEC @RET = [dbo].[SPJOB_PagamentoFatura]
+
 									SELECT * FROM Lancamentos
+									SELECT * FROM CartaoCredito
 									SELECT * FROM Fatura
 									SELECT * FROM Contas
-									
+									SELECT * FROM CartaoCredito
 
 									SELECT @RET AS RETORNO,
 									DATEDIFF(millisecond, @Dat_init, GETDATE()) AS TempoExecucao

@@ -7,7 +7,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 	Documentacao
 	Arquivo Fonte.....: CartaoCredito.sql
 	Objetivo..........: 
-	Autor.............: Ol�vio Freitas, Orcino Ferreira, Isabella Tragante
+	Autor.............: Olivio Freitas, Orcino Ferreira, Isabella Tragante
 	Data..............: 24/04/2024
 	Ex................: BEGIN TRAN
 							DBCC DROPCLEANBUFFERS;
@@ -47,7 +47,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 							FROM [dbo].[Correntista] WITH(NOLOCK)
 							WHERE Id = @IdCorrentista)
 			BEGIN
-				PRINT 'Correntista n�o existe em nosso banco'
+				PRINT 'Correntista nao existe em nosso banco'
 				RETURN 1
 			END
 		ELSE
@@ -61,7 +61,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 							FROM [dbo].[Contas] WITH(NOLOCK)
 							WHERE Id = @IdConta)
 			BEGIN
-				PRINT 'Conta n�o encontrada'
+				PRINT 'Conta nao encontrada'
 				RETURN 2
 			END
 		ELSE
@@ -123,7 +123,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 
 				-- Criar novo cart�o
 				INSERT INTO CartaoCredito (Id_Conta, Id_StatusCartaoCredito, NomeImpresso, Numero, Cvc, Limite, LimiteComprometido, DataEmissao, DataValidade, Aproximacao, DiaVencimento)
-									VALUES(@IdConta, 2, @NomeCorrentista, @NumeroCartao, @NumeroCVC, @LimiteCartao, 0, @DataAtual, @DataValidade, 0, @DiaVencimento)
+									VALUES(@IdConta, 1, @NomeCorrentista, @NumeroCartao, @NumeroCVC, @LimiteCartao, 0, @DataAtual, @DataValidade, 1, @DiaVencimento)
 
 
 			RETURN 0						
