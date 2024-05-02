@@ -10,6 +10,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarParcelas]
 		Ex....................: DECLARE @Dat_ini DATETIME = GETDATE()
 
 								EXEC [dbo].[SP_ListarParcelas]
+								EXEC [dbo].[SP_ListarParcelas] 1
 
 								SELECT DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
 	*/
@@ -19,8 +20,8 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarParcelas]
 				Id_Lancamento,
 				Id_ValorIndice,
 				Valor,
-				ValorJurosAtraso,
-				Data_Cadastro
+				Juros,
+				Data_Vencimento
 			FROM [dbo].[Parcela] WITH(NOLOCK)
 			WHERE Id_Emprestimo = ISNULL(@Id_Emprestimo, Id_Emprestimo)
 	END

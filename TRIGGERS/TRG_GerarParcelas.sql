@@ -1,12 +1,12 @@
 USE SistemaBancario
 GO
-CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
+CREATE OR ALTER TRIGGER [DBO].[TRG_GerarParcelas]
 	ON [DBO].[Emprestimo]
 	AFTER INSERT
 	AS
 	/*
 	Documentacao: 
-	Arquivo Fonte.....: TRG_CriarPreLancamentoParcela.sql
+	Arquivo Fonte.....: TRG_GerarParcelas.sql
 	Objetivo..........: Criar as parcelas sempre que forem inseridos registros de emprestimo
 	Autor.............: Joao Victor Maia, Odlavir Florentino, Rafael Mauricio
 	Data..............: 29/04/2024
@@ -28,8 +28,8 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 									Id_Lancamento,
 									Id_ValorIndice,
 									Valor,
-									ValorJurosAtraso,
-									Data_Cadastro
+									Juros,
+									Data_Vencimento
 								FROM [dbo].[Parcela] WITH(NOLOCK)
 
 							DECLARE @DATA_INI DATETIME = GETDATE();
@@ -39,7 +39,7 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 							DBCC FREESYSTEMCACHE ('ALL')
 
 							EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'PRE'
-							EXEC [dbo].[SP_RealizarEmprestimo] 1, 2000, 24, 'POS', NULL, 1, 5
+							EXEC [dbo].[SP_RealizarEmprestimo] 1, 2000, 24, 'POS', '2024-05-31', 1, 5
 
 							
 							SELECT	DATEDIFF(MILLISECOND, @DATA_INI, GETDATE()) AS ResultadoExecucao
@@ -61,8 +61,8 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 									Id_Lancamento,
 									Id_ValorIndice,
 									Valor,
-									ValorJurosAtraso,
-									Data_Cadastro
+									Juros,
+									Data_Vencimento
 								FROM [dbo].[Parcela] WITH(NOLOCK)
 						ROLLBACK TRAN
 	*/
@@ -76,10 +76,11 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 				@Id_ValorTaxaEmprestimo INT,
 				@Id_Indice INT,
 				@Id_PeriodoIndice INT,
-				@DataInicio DATE,
+				@Data_Inicio DATE,
 				@ContagemParcela INT = 1,
 				@Taxa DECIMAL(6,5),
-				@Id_ValorIndice INT = NULL;
+				@Id_ValorIndice INT = NULL,
+				@Data_Vencimento DATE;
 
 		-- Setando variaveis
 		SELECT @Id_Emprestimo = Id, 
@@ -89,7 +90,7 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 			   @Id_Indice = Id_Indice,
 			   @Id_PeriodoIndice = Id_PeriodoIndice,
 			   @NumeroParcelas = NumeroParcelas,
-			   @DataInicio = DataInicio
+			   @Data_Inicio = DataInicio
 			FROM inserted
 
 		--Pegar Taxa da Conta
@@ -118,11 +119,11 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 				-- Gerando as parcelas
 				WHILE @ContagemParcela <= @NumeroParcelas
 					BEGIN
-						SET @DataInicio = DATEADD(MONTH, 1, @DataInicio)
+						SET @Data_Vencimento = DATEADD(MONTH, @ContagemParcela, @Data_Inicio)
 
-						IF DAY(@DataInicio) > DAY(EOMONTH(@DataInicio))	
+						IF DAY(@Data_Inicio) > DAY(EOMONTH(@Data_Vencimento))	
 							BEGIN
-								SET @DataInicio = EOMONTH(@DataInicio)
+								SET @Data_Vencimento = EOMONTH(@Data_Vencimento)
 							END
 
 						-- Inserindo parcelas na tabela parcela
@@ -131,15 +132,15 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 														Id_Lancamento,
 														Id_ValorIndice,
 														Valor,
-														ValorJurosAtraso,
-														Data_Cadastro
+														Juros,
+														Data_Vencimento
 													) VALUES (
 																@Id_Emprestimo,
 																NULL,
 																@Id_ValorIndice,
 																@ValorParcela,
 																0.00,
-																@DataInicio
+																@Data_Vencimento
 															 )
 
 						SET @ContagemParcela = @ContagemParcela + 1
@@ -153,13 +154,12 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 						@ParcelaWhile INT
 
 				-- Pegando o indice e aliquota mais recente
-				SELECT TOP 1 
-							@Id_ValorIndice = Id,
-							@Aliquota = Aliquota
+				SELECT TOP 1	@Id_ValorIndice = Id,
+								@Aliquota = Aliquota
 					FROM [dbo].[ValorIndice] WITH(NOLOCK)
 					WHERE	Id_Indice = @Id_Indice AND
 							Id_PeriodoIndice = @Id_PeriodoIndice AND
-							DataInicio < = @DataInicio
+							DataInicio < = @Data_Inicio
 					ORDER BY DataInicio DESC
 
 				-- Setando o valor da parcela
@@ -180,11 +180,11 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 				-- Gerando parcelas
 				WHILE @ContagemParcela <= @ParcelaWhile
 					BEGIN
-						SET @DataInicio = DATEADD(MONTH, 1, @DataInicio)
+						SET @Data_Vencimento = DATEADD(MONTH, @ContagemParcela, @Data_Inicio)
 
-						IF DAY(@DataInicio) > DAY(EOMONTH(@DataInicio))
+						IF DAY(@Data_Inicio) > DAY(EOMONTH(@Data_Vencimento))	
 							BEGIN
-								SET @DataInicio = EOMONTH(@DataInicio)
+								SET @Data_Vencimento = EOMONTH(@Data_Vencimento)
 							END
 						
 						-- Inserindo parcela
@@ -192,18 +192,20 @@ CREATE OR ALTER TRIGGER [DBO].[TRG_CriarPreLancamentoParcela]
 														Id_Lancamento,
 														Id_ValorIndice,
 														Valor,
-														ValorJurosAtraso,
-														Data_Cadastro
+														Juros,
+														Data_Vencimento
 													) VALUES (
 																@Id_Emprestimo,
 																NULL,
 																@Id_ValorIndice,
 																@ValorParcela,
 																0.00,
-																@DataInicio
+																@Data_Vencimento
 															 )
 
 						SET @ContagemParcela = @ContagemParcela + 1
 					END
 			END
+
+			DROP TABLE #Tabela
 	END
