@@ -15,54 +15,53 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 		Autor.............: Orcino Neto, Odlavir Florentino e Pedro Avelino
 		Data..............: 18/04/2024
 		Ex................: BEGIN TRAN
-								BEGIN TRAN
-									SELECT	Id,
-											Id_Conta,
-											Id_Usuario,
-											Id_TipoLancamento,
-											Tipo_Operacao,
-											Vlr_Lanc,
-											Nom_Historico,
-											Dat_Lancamento,
-											Estorno
-										FROM [dbo].[Lancamentos] WITH(NOLOCK)
+								SELECT	Id,
+										Id_Conta,
+										Id_Usuario,
+										Id_TipoLancamento,
+										Tipo_Operacao,
+										Vlr_Lanc,
+										Nom_Historico,
+										Dat_Lancamento,
+										Estorno
+									FROM [dbo].[Lancamentos] WITH(NOLOCK)
 
-									DECLARE @Data_ini DATETIME = GETDATE(),
-											@MesAnterior DATE;
+								DECLARE @Data_ini DATETIME = GETDATE(),
+										@MesAnterior DATE;
 
-									SET @MesAnterior = DATEADD(MONTH, -1, @Data_Ini);
+								SET @MesAnterior = DATEADD(MONTH, -1, @Data_Ini);
 
-									INSERT INTO [dbo].[SaldoDiario] (Id_Conta, Vlr_SldInicial, Vlr_SldFinal, Vlr_Credito, Vlr_Debito, Dat_Saldo) VALUES
-																	(2, 0, 100, 0, 0, DATEFROMPARTS(YEAR(@MesAnterior), MONTH(@MesAnterior), 5)),
-																	(1, 0, -100, 0, 0, DATEFROMPARTS(YEAR(@MesAnterior), MONTH(@MesAnterior), 10)),
-																	(1, 0, -500, 0, 0, DATEFROMPARTS(YEAR(@MesAnterior), MONTH(@MesAnterior), 11)),
-																	(2, 0, -1000, 0, 0, DATEFROMPARTS(YEAR(@MesAnterior), MONTH(@MesAnterior), 17));
+								INSERT INTO [dbo].[SaldoDiario] (Id_Conta, Vlr_SldInicial, Vlr_SldFinal, Vlr_Credito, Vlr_Debito, Dat_Saldo) VALUES
+																(2, 0, 100, 0, 0, DATEFROMPARTS(YEAR(@MesAnterior), MONTH(@MesAnterior), 5)),
+																(1, 0, -100, 0, 0, DATEFROMPARTS(YEAR(@MesAnterior), MONTH(@MesAnterior), 10)),
+																(1, 0, -500, 0, 0, DATEFROMPARTS(YEAR(@MesAnterior), MONTH(@MesAnterior), 11)),
+																(2, 0, -1000, 0, 0, DATEFROMPARTS(YEAR(@MesAnterior), MONTH(@MesAnterior), 17));
 			
-									SELECT	Id_Conta,
-											Saldo,
-											Aliquota,
-											Juros,
-											DataSaldo
-										FROM [dbo].[FNC_ListarSaldosEJurosDoMes]();
+								SELECT	Id_Conta,
+										Saldo,
+										Aliquota,
+										Juros,
+										DataSaldo
+									FROM [dbo].[FNC_ListarSaldosEJurosDoMes]();
                                 
-									DBCC DROPCLEANBUFFERS
-									DBCC FREEPROCCACHE
-									DBCC FREESYSTEMCACHE ('ALL')
+								DBCC DROPCLEANBUFFERS
+								DBCC FREEPROCCACHE
+								DBCC FREESYSTEMCACHE ('ALL')
 
-									EXEC [dbo].[SPJOB_LancarTaxaSaldoNegativo]
+								EXEC [dbo].[SPJOB_LancarTaxaSaldoNegativo]
 
-									SELECT DATEDIFF(MILLISECOND, @Data_ini, GETDATE()) AS TempoExecucao
+								SELECT DATEDIFF(MILLISECOND, @Data_ini, GETDATE()) AS TempoExecucao
 
-									SELECT	Id,
-											Id_Conta,
-											Id_Usuario,
-											Id_TipoLancamento,
-											Tipo_Operacao,
-											Vlr_Lanc,
-											Nom_Historico,
-											Dat_Lancamento,
-											Estorno
-										FROM [dbo].[Lancamentos] WITH(NOLOCK)
+								SELECT	Id,
+										Id_Conta,
+										Id_Usuario,
+										Id_TipoLancamento,
+										Tipo_Operacao,
+										Vlr_Lanc,
+										Nom_Historico,
+										Dat_Lancamento,
+										Estorno
+									FROM [dbo].[Lancamentos] WITH(NOLOCK)
 							ROLLBACK TRAN
 	*/
 

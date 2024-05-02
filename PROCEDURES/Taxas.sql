@@ -1,10 +1,122 @@
+CREATE OR ALTER PROCEDURE [dbo].[SP_ListarTaxas]
+	AS
+	/*
+		Documentaï¿½ï¿½o
+		Arquivo Fonte.........:	Taxas.sql
+		Objetivo..............: Listar todas as taxas registradas
+		Autor.................: Odlavir Florentino, Joï¿½o Victor, Rafael Maurï¿½cio
+		Data..................: 01/05/2024
+		Ex....................: DECLARE @Dat_ini DATETIME = GETDATE()
+
+								EXEC [dbo].[SP_ListarTaxas]
+
+								SELECT DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
+	*/
+	BEGIN
+		SELECT	Id,
+				Nome
+			FROM [dbo].[Taxa] WITH(NOLOCK)
+	END
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[SP_InserirTaxa]
+	@Id TINYINT,
+	@Nome VARCHAR(50)
+	AS
+	/*
+		Documentaï¿½ï¿½o
+		Arquivo Fonte.........:	Taxas.sql
+		Objetivo..............: Inserir uma nova taxa
+		Autor.................: Odlavir Florentino, Joï¿½o Victor, Rafael Maurï¿½cio
+		Data..................: 01/05/2024
+		Ex....................: BEGIN TRAN
+									DECLARE @Dat_ini DATETIME = GETDATE()
+
+									EXEC [dbo].[SP_InserirTaxa] 3, IOF
+									EXEC [dbo].[SP_ListarTaxas]
+
+									SELECT DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
+								ROLLBACK TRAN
+	*/
+	BEGIN
+		--Conferir se a taxa jï¿½ existe
+		IF EXISTS(SELECT TOP 1 1
+					FROM [dbo].[Taxa]
+					WHERE Nome = @Nome)
+			BEGIN
+				RAISERROR('Essa taxa jï¿½ existe dentro do banco', 16, 1)
+				RETURN
+				
+			END
+		--Conferir se o ID jï¿½ existe
+		IF EXISTS(SELECT TOP 1 1
+					FROM [dbo].[Taxa]
+					WHERE Id = Id)
+			BEGIN
+				RAISERROR('Esse ID jï¿½ existe dentro do banco', 16, 1)
+				RETURN
+			END
+		--Inserir a taxa
+		INSERT INTO	[dbo].[Taxa]	(Id,
+									Nome
+									)
+							VALUES	(@Id,
+									@Nome
+									)
+	END
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirTaxa]
+	@Id TINYINT,
+	@Nome VARCHAR(50)
+	AS
+	/*
+		Documentaï¿½ï¿½o
+		Arquivo Fonte.........:	Taxas.sql
+		Objetivo..............: Excluir uma taxa
+		Autor.................: Odlavir Florentino, Joï¿½o Victor, Rafael Maurï¿½cio
+		Data..................: 01/05/2024
+		Ex....................: BEGIN TRAN
+									DECLARE @Dat_ini DATETIME = GETDATE()
+
+									EXEC [dbo].[SP_ExcluirTaxa] 2, IOF
+									EXEC [dbo].[SP_ListarTaxas]
+
+									SELECT DATEDIFF(MILLISECOND, @Dat_ini, GETDATE()) AS TempoExecucao
+								ROLLBACK TRAN
+	*/
+	BEGIN
+		IF NOT EXISTS(SELECT TOP 1 1
+					FROM [dbo].[Taxa]
+					WHERE Nome = @Nome)
+			BEGIN
+				RAISERROR('Essa taxa nï¿½o existe dentro do banco', 16, 1)
+				RETURN
+				
+			END
+		IF NOT EXISTS(SELECT TOP 1 1
+					FROM [dbo].[Taxa]
+					WHERE Id = Id)
+			BEGIN
+				RAISERROR('Esse ID nï¿½o existe dentro do banco', 16, 1)
+				RETURN
+				
+			END
+
+		EXEC [dbo].[SP_ExcluirValorTaxas] NULL, @Id
+
+		DELETE FROM	[dbo].[Taxa]
+			WHERE	Id = ISNULL(@Id, NULL)
+					OR Nome = ISNULL(@Nome, NULL)
+	END
+GO
 CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxa]
 		@IdTaxa INT,
 		@Aliquota DECIMAL(6,5),
 		@DataInicial DATE
     AS  
         /*
-            Documentação
+            Documentaï¿½ï¿½o
             Arquivo Fonte.....: Taxas.sql
             Objetivo..........: Inserir novo valor taxa com data inicial maior ou igual a data atual
             Autor.............: Gustavo Targino, Danyel Targino, Thays Carvalho
@@ -27,7 +139,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxa]
                                 ROLLBACK TRAN
 
 			Retornos..........:	
-						0 - Data inválida: Não é possível a data inicial ser menor que a atual.
+						0 - Data invï¿½lida: Nï¿½o ï¿½ possï¿½vel a data inicial ser menor que a atual.
 						1 - Registro inserido.
 		*/
 
@@ -63,9 +175,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxaCartao]
 		@DataInicial DATE
     AS  
         /*
-            Documentação
+            Documentaï¿½ï¿½o
             Arquivo Fonte.....: Taxas.sql
-            Objetivo..........: Inserir novo valor taxa do cartão com data inicial maior ou igual a data atual
+            Objetivo..........: Inserir novo valor taxa do cartï¿½o com data inicial maior ou igual a data atual
             Autor.............: Gustavo Targino, Danyel Targino, Thays Carvalho
             Data..............: 30/04/2024
             EX................:	BEGIN TRAN
@@ -86,7 +198,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxaCartao]
                                 ROLLBACK TRAN
 
 			Retornos..........:	
-						0 - Data inválida: Não é possível a data inicial ser menor que a atual.
+						0 - Data invï¿½lida: Nï¿½o ï¿½ possï¿½vel a data inicial ser menor que a atual.
 						1 - Registro inserido.
 		*/
 
@@ -122,9 +234,9 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxaEmprestimo]
 		@DataInicial DATE
     AS  
         /*
-            Documentação
+            Documentaï¿½ï¿½o
             Arquivo Fonte.....: Taxas.sql
-            Objetivo..........: Inserir novo valor taxa do cartão com data inicial maior ou igual a data atual
+            Objetivo..........: Inserir novo valor taxa do cartï¿½o com data inicial maior ou igual a data atual
             Autor.............: Gustavo Targino, Danyel Targino, Thays Carvalho
             Data..............: 30/04/2024
             EX................:	BEGIN TRAN
@@ -145,7 +257,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxaEmprestimo]
                                 ROLLBACK TRAN
 
 			Retornos..........:	
-						0 - Data inválida: Não é possível a data inicial ser menor que a atual.
+						0 - Data invï¿½lida: Nï¿½o ï¿½ possï¿½vel a data inicial ser menor que a atual.
 						1 - Registro inserido.
 		*/
 
