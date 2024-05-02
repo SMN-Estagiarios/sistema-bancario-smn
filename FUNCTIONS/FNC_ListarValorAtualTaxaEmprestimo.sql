@@ -46,9 +46,9 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_ListarValorAtualTaxaEmprestimo]	(
 				FROM [dbo].[TaxaEmprestimo] te WITH(NOLOCK)
 					INNER JOIN [dbo].[ValorTaxaEmprestimo] vte WITH(NOLOCK)
 						ON te.Id = vte.Id_TaxaEmprestimo
-				WHERE vte.DataInicial <= @DataAtual 
-				AND vte.Id_TaxaEmprestimo = @IdTaxaEmprestimo
-				AND vte.Id_CreditScore = @IdCreditScore
+				WHERE	vte.DataInicial <= @DataAtual 
+						AND vte.Id_TaxaEmprestimo = @IdTaxaEmprestimo
+						AND vte.Id_CreditScore = @IdCreditScore
 				ORDER BY vte.DataInicial DESC
 		RETURN
 	END

@@ -268,8 +268,8 @@ CREATE TABLE Parcela (
 	Id_Lancamento INT,
 	Id_ValorIndice INT,
 	Valor DECIMAL(15,2),
-	ValorJurosAtraso DECIMAL(6,2) NOT NULL DEFAULT(0.0),
-	Data_Cadastro DATE NOT NULL
+	Juros DECIMAL(6,2) NOT NULL DEFAULT(0.0),
+	Data_Vencimento DATE NOT NULL
 
 	CONSTRAINT PK_Parcela PRIMARY KEY (Id),
 	CONSTRAINT FK_Id_Emprestimo_Parcela FOREIGN KEY (Id_Emprestimo) REFERENCES Emprestimo(Id),

@@ -1,14 +1,16 @@
 USE SistemaBancario
 GO
 
-CREATE OR ALTER FUNCTION [dbo].[FNC_BuscarTaxaJurosAtraso]	(
-																@Id_Emprestimo INT
-															)
+CREATE OR ALTER FUNCTION [dbo].[FNC_CalcularJurosAtrasoParcela]	(
+																	@Id_Emprestimo INT,
+																	@Valor_Parcela DECIMAL(15,2),
+																	@Dias_Atrasados INT
+																)
 	RETURNS DECIMAL(6,5)
 	AS
 	/*
 		Documentacao:
-		Arquivo Fonte.....: FNC_BuscarTaxaJurosAtraso.sql
+		Arquivo Fonte.....: FNC_CalcularJurosAtrasoParcela.sql
 		Objetivo..........: Buscar a taxa de juros de atraso atual para uma determinada conta
 		Autor.............: Joao Victor, Odlavir Florentino, Rafael Mauricio
 		Data..............: 29/04/2024
@@ -32,22 +34,24 @@ CREATE OR ALTER FUNCTION [dbo].[FNC_BuscarTaxaJurosAtraso]	(
 								SELECT	TOP 1 @Id_Emp = Id
 									FROM [dbo].[Emprestimo] WITH(NOLOCK)
 
-								SELECT [dbo].[FNC_BuscarTaxaJurosAtraso](@Id_Emp)
+								SELECT [dbo].[FNC_CalcularJurosAtrasoParcela](@Id_Emp, 400, 1)
 							ROLLBACK TRAN
 	*/
 
 	BEGIN
 		DECLARE @Id_CreditScore INT,
-				@ValorTaxa DECIMAL(6,5)
+				@ValorTaxa DECIMAL(6,5),
+				@Juros DECIMAL(15,2);
 
-		SELECT @Id_CreditScore = Id_CreditScore
-			FROM [dbo].[Contas] C WITH(NOLOCK)
-				INNER JOIN [dbo].[Emprestimo] E WITH(NOLOCK)
-					ON E.Id_Conta = C.Id
-			WHERE E.Id = @Id_Emprestimo;
+		SELECT @Id_CreditScore = c.Id_CreditScore
+			FROM [dbo].[Contas] c WITH(NOLOCK)
+				INNER JOIN [dbo].[Emprestimo] e WITH(NOLOCK)
+					ON e.Id_Conta = c.Id
+			WHERE e.Id = @Id_Emprestimo;
 
 		SELECT	@ValorTaxa = Valor
 			FROM FNC_ListarValorAtualTaxaEmprestimo(2, @Id_CreditScore)
 
-		RETURN ISNULL(@ValorTaxa, 0)
+		SET @Juros = @Valor_Parcela * @Dias_Atrasados * @ValorTaxa
+		RETURN ISNULL(@Juros, 0)
 	END
