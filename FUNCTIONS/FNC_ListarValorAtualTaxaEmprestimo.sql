@@ -1,17 +1,29 @@
-CREATE OR ALTER FUNCTION [dbo].[FNC_ListarValorAtualTaxaEmprestimo](@IdTaxaEmprestimo INT, @IdCreditScore INT)
-	RETURNS @Tabela TABLE(IdValorTaxaEmprestimo INT, IdTaxaEmprestimo TINYINT, Nome VARCHAR(50), Valor DECIMAL(6,5), DataValidade DATE)
-AS
-		/*
-            Documentação
-            Arquivo Fonte.....: FNC_ListarValorAtualTaxaEmprestimo.sql
-            Objetivo..........: Listar a taxa ou valor vigente na data de consulta para uma tarifa
-            Autor.............: Gustavo Targino, Danyel Targino e Thays Carvalho
-            Data..............: 26/04/2024
-            EX................:	BEGIN TRAN
-                                    DBCC DROPCLEANBUFFERS;
-                                    DBCC FREEPROCCACHE;
+USE SistemaBancario
+GO
 
-                                    DECLARE @Dat_ini DATETIME = GETDATE();
+CREATE OR ALTER FUNCTION [dbo].[FNC_ListarValorAtualTaxaEmprestimo]	(
+																		@IdTaxaEmprestimo INT,
+																		@IdCreditScore INT
+																	)
+	RETURNS @Tabela TABLE(
+							IdValorTaxaEmprestimo INT, 
+							IdTaxaEmprestimo TINYINT, 
+							Nome VARCHAR(50), 
+							Valor DECIMAL(6,5), 
+							DataValidade DATE
+						 )
+	AS
+	/*
+        Documentaï¿½ï¿½o
+        Arquivo Fonte.....: FNC_ListarValorAtualTaxaEmprestimo.sql
+        Objetivo..........: Listar a taxa ou valor vigente na data de consulta para uma tarifa
+        Autor.............: Gustavo Targino, Danyel Targino e Thays Carvalho
+        Data..............: 26/04/2024
+        EX................:	BEGIN TRAN
+                                DBCC DROPCLEANBUFFERS;
+                                DBCC FREEPROCCACHE;
+
+                                DECLARE @Dat_ini DATETIME = GETDATE();
 									
 									SELECT * FROM [dbo].[FNC_ListarValorAtualTaxaEmprestimo](1, 8)
 
@@ -27,9 +39,10 @@ AS
 		*/
 
 	BEGIN
-		
+		--Declarar variï¿½vel de data
 		DECLARE @DataAtual DATE = GETDATE()
 
+		--Inserir na tabela o valor da taxa
 		INSERT INTO @Tabela
             SELECT TOP 1 vte.Id,
 						 te.Id,

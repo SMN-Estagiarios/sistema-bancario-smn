@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER FUNCTION [dbo].[FNC_ListarValorAtualTarifa](@IdTarifa INT)
 	RETURNS @Tabela TABLE(IdPrecoTarifas INT, IdTarifa INT, Nome VARCHAR(50), Valor DECIMAL(4,2), DataValidade DATE)
 AS
