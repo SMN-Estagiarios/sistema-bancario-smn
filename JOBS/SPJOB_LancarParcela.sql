@@ -6,7 +6,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 	/*
 		Documentacao
 		Arquivo Fonte.....: SPJOB_LancarParcela.sql
-		Objetivo..........: Baixa todas as parcelas que estão vencendo no dia da execução do job
+		Objetivo..........: Lancar parcela quando a data atual for igual ao dia do vencimento da parcela
 		Autor.............: Joao Victor, Odlavir Florentino e Rafael Mauricio
 		Data..............: 29/04/2024
 		Ex................:	BEGIN TRAN
@@ -25,18 +25,29 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 										Id_Emprestimo,
 										Id_Lancamento,
 										Valor,
-										ValorJurosAtraso,
-										Data_Cadastro FROM 
-									[dbo].[Parcela] WITH(NOLOCK)
+										Juros,
+										Data_Vencimento
+										FROM [dbo].[Parcela] WITH(NOLOCK)
 
 								EXEC [dbo].[SP_RealizarEmprestimo] 1, 500, 2, 'PRE'
+								EXEC [dbo].[SP_RealizarEmprestimo] 1, 750, 2, 'PRE'
+								EXEC [dbo].[SP_RealizarEmprestimo] 1, 1000, 2, 'PRE'
+								EXEC [dbo].[SP_RealizarEmprestimo] 1, 1500, 2, 'PRE'
 
-								UPDATE [dbo].[Contas]
-									SET Lim_ChequeEspecial = 100
-									WHERE Id = 1
+								--UPDATE [dbo].[Contas]
+									--SET Lim_ChequeEspecial = 100
+									--WHERE Id = 1
 
 								DECLARE @DATA_INI DATETIME = GETDATE(),
-										@Ret INT;
+										@Ret INT,
+										@Id_Parcela INT;
+
+								SELECT TOP 1 @Id_Parcela = Id
+									FROM [dbo].[Parcela] WITH(NOLOCK)
+
+								UPDATE [dbo].[Parcela]
+									SET Data_Vencimento = @DATA_INI
+									WHERE Data_Vencimento = '2024-06-02'
 
 								DBCC DROPCLEANBUFFERS
 								DBCC FREEPROCCACHE
@@ -51,10 +62,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 										Id_Emprestimo,
 										Id_Lancamento,
 										Valor,
-										ValorJurosAtraso,
-										Data_Cadastro FROM 
-									[dbo].[Parcela] WITH(NOLOCK)
-									
+										Juros,
+										Data_Vencimento
+										FROM [dbo].[Parcela] WITH(NOLOCK)
+
 								SELECT	Id,
 										Id_Conta,
 										Id_Usuario,
@@ -73,7 +84,10 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 	*/
 	BEGIN
 		DECLARE @DataAtual DATE = GETDATE(),
-				@TaxaAtrasadoAtual DECIMAL(6,5);
+				@TaxaAtrasadoAtual DECIMAL(6,5),
+				@Id_Parcela INT,
+				@Valor_Lancamento DECIMAL(15,2),
+				@Id_Lancamento INT;
 
 		-- Criar tabela temporaria
 		CREATE TABLE #Tabela	(
@@ -83,7 +97,7 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 									Id_Lancamento INT,
 									Id_Status TINYINT,
 									Valor DECIMAL(15,2),
-									ValorJurosAtraso DECIMAL(6,2),
+									Juros DECIMAL(15,2),
 									Data_Cadastro DATE,
 									SaldoDisponivel DECIMAL(15,2)
 								)
@@ -94,29 +108,49 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 								Id_Emprestimo,
 								Id_Lancamento,
 								Valor,
-								ValorJurosAtraso,
+								Juros,
 								Data_Cadastro,
 								SaldoDisponivel
 							)
-			SELECT	P.Id,
-					E.Id_Conta,
-					P.Id_Emprestimo,
-					P.Id_Lancamento,
-					P.Valor,
-					P.ValorJurosAtraso,
-					P.Data_Cadastro,
-					[dbo].[FNC_CalcularSaldoDisponivel](E.Id_Conta, NULL, NULL, NULL, NULL) AS SaldoDisponivel
-				FROM [dbo].[Parcela] P WITH(NOLOCK)
-					INNER JOIN [dbo].[Emprestimo] E WITH(NOLOCK)
-						ON P.Id_Emprestimo = E.Id
-				WHERE	P.Data_Cadastro <= @DataAtual AND
-						P.Id_Lancamento IS NULL
+
+			SELECT	p.Id,
+					e.Id_Conta,
+					p.Id_Emprestimo,
+					p.Id_Lancamento,
+					p.Valor,
+					p.Juros,
+					p.Data_Vencimento,
+					[dbo].[FNC_CalcularSaldoDisponivel](e.Id_Conta, NULL, NULL, NULL, NULL) SaldoDisponivel
+				FROM [dbo].[Parcela] p WITH(NOLOCK)
+					INNER JOIN [dbo].[Emprestimo] e WITH(NOLOCK)
+						ON p.Id_Emprestimo = e.Id
+				WHERE	p.Data_Vencimento <= @DataAtual AND
+						p.Id_Lancamento IS NULL
+
+		-- Verificar se existe algum registro onde o valor da parcela é maior que o disponivel
+		IF EXISTS (SELECT TOP 1 1
+							FROM #Tabela
+							WHERE (Valor + Juros) > SaldoDisponivel)
+			BEGIN
+				-- Gerar juros para a parcela
+				UPDATE [dbo].[Parcela]
+					SET Juros = [dbo].[FNC_CalcularJurosAtrasoParcela](Id_Emprestimo, Valor,  DAY(DATEDIFF(DAY, Data_Vencimento, @DataAtual)))
+				WHERE	Data_Vencimento <= @DataAtual AND
+						Id_Lancamento IS NULL
+
+				RETURN 1
+			END
 
 		-- Verificar se existe algum registro na tabela temporaria, onde o valor da parcela é menor que ou igual ao saldo disponivel
-		IF EXISTS(SELECT TOP 1 1
-					FROM #Tabela
-					WHERE Valor <= SaldoDisponivel)
+		WHILE EXISTS(SELECT TOP 1 1
+						FROM #Tabela
+						WHERE (Valor + Juros) <= SaldoDisponivel)
 			BEGIN
+				-- Setando o Id da parcela
+				SELECT TOP 1	@Id_Parcela = Id,
+								@Valor_Lancamento = (Valor + Juros)
+					FROM #Tabela
+
 				-- Fazer lancamento da parcela
 				INSERT INTO [dbo].[Lancamentos] (
 													Id_Conta,
@@ -132,27 +166,28 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_LancarParcela]
 							0,
 							8,
 							'D',
-							(Valor + ValorJurosAtraso),
+							@Valor_Lancamento,
 							'Parcela do emprestimo',
 							@DataAtual,
 							0							
 						FROM #Tabela
-						WHERE Valor <= SaldoDisponivel
+						WHERE Id = @Id_Parcela
 
-				RETURN 0
-			END
+				SET @Id_Lancamento = SCOPE_IDENTITY()
 
-		-- Verificar se existe algum registro onde o valor da parcela é maior que o disponivel
-		IF EXISTS (SELECT TOP 1 1
-							FROM #Tabela
-							WHERE Valor > SaldoDisponivel)
-			BEGIN
-				-- Gerar juros para a parcela
 				UPDATE [dbo].[Parcela]
-					SET ValorJurosAtraso = ValorJurosAtraso + ([dbo].[FNC_BuscarTaxaJurosAtraso](Id_Emprestimo) * Valor)
-				WHERE	Data_Cadastro < @DataAtual AND
-						Id_Lancamento IS NULL
+					SET Id_Lancamento = @Id_Lancamento
+					WHERE Id = @Id_Parcela
 
-				RETURN 1
+				DELETE #Tabela
+					WHERE Id =	@Id_Parcela
+
+				SELECT	@Id_Lancamento = NULL,
+						@Id_Parcela = NULL,
+						@Valor_Lancamento = NULL
 			END
+
+			DROP TABLE #Tabela
+
+			RETURN 0
 	END

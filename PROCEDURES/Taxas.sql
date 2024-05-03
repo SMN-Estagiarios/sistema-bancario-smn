@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER PROCEDURE [dbo].[SP_ListarTaxas]
 	AS
 	/*
@@ -177,7 +180,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxa]
         		
     END		
 GO
-
 
 CREATE OR ALTER PROCEDURE [dbo].[SP_InserirValorTaxaCartao]
 		@IdTaxaCartao INT,

@@ -49,13 +49,17 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 							
 								00.................: Sucesso ao realizar um emprestimo
 								01.................: Erro ao criar um emprestimo
+								02.................: Erro ao criar um emprestimo, a data informada é maior que três meses ou menor que a atual
+								03.................: Erro ao criar um emprestimo, o valor solicitado nao oestá dentro do limite permitido
+								04.................: Erro ao criar um emprestimo, o número de parcelas nao está dentro do limite permitido
 	*/
 	BEGIN
 		--Declarar variáveis
 		DECLARE @DataAtual DATE = GETDATE(),
 				@Id_Tarifa INT,
-				@IdTaxaEmprestimo INT = NULL,
-				@TaxaTotal DECIMAL(5,4);
+				@Id_ValorTaxaEmprestimo INT = NULL,
+				@TaxaTotal DECIMAL(6, 5),
+				@MultiplicadorLim INT;
 				
 		-- Caso o parâmetro da primeira parcela for nulo, será passada para daqui a 1 mês e a data não poderá ser em um fim de semana
 		SET @DataInicio = ISNULL(@DataInicio, @DataAtual)
@@ -66,35 +70,35 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 
 		-- Analisar se a data de início for maior que três meses ou anterior a data atual
 		IF @DataInicio > DATEADD(MONTH, 3, @DataAtual) OR @DataInicio < @DataAtual
-			BEGIN
-				RAISERROR('A data do primeiro vencimento não está dentro do permitido', 16, 1)
-			END
+			RETURN 2
+
 		-- Verificar se o valor solicitado está dentro do limite de três vezes o cheque especial
-		IF @ValorSolicitado > 3 * (SELECT Lim_ChequeEspecial 
-										FROM [dbo].[Contas] WITH(NOLOCK)
-										WHERE Id = @Id_Cta
-								  )
-			BEGIN
-				RAISERROR('O valor solicitado não está dentro do limite permitido', 16, 1)
-			END 
+		IF @ValorSolicitado > @MultiplicadorLim *	(
+														SELECT Lim_ChequeEspecial 
+															FROM [dbo].[Contas] WITH(NOLOCK)
+															WHERE Id = @Id_Cta
+													)
+			RETURN 3
+			
 		-- Verificar se a quantidade de parcelas está dentro do permitido
-		IF NOT EXISTS (SELECT TOP 1 1
-							FROM [dbo].[FNC_ListarParcelasEmprestimo]()
-							WHERE QuantidadeParcela = @NumeroParcelas
-					  )
-			BEGIN
-				RAISERROR('O número de parcelas não está dentro do limite permitido', 16, 1)
-			END
+		IF NOT EXISTS	(
+							SELECT TOP 1 1
+								FROM [dbo].[FNC_ListarParcelasEmprestimo]()
+								WHERE QuantidadeParcela = @NumeroParcelas
+						)
+			RETURN 4
 
 		IF @Tipo = 'PRE'
 			BEGIN
+				DECLARE @Id_CreditScore INT;
+
 				--Atribuir valor à TaxaEmprestimo
-				SELECT @IdTaxaEmprestimo = vte.Id
-					FROM [dbo].[Contas] c WITH(NOLOCK)
-						INNER JOIN [ValorTaxaEmprestimo] vte WITH(NOLOCK)
-							ON c.Id_CreditScore = vte.Id_CreditScore
-					WHERE	c.Id = @Id_Cta AND
-							vte.Id_TaxaEmprestimo = 1;
+				SELECT @Id_CreditScore = Id_CreditScore
+					FROM [dbo].[Contas] WITH(NOLOCK)
+					WHERE Id = @Id_Cta
+
+				SELECT @Id_ValorTaxaEmprestimo = IdValorTaxaEmprestimo
+					FROM [dbo].[FNC_ListarValorAtualTaxaEmprestimo](1, @Id_CreditScore)
 			END
 
 		-- Criando o emprestimo
@@ -108,16 +112,16 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarEmprestimo]
 											NumeroParcelas,
 											Tipo,
 											DataInicio
-										) VALUES (
-													@Id_Cta,
-													2,
-													@IdTaxaEmprestimo,
-													@Id_Indice,
-													@Id_PeriodoIndice,
-													@ValorSolicitado,
-													@NumeroParcelas,
-													@Tipo,
-													@DataInicio
+										) VALUES	(
+														@Id_Cta,
+														2,
+														@Id_ValorTaxaEmprestimo,
+														@Id_Indice,
+														@Id_PeriodoIndice,
+														@ValorSolicitado,
+														@NumeroParcelas,
+														@Tipo,
+														@DataInicio
 													)
 		IF @@ROWCOUNT <> 0
 			RETURN 0

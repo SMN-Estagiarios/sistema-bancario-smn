@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCorrentista] 
 		@Nome VARCHAR(500),		
 		@Cpf BIGINT,

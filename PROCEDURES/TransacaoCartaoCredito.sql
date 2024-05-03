@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER PROCEDURE [dbo].[SP_GerarTransacaoCartaoCredito]
 	@Id_CartaoCredito INT,			
 	@Id_ValorTaxaCartao INT,

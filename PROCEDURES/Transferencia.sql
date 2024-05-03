@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER PROCEDURE [dbo].[SP_RealizarNovaTransferenciaBancaria]
 	@Id_Usuario INT,
 	@Id_ContaDeb INT,

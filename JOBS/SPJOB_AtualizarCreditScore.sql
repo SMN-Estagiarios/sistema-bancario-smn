@@ -72,6 +72,3 @@ CREATE OR ALTER PROCEDURE [dbo].[SPJOB_AtualizarCreditScore]
 				WHERE c.Id = MSM.ID_Conta;
     END
 GO
-
-SELECT * from saldoDiario
-order bY iD_CONTA, dAT_SALDO

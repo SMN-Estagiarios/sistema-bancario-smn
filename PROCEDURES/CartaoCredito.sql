@@ -1,3 +1,6 @@
+USE SistemaBancario
+GO
+
 CREATE OR ALTER PROCEDURE [dbo].[SP_InserirNovoCartaoCredito]
 	@IdCorrentista INT,
 	@IdConta INT,
@@ -262,8 +265,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_AtivaAproximacaoCartao]
 		END
 	END
 GO
-
-
 
 CREATE OR ALTER PROCEDURE [dbo].[SP_BloquearCartao]
 	@IdCartaoCredito INT

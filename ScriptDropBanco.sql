@@ -161,19 +161,38 @@ ALTER TABLE LancamentosTransferencia
 	DROP CONSTRAINT FK_Id_Tranferencia_LancamentosTransferencia
 GO
 	-- DROPANDO TRIGGERS DO SISTEMA BANCARIO
-DROP TRIGGER [TRG_AplicarTarifaTransferencia]
+DROP TRIGGER [dbo].[TRG_AplicarTarifaTransferencia]
 GO
-DROP TRIGGER [TRG_AplicarTaxaAberturaConta]
+DROP TRIGGER [dbo].[TRG_AplicarTaxaAberturaConta]
 GO
-DROP TRIGGER [TRG_AtualizarSaldo]
+DROP TRIGGER [dbo].[TRG_AtualizarCreditoComprometido]
 GO
-DROP TRIGGER [TRG_GerarLancamentosTransferidos]
+DROP TRIGGER [dbo].[TRG_AtualizarLimiteComprometidoAposPagamento]
 GO
-DROP TRIGGER [TRG_AtualizarLimiteComprometidoCartao]
+DROP TRIGGER [dbo].[TRG_AtualizarSaldo]
 GO
-
+DROP TRIGGER [dbo].[TRG_GeraLancamentoSaque]
+GO
+DROP TRIGGER [dbo].[TRG_GerarLancamentosTransferidos]
+GO
+DROP TRIGGER [dbo].[TRG_GerarParcelas]
+GO
+DROP TRIGGER [dbo].[TRG_PopularTabelaLancamentosValorTaxa]
+GO
 
 	-- DROPANDO TODAS AS PROCEDURES
+
+-- CartaoCredito
+DROP PROC [dbo].[SP_InserirNovoCartaoCredito]
+GO
+DROP PROC [dbo].[SP_AtivaCartaoCredito]
+GO
+DROP PROC [dbo].[SP_AtivaAproximacaoCartao]
+GO
+DROP PROC [dbo].[SP_BloquearCartao]
+GO
+
+-- Contas
 DROP PROC [dbo].[SP_ListarSaldoAtual]
 GO
 DROP PROC [dbo].[SP_ExcluirConta]
@@ -182,124 +201,116 @@ DROP PROC [dbo].[SP_AtualizarConta]
 GO
 DROP PROC [dbo].[SP_InserirNovaConta]
 GO
-DROP PROC [dbo].[SP_ListarExtratoTransferencia]
+
+-- Correntista
+DROP PROC [dbo].[SP_InserirNovoCorrentista]
 GO
-DROP PROC [dbo].[SP_RealizarEstornoTransferencia]
+DROP PROC [dbo].[SP_ExcluirCorrentista]
 GO
-DROP PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
-GO
-DROP PROC [dbo].[SP_CriarLancamentos]
-GO
+
+-- CreditScore
 DROP PROC [dbo].[SP_ListarCreditSCore]
 GO
+
+-- Emprestimos
+DROP PROC [dbo].[SP_RealizarEmprestimo]
+GO
+
+-- Indices
+DROP PROC [dbo].[SP_ListarIndices]
+GO
+DROP PROC [dbo].[SP_ListarPeriodosIndices]
+GO
+
+-- Lancamentos
+DROP PROC [dbo].[SP_CriarLancamentos]
+GO
+
+-- Parcelas
+DROP PROC [dbo].[SP_ListarParcelas]
+GO
+
+-- Tarifas
 DROP PROC [dbo].[SP_ListarTarifas]
 GO
-
 DROP PROC [dbo].[SP_InserirValorTarifa]
 GO
-DROP PROC [dbo].[SP_InserirValorTaxa]
-GO
-DROP PROC [dbo].[SP_InserirValorTaxaCartao]
-GO
-DROP PROC [dbo].[SP_InserirValorTaxaEmprestimo]
 
-DROP PROC [dbo].[SP_AtivaAproximacaoCartao]
-GO
-DROP PROC [dbo].[SP_AtivaCartaoCredito]
-GO
-DROP PROC [dbo].[SP_BloquearCartao]
-GO
-DROP PROC [dbo].[SP_InserirNovoCartaoCredito]
-GO
-DROP PROC [dbo].[SP_ExcluirCorrentista]
-GO
-DROP PROC [dbo].[SP_GerarFatura]
-GO
-DROP PROC [dbo].[SP_InserirNovoCorrentista]
-GO
-DROP PROC [dbo].[SP_GerarTransacaoCartaoCredito]
-GO
-DROP PROC [dbo].[SPJOB_FechamentoFatura]
-GO
-
-DROP PROC [dbo].[SP_InserirValorTarifa]
-GO
-DROP PROC [dbo].[SP_InserirValorTaxa]
-GO
-DROP PROC [dbo].[SP_InserirValorTaxaCartao]
-GO
-DROP PROC [dbo].[SP_InserirValorTaxaEmprestimo]
-
-DROP PROC [dbo].[SP_AtivaAproximacaoCartao]
-GO
-DROP PROC [dbo].[SP_AtivaCartaoCredito]
-GO
-DROP PROC [dbo].[SP_BloquearCartao]
-GO
-DROP PROC [dbo].[SP_InserirNovoCartaoCredito]
-GO
-DROP PROC [dbo].[SP_ExcluirCorrentista]
-GO
-DROP PROC [dbo].[SP_GerarFatura]
-GO
-DROP PROC [dbo].[SP_InserirNovoCorrentista]
-GO
-DROP PROC [dbo].[SP_GerarTransacaoCartaoCredito]
-GO
-DROP PROC [dbo].[SPJOB_FechamentoFatura]
-GO
+-- Taxas
 DROP PROC [dbo].[SP_ListarTaxas]
 GO
 DROP PROC [dbo].[SP_InserirTaxa]
 GO
 DROP PROC [dbo].[SP_ExcluirTaxa]
 GO
-DROP PROC [dbo].[SP_ListarValorTaxas]
+DROP PROC [dbo].[SP_InserirValorTaxa]
 GO
-DROP PROC [dbo].[SP_AtualizarValorTaxas]
+DROP PROC [dbo].[SP_InserirValorTaxaCartao]
 GO
-DROP PROC [dbo].[SP_ExcluirValorTaxas]
+DROP PROC [dbo].[SP_InserirValorTaxaEmprestimo]
+GO
+
+-- TransacaoCartaoCredito
+DROP PROC [dbo].[SP_GerarTransacaoCartaoCredito]
+GO
+
+
+
+-- Transferencia
+DROP PROC [dbo].[SP_RealizarNovaTransferenciaBancaria]
+GO
+DROP PROC [dbo].[SP_RealizarEstornoTransferencia]
+GO
+DROP PROC [dbo].[SP_RegistrarLancamentosTransferencia]
+GO
+DROP PROC [dbo].[SP_ListarExtratoTransferencia]
 GO
 
 	-- DROPANDO TODAS OS JOBS 
+DROP PROC [dbo].[SPJOB_AplicarMultaAtrasoFatura]
+GO
 DROP PROC [dbo].[SPJOB_AplicarTaxaManutencao]
 GO
 DROP PROC [dbo].[SPJOB_AtualizarCreditScore]
 GO
-DROP PROC [dbo].[SPJOB_AtualizarSaldo]
-GO
-DROP PROC [dbo].[SPJOB_LancarTaxaSaldoNegativo]
-GO
-DROP PROC [dbo].[SPJOB_LancarParcela]
+DROP PROC [dbo].[SPJOB_AtualizarParcelasPos]
 GO
 DROP PROC [dbo].[SPJOB_AtualizarParcelasPos]
 GO
-DROP PROC [dbo].[SP_RegistrarLancamentosTransferencia]
-GO
-DROP PROC [dbo].[SPJOB_PagamentoFatura]
+DROP PROC [dbo].[SPJOB_AtualizarSaldo]
 GO
 DROP PROC [dbo].[SPJOB_FechamentoFatura]
 GO
-DROP PROC [dbo].[SPJOB_AplicarMultaAtrasoFatura]
+DROP PROC [dbo].[SPJOB_LancarParcela]
+GO
+DROP PROC [dbo].[SPJOB_LancarTaxaSaldoNegativo]
+GO
+DROP PROC [dbo].[SPJOB_PagamentoFatura]
+GO
+DROP PROC [dbo].[SPJOB_ProcessarPopulacaoSaldoDiario]
 GO
 
 	-- DROPANDO TODAS AS FUNCTIONS
 
+DROP FUNCTION [dbo].[FNC_CalcularJurosAtrasoParcela]
+GO
 DROP FUNCTION [dbo].[FNC_CalcularSaldoAtual]
 GO
 DROP FUNCTION [dbo].[FNC_CalcularSaldoDisponivel]
 GO
-DROP FUNCTION [dbo].[FNC_ListarSaldoNegativo]
+DROP FUNCTION [dbo].[FNC_CalcularTaxaEmprestimo]
 GO
-DROP FUNCTION [dbo].[FNC_ListaValorAtualTarifa]
-GO
-DROP FUNCTION [dbo].[FNC_BuscarTaxaJurosAtraso]
-GO
-DROP FUNCTION [dbo].[FNC_ListarValorAtualTarifa]
+DROP FUNCTION [dbo].[FNC_CalculaTransacoes]
 GO
 DROP FUNCTION [dbo].[FNC_IdentificarTaxaDoDia]
 GO
+DROP FUNCTION [dbo].[FNC_ListarParcelasEmprestimo]
+GO
+DROP FUNCTION [dbo].[FNC_ListarSaldoNegativo]
+GO
 DROP FUNCTION [dbo].[FNC_ListarSaldosEJurosDoMes]
+GO
+DROP FUNCTION [dbo].[FNC_ListarSimulacaoEmprestimo]
 GO
 DROP FUNCTION [dbo].[FNC_ListarValorAtualTaxa]
 GO
@@ -307,7 +318,7 @@ DROP FUNCTION [dbo].[FNC_ListarValorAtualTaxaCartao]
 GO
 DROP FUNCTION [dbo].[FNC_ListarValorAtualTaxaEmprestimo]
 GO
-DROP FUNCTION [dbo].[SPJOB_FechamentoFatura]
+DROP FUNCTION [dbo].[FNC_ListaValorAtualTarifa]
 GO
 
 	--DROPANDO TODAS AS TABELAS

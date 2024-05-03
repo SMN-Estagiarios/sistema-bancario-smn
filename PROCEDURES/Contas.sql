@@ -25,7 +25,6 @@ CREATE OR ALTER PROCEDURE [dbo].[SP_ListarSaldoAtual]
 				FROM [dbo].[Contas]
 				WHERE Id = ISNULL(@Id_Conta, Id)
 		END
-
 GO 
 
 CREATE OR ALTER PROCEDURE [dbo].[SP_ExcluirConta]
